@@ -1,0 +1,12 @@
+apiVersion: validation.spectrocloud.labs/v1alpha1
+kind: VsphereValidator
+metadata:
+  labels:
+    app.kubernetes.io/name: vspherevalidator
+    app.kubernetes.io/instance: vspherevalidator-sample
+    app.kubernetes.io/part-of: valid8or-plugin-vsphere
+    app.kubernetes.io/managed-by: kustomize
+    app.kubernetes.io/created-by: valid8or-plugin-vsphere
+  name: vspherevalidator-sample
+spec:
+  # TODO(user): Add fields here

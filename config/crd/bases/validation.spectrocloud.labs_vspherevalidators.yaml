@@ -1,0 +1,100 @@
+---
+apiVersion: apiextensions.k8s.io/v1
+kind: CustomResourceDefinition
+metadata:
+  annotations:
+    controller-gen.kubebuilder.io/version: v0.12.0
+  name: vspherevalidators.validation.spectrocloud.labs
+spec:
+  group: validation.spectrocloud.labs
+  names:
+    kind: VsphereValidator
+    listKind: VsphereValidatorList
+    plural: vspherevalidators
+    singular: vspherevalidator
+  scope: Namespaced
+  versions:
+  - name: v1alpha1
+    schema:
+      openAPIV3Schema:
+        description: VsphereValidator is the Schema for the vspherevalidators API
+        properties:
+          apiVersion:
+            description: 'APIVersion defines the versioned schema of this representation
+              of an object. Servers should convert recognized schemas to the latest
+              internal value, and may reject unrecognized values. More info: https://git.k8s.io/community/contributors/devel/sig-architecture/api-conventions.md#resources'
+            type: string
+          kind:
+            description: 'Kind is a string value representing the REST resource this
+              object represents. Servers may infer this from the endpoint the client
+              submits requests to. Cannot be updated. In CamelCase. More info: https://git.k8s.io/community/contributors/devel/sig-architecture/api-conventions.md#types-kinds'
+            type: string
+          metadata:
+            type: object
+          spec:
+            description: VsphereValidatorSpec defines the desired state of VsphereValidator
+            properties:
+              auth:
+                properties:
+                  secretName:
+                    type: string
+                required:
+                - secretName
+                type: object
+              regionZoneValidationRule:
+                properties:
+                  clusters:
+                    items:
+                      type: string
+                    type: array
+                  datacenter:
+                    type: string
+                  regionCategoryName:
+                    type: string
+                  zoneCategoryName:
+                    type: string
+                required:
+                - clusters
+                - datacenter
+                - regionCategoryName
+                - zoneCategoryName
+                type: object
+              rules:
+                items:
+                  properties:
+                    description:
+                      type: string
+                    expressions:
+                      items:
+                        type: string
+                      type: array
+                    isEnabled:
+                      type: boolean
+                    name:
+                      type: string
+                    ruleType:
+                      type: string
+                    severity:
+                      type: string
+                  required:
+                  - description
+                  - expressions
+                  - isEnabled
+                  - name
+                  - ruleType
+                  - severity
+                  type: object
+                type: array
+            required:
+            - auth
+            - regionZoneValidationRule
+            - rules
+            type: object
+          status:
+            description: VsphereValidatorStatus defines the observed state of VsphereValidator
+            type: object
+        type: object
+    served: true
+    storage: true
+    subresources:
+      status: {}

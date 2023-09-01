@@ -1,0 +1,27 @@
+# permissions for end users to view vspherevalidators.
+apiVersion: rbac.authorization.k8s.io/v1
+kind: ClusterRole
+metadata:
+  labels:
+    app.kubernetes.io/name: clusterrole
+    app.kubernetes.io/instance: vspherevalidator-viewer-role
+    app.kubernetes.io/component: rbac
+    app.kubernetes.io/created-by: valid8or-plugin-vsphere
+    app.kubernetes.io/part-of: valid8or-plugin-vsphere
+    app.kubernetes.io/managed-by: kustomize
+  name: vspherevalidator-viewer-role
+rules:
+- apiGroups:
+  - validation.spectrocloud.labs
+  resources:
+  - vspherevalidators
+  verbs:
+  - get
+  - list
+  - watch
+- apiGroups:
+  - validation.spectrocloud.labs
+  resources:
+  - vspherevalidators/status
+  verbs:
+  - get
