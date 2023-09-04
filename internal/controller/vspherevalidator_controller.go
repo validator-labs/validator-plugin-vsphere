@@ -137,6 +137,7 @@ func (r *VsphereValidatorReconciler) Reconcile(ctx context.Context, req ctrl.Req
 		r.Log.V(0).Error(err, "failed to reconcile tag validation rule")
 	}
 	v8ores.SafeUpdateValidationResult(r.Client, nn, validationResult, failed, err, r.Log)
+	r.Log.V(0).Info("Finished checking region and zone tags for", "Datacenter", regionZoneTagRule.Datacenter, "Clusters", regionZoneTagRule.Clusters)
 
 	return ctrl.Result{}, nil
 
