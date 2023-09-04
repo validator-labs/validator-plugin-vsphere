@@ -25,9 +25,20 @@ import (
 	"time"
 )
 
+const KeepAliveIntervalInMinute = 10
+
+var sessionCache = map[string]Session{}
+var sessionMU sync.Mutex
+var restClientLoggedOut = false
+
+type VMwareRolePrivilege struct {
+	rule       v1alpha1.RolePrivilegeValidationRule
+	Privileges map[string]bool
+}
+
 type VsphereCloudAccount struct {
 
-	// Insecure is a flag that controls whether or not to validate the vSphere server's certificate.
+	// Insecure is a flag that controls whether to validate the vSphere server's certificate.
 	Insecure bool `json:"insecure"`
 
 	// password
@@ -85,20 +96,18 @@ func NewVSphereDriver(logger logr.Logger, VCenterServer string, VCenterUsername 
 }
 
 func (v *VSphereCloudDriver) GetCurrentVmwareUser(ctx context.Context) (string, error) {
-	session, err := v.Client.SessionManager.UserSession(ctx)
+	userSession, err := v.Client.SessionManager.UserSession(ctx)
 	if err != nil {
-		fmt.Printf("Error getting current session: %s\n", err)
 		return "", err
 	}
 
-	return session.UserName, nil
+	return userSession.UserName, nil
 }
 
 func (v *VSphereCloudDriver) GetVmwareUserPrivileges(userName string, authManager *object.AuthorizationManager) (map[string]bool, error) {
 	// Get the current user's roles
 	authRoles, err := authManager.RoleList(context.TODO())
 	if err != nil {
-		fmt.Printf("Error getting role list: %s\n", err)
 		return nil, err
 	}
 
@@ -106,19 +115,15 @@ func (v *VSphereCloudDriver) GetVmwareUserPrivileges(userName string, authManage
 	privileges := make(map[string]bool)
 
 	// Print the roles
-	fmt.Println("Roles available for the current user:")
 	for _, authRole := range authRoles {
 		// print permissions for every role
 		permissions, err := authManager.RetrieveRolePermissions(context.TODO(), authRole.RoleId)
 		if err != nil {
-			fmt.Printf("Error getting role permissions: %v\n", err)
 			return nil, err
 		}
 		for _, perm := range permissions {
 			// if current user has the role, append all user privileges to privileges slice.
 			if perm.Principal == userName {
-				fmt.Println("Principal - Group - Propagate - RoleId")
-				fmt.Println(perm.Principal, "-", perm.Group, "-", perm.Propagate, "-", perm.RoleId)
 				for _, priv := range authRole.Privilege {
 					privileges[priv] = true
 				}
@@ -126,26 +131,6 @@ func (v *VSphereCloudDriver) GetVmwareUserPrivileges(userName string, authManage
 		}
 	}
 	return privileges, nil
-}
-
-const KeepAliveIntervalInMinute = 10
-
-var sessionCache = map[string]Session{}
-var sessionMU sync.Mutex
-var restClientLoggedOut = false
-
-type VMwareRolePrivilege struct {
-	rule       v1alpha1.RolePrivilegeValidationRule
-	Privileges map[string]bool
-}
-type VMwareDiskSpaceGB struct {
-	rule v1alpha1.DiskSpaceValidationRule
-}
-type VMwareCloudAccount struct {
-	rule v1alpha1.CloudAccountValidationRule
-}
-type VMwareRegionZoneCategory struct {
-	rule v1alpha1.RegionZoneValidationRule
 }
 
 func ToSlice(m map[string]bool) []interface{} {
@@ -158,31 +143,19 @@ func ToSlice(m map[string]bool) []interface{} {
 	return values
 }
 
-type Rule interface {
-	Validate() bool
-}
-
-func (v *VMwareRolePrivilege) Validate() bool {
-	return ValidateVMwareRolePrivilege(v.rule, v.Privileges)
-}
-
-func ValidateVMwareRolePrivilege(rule v1alpha1.RolePrivilegeValidationRule, privileges map[string]bool) bool {
+func (v *VMwareRolePrivilege) ValidateVMwareRolePrivilege() bool {
 	data := map[string]interface{}{
-		"vmware_user_privileges": ToSlice(privileges),
+		"vmware_user_privileges": ToSlice(v.Privileges),
 	}
-	for _, expr := range rule.Expressions {
+	for _, expr := range v.rule.Expressions {
 		expression, err := govaluate.NewEvaluableExpression(expr)
 		if err != nil {
-			// print tole name and error in one line
-			fmt.Println("Rule:", rule.Name, "(", expression, ")", "Error:", err)
 			return false
 		} else {
 			result, err := expression.Evaluate(data)
 			if err != nil {
-				fmt.Println("Rule:", rule.Name, "(", expression, ")", "Error:", err)
 				return false
 			} else {
-				fmt.Println("Rule:", rule.Name, "(", expression, ")", "Result:", result)
 				if result == false {
 					return false
 				}
@@ -190,43 +163,6 @@ func ValidateVMwareRolePrivilege(rule v1alpha1.RolePrivilegeValidationRule, priv
 		}
 	}
 	return true
-}
-
-func (v *VMwareCloudAccount) Validate() bool {
-	ValidateVMwareCloudAccount(v.rule)
-	return true
-}
-
-func ValidateVMwareCloudAccount(rule v1alpha1.CloudAccountValidationRule) {
-	// validation logic for VMwareCloudAccount
-	fmt.Println("validating VMwareCloudAccount")
-	for _, expr := range rule.Expressions {
-		fmt.Println(expr)
-	}
-}
-
-func (v *VMwareDiskSpaceGB) Validate() bool {
-	return ValidateVMwareDiskSpaceGB(v.rule)
-}
-
-func ValidateVMwareDiskSpaceGB(rule v1alpha1.DiskSpaceValidationRule) bool {
-	// validation logic for VMwareDiskSpaceGB
-	fmt.Println("validating VMwareDiskSpaceGB")
-	for _, expr := range rule.Expressions {
-		fmt.Println(expr)
-	}
-	return false
-}
-
-func (v *VMwareRegionZoneCategory) Validate() bool {
-	ValidateVMwareRegionZoneCategory(v.rule)
-	return true
-}
-
-func ValidateVMwareRegionZoneCategory(rule v1alpha1.RegionZoneValidationRule) {
-	// validation logic for VMwareRegionZoneCategory
-	fmt.Println("validating VMwareRegionZoneCategory")
-	fmt.Println(rule)
 }
 
 func IsValidRule(rule v1alpha1.RolePrivilegeValidationRule, privileges map[string]bool) bool {
@@ -239,32 +175,13 @@ func IsValidRule(rule v1alpha1.RolePrivilegeValidationRule, privileges map[strin
 	// sort the slice of keys
 	sort.Strings(keys)
 
-	// create a map of rule types to their corresponding Rule interface implementations
-	ruleImplementations := map[string]Rule{
-		"VMwareRolePrivilege":      &VMwareRolePrivilege{},
-		"VMwareDiskSpaceGB":        &VMwareDiskSpaceGB{},
-		"VMwareCloudAccount":       &VMwareCloudAccount{},
-		"VMwareRegionZoneCategory": &VMwareRegionZoneCategory{},
-	}
-
 	if rule.IsEnabled {
-		if ruleImpl, ok := ruleImplementations[rule.RuleType]; ok {
-			switch rule.RuleType {
-			case "VMwareRolePrivilege":
-				rolePrivilegeRule := ruleImpl.(*VMwareRolePrivilege)
-				rolePrivilegeRule.rule = rule
-				rolePrivilegeRule.Privileges = privileges
-				return rolePrivilegeRule.Validate()
-			case "VMwareDiskSpaceGB":
-				fmt.Println("DiskSpaceGBRule: ", rule)
-				return ruleImpl.Validate()
-			case "VMwareCloudAccount":
-				fmt.Println("CloudAccountRule: ", rule)
-				return ruleImpl.Validate()
-			case "VMwareRegionZoneCategory":
-				fmt.Println("RegionZoneRule: ", rule)
-				return ruleImpl.Validate()
-			}
+		switch rule.RuleType {
+		case "VMwareRolePrivilege":
+			rolePrivilegeRule := VMwareRolePrivilege{}
+			rolePrivilegeRule.rule = rule
+			rolePrivilegeRule.Privileges = privileges
+			return rolePrivilegeRule.ValidateVMwareRolePrivilege()
 		}
 	}
 
@@ -340,7 +257,6 @@ func createGovmomiClientWithKeepAlive(ctx context.Context, sessionKey, server, u
 		ctx := context.Background()
 		_, err := methods.GetCurrentTime(ctx, vimClient.RoundTripper)
 		if err != nil {
-			fmt.Println(err, "failed to keep alive govmomi Client")
 			ClearCache(sessionKey)
 		}
 		return err
@@ -353,7 +269,6 @@ func createGovmomiClientWithKeepAlive(ctx context.Context, sessionKey, server, u
 
 	// Only login if the URL contains user information.
 	if vCenterURL.User != nil {
-		fmt.Println("########### login to vcenter for soap Client ###############")
 		err = c.Login(ctx, vCenterURL.User)
 		if err != nil {
 			return nil, err
@@ -384,7 +299,6 @@ func createRestClientWithKeepAlive(ctx context.Context, sessionKey, username, pa
 	// create RestClient for operations like get tags
 	restClient := rest.NewClient(govClient.Client)
 
-	fmt.Println("########### login to vcenter for rest Client ###############")
 	err := restClient.Login(ctx, url.UserPassword(username, password))
 	if err != nil {
 		return nil, err
@@ -431,7 +345,6 @@ func RegionZoneCategoryExists(tagsManager *tags.Manager, finder *find.Finder, in
 
 	// return early if no can't find the managedobject list
 	if len(list) == 0 {
-		fmt.Println("can't find managed object list for datacenter", "name", input.Datacenter)
 		return nil, nil
 	}
 	var refs []mo.Reference
@@ -460,7 +373,6 @@ func RegionZoneCategoryExists(tagsManager *tags.Manager, finder *find.Finder, in
 		}
 		// return early if no can't find the managedobject list
 		if len(list) == 0 {
-			fmt.Println("can't find managed object list for computer cluster", "name", cluster)
 			return nil, nil
 		}
 		refs = nil

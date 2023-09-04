@@ -25,20 +25,19 @@ import (
 	"github.com/spectrocloud-labs/valid8or-plugin-vsphere/internal/validators/tags"
 	"github.com/spectrocloud-labs/valid8or-plugin-vsphere/internal/vsphere"
 	v8or "github.com/spectrocloud-labs/valid8or/api/v1alpha1"
+	"github.com/spectrocloud-labs/valid8or/pkg/types"
 	v8ores "github.com/spectrocloud-labs/valid8or/pkg/validationresult"
 	"sigs.k8s.io/controller-runtime/pkg/reconcile"
 	"strconv"
 	"time"
 
-	"k8s.io/apimachinery/pkg/runtime"
-	ctrl "sigs.k8s.io/controller-runtime"
-	"sigs.k8s.io/controller-runtime/pkg/client"
-	"sigs.k8s.io/controller-runtime/pkg/log"
-
-	v1alpha1 "github.com/spectrocloud-labs/valid8or-plugin-vsphere/api/v1alpha1"
+	"github.com/spectrocloud-labs/valid8or-plugin-vsphere/api/v1alpha1"
 	corev1 "k8s.io/api/core/v1"
 	apierrs "k8s.io/apimachinery/pkg/api/errors"
+	"k8s.io/apimachinery/pkg/runtime"
 	ktypes "k8s.io/apimachinery/pkg/types"
+	ctrl "sigs.k8s.io/controller-runtime"
+	"sigs.k8s.io/controller-runtime/pkg/client"
 )
 
 // VsphereValidatorReconciler reconciles a VsphereValidator object
@@ -62,7 +61,7 @@ type VsphereValidatorReconciler struct {
 // For more details, check Reconcile and its Result here:
 // - https://pkg.go.dev/sigs.k8s.io/controller-runtime@v0.15.0/pkg/reconcile
 func (r *VsphereValidatorReconciler) Reconcile(ctx context.Context, req ctrl.Request) (ctrl.Result, error) {
-	_ = log.FromContext(ctx)
+	r.Log.V(0).Info("Reconciling VsphereValidator", "name", req.Name, "namespace", req.Namespace)
 
 	validator := &v1alpha1.VsphereValidator{}
 	if err := r.Get(ctx, req.NamespacedName, validator); err != nil {
@@ -73,8 +72,6 @@ func (r *VsphereValidatorReconciler) Reconcile(ctx context.Context, req ctrl.Req
 		r.Log.Error(err, "failed to fetch VsphereValidator")
 		return ctrl.Result{}, client.IgnoreNotFound(err)
 	}
-
-	fmt.Println("Reconciliation triggered")
 
 	// Initialize Vsphere driver
 	var vsphereCloudAccount *vsphere.VsphereCloudAccount
@@ -90,6 +87,9 @@ func (r *VsphereValidatorReconciler) Reconcile(ctx context.Context, req ctrl.Req
 	if err != nil {
 		return ctrl.Result{}, err
 	}
+
+	rolePrivilegeValidationService := roleprivilege.NewRolePrivilegeValidationService(r.Log, vsphereCloudDriver)
+	tagValidationService := tags.NewTagsValidationService(r.Log, vsphereCloudDriver)
 
 	// Get the active validator's validation result
 	vr := &v8or.ValidationResult{}
@@ -112,31 +112,31 @@ func (r *VsphereValidatorReconciler) Reconcile(ctx context.Context, req ctrl.Req
 		}
 	}
 
-	userPrivileges, err := roleprivilege.GetUserRolePrivilegesMapping(vsphereCloudDriver)
+	userPrivileges, err := rolePrivilegeValidationService.GetUserRolePrivilegesMapping()
 	if err != nil {
 		r.Log.V(0).Error(err, "Error fetching user privileges mapping")
 		return ctrl.Result{}, err
 	}
 
+	failed := &types.MonotonicBool{}
+
 	for _, rule := range validator.Spec.RolePrivilegeValidationRules {
-		validationResult, err := roleprivilege.ReconcileRolePrivilegesRule(rule, userPrivileges)
+		validationResult, err := rolePrivilegeValidationService.ReconcileRolePrivilegesRule(rule, userPrivileges)
 		if err != nil {
-			r.Log.V(0).Error(err, "failed to reconcile IAM role rule")
+			r.Log.V(0).Error(err, "failed to reconcile role privilege rule")
 		}
-		//v8ores.SafeUpdateValidationResult(r.Client, nn, validationResult, failed, err, r.Log)
-		r.Log.V(0).Info("ValidationResult: ", validationResult)
+		v8ores.SafeUpdateValidationResult(r.Client, nn, validationResult, failed, err, r.Log)
 	}
-	fmt.Println("Validated privileges for account")
+	r.Log.V(0).Info("Validated privileges for account", "user", vsphereCloudDriver.VCenterUsername)
 
 	r.Log.V(0).Info("Checking if region and zone tags are properly assigned")
 	regionZoneTagRule := validator.Spec.RegionZoneValidationRule
 
-	validationResult, err := tags.ReconcileRegionZoneTagRules(regionZoneTagRule, vsphereCloudDriver)
+	validationResult, err := tagValidationService.ReconcileRegionZoneTagRules(regionZoneTagRule)
 	if err != nil {
-		r.Log.V(0).Error(err, "failed to reconcile IAM role rule")
+		r.Log.V(0).Error(err, "failed to reconcile tag validation rule")
 	}
-
-	r.Log.V(0).Info("ValidationResult: ", validationResult)
+	v8ores.SafeUpdateValidationResult(r.Client, nn, validationResult, failed, err, r.Log)
 
 	return ctrl.Result{}, nil
 
