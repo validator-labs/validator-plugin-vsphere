@@ -94,11 +94,8 @@ func (r *VsphereValidatorReconciler) Reconcile(ctx context.Context, req ctrl.Req
 	// Get the active validator's validation result
 	vr := &v8or.ValidationResult{}
 	nn := ktypes.NamespacedName{
-		Name:      fmt.Sprintf("valid8or-plugin-aws-%s", validator.Name),
+		Name:      fmt.Sprintf("valid8or-plugin-vsphere-%s", validator.Name),
 		Namespace: req.Namespace,
-	}
-	if err := r.Client.Get(ctx, nn, vr); err != nil {
-		fmt.Println("VR:", vr)
 	}
 	if err := r.Get(ctx, nn, vr); err == nil {
 		res, err := v8ores.HandleExistingValidationResult(nn, vr, r.Log)
