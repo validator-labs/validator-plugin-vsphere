@@ -3,6 +3,7 @@ package roleprivilege
 import (
 	"context"
 	"fmt"
+	"github.com/go-logr/logr"
 	"github.com/pkg/errors"
 	"github.com/spectrocloud-labs/valid8or-plugin-vsphere/api/v1alpha1"
 	"github.com/spectrocloud-labs/valid8or-plugin-vsphere/internal/constants"
@@ -15,34 +16,47 @@ import (
 	corev1 "k8s.io/api/core/v1"
 )
 
+type RolePrivilegeValidationService struct {
+	log    logr.Logger
+	driver *vsphere.VSphereCloudDriver
+}
+
+func NewRolePrivilegeValidationService(log logr.Logger, driver *vsphere.VSphereCloudDriver) *RolePrivilegeValidationService {
+	return &RolePrivilegeValidationService{
+		log:    log,
+		driver: driver,
+	}
+}
+
 func buildValidationResult(rule v1alpha1.RolePrivilegeValidationRule, validationType string) *types.ValidationResult {
 	state := v8or.ValidationSucceeded
 	latestCondition := v8or.DefaultValidationCondition()
 	latestCondition.Message = fmt.Sprintf("All required %s permissions were found", validationType)
 	latestCondition.ValidationRule = fmt.Sprintf("%s-%s", v8orconstants.ValidationRulePrefix, rule.Name)
 	latestCondition.ValidationType = validationType
+
 	return &types.ValidationResult{Condition: &latestCondition, State: &state}
 }
 
-func GetUserRolePrivilegesMapping(driver *vsphere.VSphereCloudDriver) (map[string]bool, error) {
-	privileges, err := validateRolePrivileges(driver)
+func (s *RolePrivilegeValidationService) GetUserRolePrivilegesMapping() (map[string]bool, error) {
+	privileges, err := validateRolePrivileges(s.driver)
 	if err != nil {
-		fmt.Println(err, "Error validating Role privileges")
 		return nil, err
 	}
 	return privileges, nil
 }
 
-func ReconcileRolePrivilegesRule(rule v1alpha1.RolePrivilegeValidationRule, privileges map[string]bool) (*types.ValidationResult, error) {
+func (s *RolePrivilegeValidationService) ReconcileRolePrivilegesRule(rule v1alpha1.RolePrivilegeValidationRule, privileges map[string]bool) (*types.ValidationResult, error) {
 
 	vr := buildValidationResult(rule, constants.ValidationTypeRolePrivileges)
 
 	valid := vsphere.IsValidRule(rule, privileges)
 	if !valid {
 		vr.State = ptr.Ptr(v8or.ValidationFailed)
-		vr.Condition.Failures = append(vr.Condition.Failures, "Rule: %s, was not found in the user's privileges")
+		vr.Condition.Failures = append(vr.Condition.Failures, fmt.Sprintf("Rule: %s, was not found in the user's privileges", rule.Name))
 		vr.Condition.Message = "One or more required privileges was not found, or a condition was not met"
 		vr.Condition.Status = corev1.ConditionFalse
+
 		return vr, errors.New("Rule not valid")
 	}
 
