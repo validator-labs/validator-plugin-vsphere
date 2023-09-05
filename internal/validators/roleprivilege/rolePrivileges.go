@@ -57,7 +57,7 @@ func (s *RolePrivilegeValidationService) ReconcileRolePrivilegesRule(rule v1alph
 
 	vr := buildValidationResult(rule, constants.ValidationTypeRolePrivileges)
 
-	valid := IsValidRule(rule, privileges)
+	valid := isValidRule(rule, privileges)
 	if !valid {
 		vr.State = ptr.Ptr(v8or.ValidationFailed)
 		vr.Condition.Failures = append(vr.Condition.Failures, fmt.Sprintf("Rule: %s, was not found in the user's privileges", rule.Name))
@@ -70,7 +70,7 @@ func (s *RolePrivilegeValidationService) ReconcileRolePrivilegesRule(rule v1alph
 	return vr, nil
 }
 
-func IsValidRule(rule v1alpha1.RolePrivilegeValidationRule, privileges map[string]bool) bool {
+func isValidRule(rule v1alpha1.RolePrivilegeValidationRule, privileges map[string]bool) bool {
 	// convert the keys of the map to a slice of strings
 	keys := make([]string, 0, len(privileges))
 	for k := range privileges {
@@ -86,16 +86,16 @@ func IsValidRule(rule v1alpha1.RolePrivilegeValidationRule, privileges map[strin
 			rolePrivilegeRule := VMwareRolePrivilege{}
 			rolePrivilegeRule.rule = rule
 			rolePrivilegeRule.Privileges = privileges
-			return rolePrivilegeRule.ValidateVMwareRolePrivilege()
+			return rolePrivilegeRule.validateVMwareRolePrivilege()
 		}
 	}
 
 	return false
 }
 
-func (v *VMwareRolePrivilege) ValidateVMwareRolePrivilege() bool {
+func (v *VMwareRolePrivilege) validateVMwareRolePrivilege() bool {
 	data := map[string]interface{}{
-		"vmware_user_privileges": ToSlice(v.Privileges),
+		"vmware_user_privileges": toSlice(v.Privileges),
 	}
 	for _, expr := range v.rule.Expressions {
 		expression, err := govaluate.NewEvaluableExpression(expr)
@@ -115,7 +115,7 @@ func (v *VMwareRolePrivilege) ValidateVMwareRolePrivilege() bool {
 	return true
 }
 
-func ToSlice(m map[string]bool) []interface{} {
+func toSlice(m map[string]bool) []interface{} {
 	values := make([]interface{}, 0, len(m))
 	for k, v := range m {
 		if v {

@@ -50,7 +50,7 @@ func (s *TagsValidationService) ReconcileRegionZoneTagRules(regionZoneValidation
 		Cluster:            regionZoneValidationRule.Clusters,
 	}
 
-	regionZoneCategoryExist, err := RegionZoneCategoryExists(tagsManager, finder, input)
+	regionZoneCategoryExist, err := regionZoneCategoryExists(tagsManager, finder, input)
 	if err != nil {
 		vr.State = ptr.Ptr(v8or.ValidationFailed)
 		vr.Condition.Failures = append(vr.Condition.Failures, "One or more required tags was not found")
@@ -76,7 +76,7 @@ func buildValidationResult(validationType string) *types.ValidationResult {
 	return validationResult
 }
 
-func RegionZoneCategoryExists(tagsManager *tags.Manager, finder *find.Finder, input RegionZoneCategoryExistsInput) (*bool, error) {
+func regionZoneCategoryExists(tagsManager *tags.Manager, finder *find.Finder, input RegionZoneCategoryExistsInput) (*bool, error) {
 	isTrue, isFalse := true, false
 	regionCategoryID, zoneCategoryID := "", ""
 
