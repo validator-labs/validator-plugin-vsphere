@@ -1,6 +1,6 @@
 
 # Image URL to use all building/pushing image targets
-IMG ?= prakashmishra1598/valid8or-plugin-vsphere:v0.0.1
+IMG ?= quay.io/spectrocloud-labs/valid8or-plugin-vsphere:latest
 # ENVTEST_K8S_VERSION refers to the version of kubebuilder assets to be downloaded by envtest binary.
 ENVTEST_K8S_VERSION = 1.27.1
 
