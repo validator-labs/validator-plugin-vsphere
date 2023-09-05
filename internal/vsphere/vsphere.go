@@ -5,7 +5,6 @@ import (
 	"fmt"
 	"github.com/go-logr/logr"
 	"github.com/pkg/errors"
-	"github.com/spectrocloud-labs/valid8or-plugin-vsphere/api/v1alpha1"
 	"github.com/vmware/govmomi"
 	"github.com/vmware/govmomi/object"
 	"github.com/vmware/govmomi/session"
@@ -28,7 +27,6 @@ var restClientLoggedOut = false
 
 
 type VsphereCloudAccount struct {
-
 	// Insecure is a flag that controls whether to validate the vSphere server's certificate.
 	Insecure bool `json:"insecure"`
 
@@ -48,11 +46,6 @@ type VsphereCloudAccount struct {
 type Session struct {
 	GovmomiClient *govmomi.Client
 	RestClient    *rest.Client
-}
-
-type RulesEngine struct {
-	Driver *VSphereCloudDriver
-	Rules  []v1alpha1.RolePrivilegeValidationRule
 }
 
 type VSphereCloudDriver struct {
