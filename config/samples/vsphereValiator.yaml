@@ -19,7 +19,7 @@ spec:
     clusters:
       - Cluster1
       - Cluster2
-  rules:
+  rolePrivilegeValidationRules:
     - name: Cns.Searchable
       description: Validates that the root-level role has the Cns.Searchable privilege
       isEnabled: true

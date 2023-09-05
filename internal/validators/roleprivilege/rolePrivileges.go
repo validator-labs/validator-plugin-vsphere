@@ -3,6 +3,7 @@ package roleprivilege
 import (
 	"context"
 	"fmt"
+	"github.com/Knetic/govaluate"
 	"github.com/go-logr/logr"
 	"github.com/pkg/errors"
 	"github.com/spectrocloud-labs/valid8or-plugin-vsphere/api/v1alpha1"
@@ -14,7 +15,13 @@ import (
 	"github.com/spectrocloud-labs/valid8or/pkg/util/ptr"
 	"github.com/vmware/govmomi/object"
 	corev1 "k8s.io/api/core/v1"
+	"sort"
 )
+
+type VMwareRolePrivilege struct {
+	rule       v1alpha1.RolePrivilegeValidationRule
+	Privileges map[string]bool
+}
 
 type RolePrivilegeValidationService struct {
 	log    logr.Logger
@@ -39,7 +46,7 @@ func buildValidationResult(rule v1alpha1.RolePrivilegeValidationRule, validation
 }
 
 func (s *RolePrivilegeValidationService) GetUserRolePrivilegesMapping() (map[string]bool, error) {
-	privileges, err := validateRolePrivileges(s.driver)
+	privileges, err := getUserPrivileges(s.driver)
 	if err != nil {
 		return nil, err
 	}
@@ -50,7 +57,7 @@ func (s *RolePrivilegeValidationService) ReconcileRolePrivilegesRule(rule v1alph
 
 	vr := buildValidationResult(rule, constants.ValidationTypeRolePrivileges)
 
-	valid := vsphere.IsValidRule(rule, privileges)
+	valid := IsValidRule(rule, privileges)
 	if !valid {
 		vr.State = ptr.Ptr(v8or.ValidationFailed)
 		vr.Condition.Failures = append(vr.Condition.Failures, fmt.Sprintf("Rule: %s, was not found in the user's privileges", rule.Name))
@@ -63,7 +70,62 @@ func (s *RolePrivilegeValidationService) ReconcileRolePrivilegesRule(rule v1alph
 	return vr, nil
 }
 
-func validateRolePrivileges(vsphereCloudDriver *vsphere.VSphereCloudDriver) (map[string]bool, error) {
+func IsValidRule(rule v1alpha1.RolePrivilegeValidationRule, privileges map[string]bool) bool {
+	// convert the keys of the map to a slice of strings
+	keys := make([]string, 0, len(privileges))
+	for k := range privileges {
+		keys = append(keys, k)
+	}
+
+	// sort the slice of keys
+	sort.Strings(keys)
+
+	if rule.IsEnabled {
+		switch rule.RuleType {
+		case "VMwareRolePrivilege":
+			rolePrivilegeRule := VMwareRolePrivilege{}
+			rolePrivilegeRule.rule = rule
+			rolePrivilegeRule.Privileges = privileges
+			return rolePrivilegeRule.ValidateVMwareRolePrivilege()
+		}
+	}
+
+	return false
+}
+
+func (v *VMwareRolePrivilege) ValidateVMwareRolePrivilege() bool {
+	data := map[string]interface{}{
+		"vmware_user_privileges": ToSlice(v.Privileges),
+	}
+	for _, expr := range v.rule.Expressions {
+		expression, err := govaluate.NewEvaluableExpression(expr)
+		if err != nil {
+			return false
+		} else {
+			result, err := expression.Evaluate(data)
+			if err != nil {
+				return false
+			} else {
+				if result == false {
+					return false
+				}
+			}
+		}
+	}
+	return true
+}
+
+func ToSlice(m map[string]bool) []interface{} {
+	values := make([]interface{}, 0, len(m))
+	for k, v := range m {
+		if v {
+			values = append(values, k)
+		}
+	}
+	return values
+}
+
+func getUserPrivileges(vsphereCloudDriver *vsphere.VSphereCloudDriver) (map[string]bool, error) {
 
 	ctx, cancel := context.WithCancel(context.Background())
 

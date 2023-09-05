@@ -13,7 +13,7 @@ type VsphereValidatorSpec struct {
 	// Important: Run "make" to regenerate code after modifying this file
 
 	Auth                         VsphereAuth                   `json:"auth"`
-	RolePrivilegeValidationRules []RolePrivilegeValidationRule `json:"rules"`
+	RolePrivilegeValidationRules []RolePrivilegeValidationRule `json:"rolePrivilegeValidationRules"`
 	RegionZoneValidationRule     RegionZoneValidationRule      `json:"regionZoneValidationRule"`
 }
 

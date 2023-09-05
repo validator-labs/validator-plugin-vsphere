@@ -120,6 +120,7 @@ func (r *VsphereValidatorReconciler) Reconcile(ctx context.Context, req ctrl.Req
 
 	failed := &types.MonotonicBool{}
 
+	// role privilege validation rules
 	for _, rule := range validator.Spec.RolePrivilegeValidationRules {
 		validationResult, err := rolePrivilegeValidationService.ReconcileRolePrivilegesRule(rule, userPrivileges)
 		if err != nil {
@@ -129,6 +130,7 @@ func (r *VsphereValidatorReconciler) Reconcile(ctx context.Context, req ctrl.Req
 	}
 	r.Log.V(0).Info("Validated privileges for account", "user", vsphereCloudDriver.VCenterUsername)
 
+	// Region and Zone tags validation rule
 	r.Log.V(0).Info("Checking if region and zone tags are properly assigned")
 	regionZoneTagRule := validator.Spec.RegionZoneValidationRule
 
@@ -139,8 +141,9 @@ func (r *VsphereValidatorReconciler) Reconcile(ctx context.Context, req ctrl.Req
 	v8ores.SafeUpdateValidationResult(r.Client, nn, validationResult, failed, err, r.Log)
 	r.Log.V(0).Info("Finished checking region and zone tags for", "Datacenter", regionZoneTagRule.Datacenter, "Clusters", regionZoneTagRule.Clusters)
 
-	return ctrl.Result{}, nil
-
+	// requeue after two minutes for re-validation
+	r.Log.V(0).Info("Requeuing for re-validation in two minutes.", "name", req.Name, "namespace", req.Namespace)
+	return ctrl.Result{RequeueAfter: time.Second * 120}, nil
 }
 
 func (r *VsphereValidatorReconciler) secretKeyAuth(req ctrl.Request, validator *v1alpha1.VsphereValidator) (*vsphere.VsphereCloudAccount, *reconcile.Result) {
