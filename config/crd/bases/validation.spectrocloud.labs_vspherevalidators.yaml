@@ -59,7 +59,7 @@ spec:
                 - regionCategoryName
                 - zoneCategoryName
                 type: object
-              rules:
+              rolePrivilegeValidationRules:
                 items:
                   properties:
                     description:
@@ -88,7 +88,7 @@ spec:
             required:
             - auth
             - regionZoneValidationRule
-            - rules
+            - rolePrivilegeValidationRules
             type: object
           status:
             description: VsphereValidatorStatus defines the observed state of VsphereValidator
