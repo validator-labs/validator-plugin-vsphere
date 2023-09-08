@@ -10,8 +10,87 @@ metadata:
   name: vspherevalidator
   namespace: valid8or
 spec:
+  datacenter: "Datacenter"
   auth:
     secretName: validator-secret
+  entityPrivilegeValidationRules:
+    - name: "Deploy VM to folder sp-prakash"
+      clusterName: "Cluster2"
+      entityName: "rp-cluster2-palette-ui"
+      entityType: "ResourcePool"
+      privileges:
+      - "VirtualMachine.Config.AddExistingDisk"
+      - "VirtualMachine.Config.AddNewDisk"
+      - "VirtualMachine.Config.AdvancedConfig"
+      - "VirtualMachine.Config.Annotation"
+      - "VirtualMachine.Config.CPUCount"
+      - "VirtualMachine.Config.ChangeTracking"
+      - "VirtualMachine.Config.DiskExtend"
+      - "VirtualMachine.Config.DiskLease"
+      - "VirtualMachine.Config.EditDevice"
+      - "VirtualMachine.Config.HostUSBDevice"
+      - "VirtualMachine.Config.ManagedBy"
+      - "VirtualMachine.Config.Memory"
+      - "VirtualMachine.Config.MksControl"
+      - "VirtualMachine.Config.QueryFTCompatibility"
+      - "VirtualMachine.Config.QueryUnownedFiles"
+      - "VirtualMachine.Config.RawDevice"
+      - "VirtualMachine.Config.ReloadFromPath"
+      - "VirtualMachine.Config.RemoveDisk"
+      - "VirtualMachine.Config.Rename"
+      - "VirtualMachine.Config.ResetGuestInfo"
+      - "VirtualMachine.Config.Resource"
+      - "VirtualMachine.Config.Settings"
+      - "VirtualMachine.Config.SwapPlacement"
+      - "VirtualMachine.Config.ToggleForkParent"
+      - "VirtualMachine.Config.UpgradeVirtualHardware"
+      - "VirtualMachine.GuestOperations.Execute"
+      - "VirtualMachine.GuestOperations.Modify"
+      - "VirtualMachine.GuestOperations.ModifyAliases"
+      - "VirtualMachine.GuestOperations.Query"
+      - "VirtualMachine.GuestOperations.QueryAliases"
+      - "VirtualMachine.Hbr.ConfigureReplication"
+      - "VirtualMachine.Hbr.MonitorReplication"
+      - "VirtualMachine.Hbr.ReplicaManagement"
+      - "VirtualMachine.Interact.Backup"
+      - "VirtualMachine.Interact.ConsoleInteract"
+      - "VirtualMachine.Interact.DeviceConnection"
+      - "VirtualMachine.Interact.PowerOff"
+      - "VirtualMachine.Interact.PowerOn"
+      - "VirtualMachine.Interact.PutUsbScanCodes"
+      - "VirtualMachine.Interact.SetCDMedia"
+      - "VirtualMachine.Interact.SetFloppyMedia"
+      - "VirtualMachine.Inventory.Create"
+      - "VirtualMachine.Inventory.CreateFromExisting"
+      - "VirtualMachine.Inventory.Delete"
+      - "VirtualMachine.Inventory.Move"
+      - "VirtualMachine.Inventory.Register"
+      - "VirtualMachine.Inventory.Unregister"
+      - "VirtualMachine.Namespace.Event"
+      - "VirtualMachine.Namespace.EventNotify"
+      - "VirtualMachine.Namespace.Management"
+      - "VirtualMachine.Namespace.ModifyContent"
+      - "VirtualMachine.Namespace.Query"
+      - "VirtualMachine.Namespace.ReadContent"
+      - "VirtualMachine.Provisioning.Clone"
+      - "VirtualMachine.Provisioning.CloneTemplate"
+      - "VirtualMachine.Provisioning.CreateTemplateFromVM"
+      - "VirtualMachine.Provisioning.Customize"
+      - "VirtualMachine.Provisioning.DeployTemplate"
+      - "VirtualMachine.Provisioning.DiskRandomAccess"
+      - "VirtualMachine.Provisioning.DiskRandomRead"
+      - "VirtualMachine.Provisioning.FileRandomAccess"
+      - "VirtualMachine.Provisioning.GetVmFiles"
+      - "VirtualMachine.Provisioning.MarkAsTemplate"
+      - "VirtualMachine.Provisioning.MarkAsVM"
+      - "VirtualMachine.Provisioning.ModifyCustSpecs"
+      - "VirtualMachine.Provisioning.PromoteDisks"
+      - "VirtualMachine.Provisioning.PutVmFiles"
+      - "VirtualMachine.Provisioning.ReadCustSpecs"
+      - "VirtualMachine.State.CreateSnapshot"
+      - "VirtualMachine.State.RemoveSnapshot"
+      - "VirtualMachine.State.RenameSnapshot"
+      - "VirtualMachine.State.RevertToSnapshot"
   regionZoneValidationRule:
     regionCategoryName: "k8s-region"
     zoneCategoryName: "k8s-zone"
@@ -21,64 +100,42 @@ spec:
       - Cluster2
   rolePrivilegeValidationRules:
     - name: Cns.Searchable
-      description: Validates that the root-level role has the Cns.Searchable privilege
       isEnabled: true
-      severity: error
       ruleType: VMwareRolePrivilege
       expressions:
         - '"Cns.Searchable" IN (vmware_user_privileges)'
     - name: Datastore.Browse
-      description: Validates that the root-level role has the Datastore.Browse privilege
       isEnabled: true
-      severity: error
       ruleType: VMwareRolePrivilege
       expressions:
         - '"Datastore.Browse" IN (vmware_user_privileges)'
     - name: InventoryService.Tagging.CreateTag
-      description: >-
-        Validates that the root-level role has the
-        InventoryService.Tagging.CreateTag privilege
       isEnabled: true
-      severity: error
       ruleType: VMwareRolePrivilege
       expressions:
         - '"InventoryService.Tagging.CreateTag" IN (vmware_user_privileges)'
     - name: InventoryService.Tagging.EditTag
-      description: >-
-        Validates that the root-level role has the InventoryService.Tagging.EditTag
-        privilege
       isEnabled: true
-      severity: error
       ruleType: VMwareRolePrivilege
       expressions:
         - '"InventoryService.Tagging.EditTag" IN (vmware_user_privileges)'
     - name: Network.Assign
-      description: Validates that the root-level role has the Network.Assign privilege
       isEnabled: true
-      severity: error
       ruleType: VMwareRolePrivilege
       expressions:
         - '"Network.Assign" IN (vmware_user_privileges)'
     - name: Sessions.ValidateSession
-      description: >-
-        Validates that the root-level role has the Sessions.ValidateSession
-        privilege
       isEnabled: true
-      severity: error
       ruleType: VMwareRolePrivilege
       expressions:
         - '"Sessions.ValidateSession" IN (vmware_user_privileges)'
     - name: StorageProfile.View
-      description: Validates that the root-level role has the StorageProfile.View privilege
       isEnabled: true
-      severity: error
       ruleType: VMwareRolePrivilege
       expressions:
         - '"StorageProfile.View" IN (vmware_user_privileges)'
     - name: StorageViews.View
-      description: Validates that the root-level role has the StorageViews.View privilege
       isEnabled: true
-      severity: error
       ruleType: VMwareRolePrivilege
       expressions:
         - '"StorageViews.View" IN (vmware_user_privileges)'

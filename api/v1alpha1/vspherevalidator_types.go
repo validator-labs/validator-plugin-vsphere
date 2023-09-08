@@ -12,20 +12,28 @@ type VsphereValidatorSpec struct {
 	// INSERT ADDITIONAL SPEC FIELDS - desired state of cluster
 	// Important: Run "make" to regenerate code after modifying this file
 
-	Auth                         VsphereAuth                   `json:"auth"`
-	RolePrivilegeValidationRules []RolePrivilegeValidationRule `json:"rolePrivilegeValidationRules"`
-	RegionZoneValidationRule     RegionZoneValidationRule      `json:"regionZoneValidationRule"`
+	Auth                           VsphereAuth                          `json:"auth"`
+	Datacenter                     string                               `json:"datacenter"`
+	EntityPrivilegeValidationRules []EntityPrivilegeValidationRule      `json:"entityPrivilegeValidationRules"`
+	RolePrivilegeValidationRules   []GenericRolePrivilegeValidationRule `json:"rolePrivilegeValidationRules"`
+	RegionZoneValidationRule       RegionZoneValidationRule             `json:"regionZoneValidationRule"`
 }
 
 type VsphereAuth struct {
 	SecretName string `json:"secretName"`
 }
 
-type RolePrivilegeValidationRule struct {
+type EntityPrivilegeValidationRule struct {
 	Name        string   `json:"name"`
-	Description string   `json:"description"`
+	ClusterName string   `json:"clusterName"`
+	EntityType  string   `json:"entityType"`
+	EntityName  string   `json:"entityName"`
+	Privileges  []string `json:"privileges"`
+}
+
+type GenericRolePrivilegeValidationRule struct {
+	Name        string   `json:"name"`
 	IsEnabled   bool     `json:"isEnabled"`
-	Severity    string   `json:"severity"`
 	RuleType    string   `json:"ruleType"`
 	Expressions []string `json:"expressions"`
 }

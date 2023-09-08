@@ -41,6 +41,31 @@ spec:
                 required:
                 - secretName
                 type: object
+              datacenter:
+                type: string
+              entityPrivilegeValidationRules:
+                items:
+                  properties:
+                    clusterName:
+                      type: string
+                    entityName:
+                      type: string
+                    entityType:
+                      type: string
+                    name:
+                      type: string
+                    privileges:
+                      items:
+                        type: string
+                      type: array
+                  required:
+                  - clusterName
+                  - entityName
+                  - entityType
+                  - name
+                  - privileges
+                  type: object
+                type: array
               regionZoneValidationRule:
                 properties:
                   clusters:
@@ -62,8 +87,6 @@ spec:
               rolePrivilegeValidationRules:
                 items:
                   properties:
-                    description:
-                      type: string
                     expressions:
                       items:
                         type: string
@@ -74,19 +97,17 @@ spec:
                       type: string
                     ruleType:
                       type: string
-                    severity:
-                      type: string
                   required:
-                  - description
                   - expressions
                   - isEnabled
                   - name
                   - ruleType
-                  - severity
                   type: object
                 type: array
             required:
             - auth
+            - datacenter
+            - entityPrivilegeValidationRules
             - regionZoneValidationRule
             - rolePrivilegeValidationRules
             type: object

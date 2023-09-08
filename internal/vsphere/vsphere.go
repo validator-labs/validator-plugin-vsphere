@@ -3,9 +3,10 @@ package vsphere
 import (
 	"context"
 	"fmt"
-	"github.com/go-logr/logr"
 	"github.com/pkg/errors"
+	log "github.com/sirupsen/logrus"
 	"github.com/vmware/govmomi"
+	"github.com/vmware/govmomi/find"
 	"github.com/vmware/govmomi/object"
 	"github.com/vmware/govmomi/session"
 	"github.com/vmware/govmomi/session/keepalive"
@@ -13,7 +14,10 @@ import (
 	"github.com/vmware/govmomi/vim25"
 	"github.com/vmware/govmomi/vim25/methods"
 	"github.com/vmware/govmomi/vim25/soap"
+	"github.com/vmware/govmomi/vim25/types"
+	"net/http"
 	"net/url"
+	"path"
 	"strings"
 	"sync"
 	"time"
@@ -24,7 +28,6 @@ const KeepAliveIntervalInMinute = 10
 var sessionCache = map[string]Session{}
 var sessionMU sync.Mutex
 var restClientLoggedOut = false
-
 
 type VsphereCloudAccount struct {
 	// Insecure is a flag that controls whether to validate the vSphere server's certificate.
@@ -52,14 +55,14 @@ type VSphereCloudDriver struct {
 	VCenterServer   string
 	VCenterUsername string
 	VCenterPassword string
+	Datacenter      string
 	Client          *govmomi.Client
 	RestClient      *rest.Client
 }
 
-func NewVSphereDriver(logger logr.Logger, VCenterServer string, VCenterUsername string, VCenterPassword string) (*VSphereCloudDriver, error) {
+func NewVSphereDriver(VCenterServer, VCenterUsername, VCenterPassword, datacenter string) (*VSphereCloudDriver, error) {
 	session, err := GetOrCreateSession(context.TODO(), VCenterServer, VCenterUsername, VCenterPassword, true)
 	if err != nil {
-		logger.V(1).Error(err, "failed to create govmomi session")
 		return nil, err
 	}
 
@@ -67,6 +70,7 @@ func NewVSphereDriver(logger logr.Logger, VCenterServer string, VCenterUsername 
 		VCenterServer:   VCenterServer,
 		VCenterUsername: VCenterUsername,
 		VCenterPassword: VCenterPassword,
+		Datacenter:      datacenter,
 		Client:          session.GovmomiClient,
 		RestClient:      session.RestClient,
 	}, nil
@@ -81,33 +85,68 @@ func (v *VSphereCloudDriver) GetCurrentVmwareUser(ctx context.Context) (string, 
 	return userSession.UserName, nil
 }
 
-func (v *VSphereCloudDriver) GetVmwareUserPrivileges(userName string, authManager *object.AuthorizationManager) (map[string]bool, error) {
-	// Get the current user's roles
-	authRoles, err := authManager.RoleList(context.TODO())
-	if err != nil {
-		return nil, err
-	}
+func (v *VSphereCloudDriver) GetUserPrivilegeOnEntities(ctx context.Context, authManager *object.AuthorizationManager, datacenter string, finder *find.Finder, entityName, entityType string, privileges []string, userName, clusterName string) (isValid bool, err error) {
+	var folder *object.Folder
+	var cluster *object.ClusterComputeResource
+	var host *object.HostSystem
+	var vapp *object.VirtualApp
+	var resourcePool *object.ResourcePool
 
-	// create a map to store privileges for current user
-	privileges := make(map[string]bool)
+	var moID types.ManagedObjectReference
 
-	// Print the roles
-	for _, authRole := range authRoles {
-		// print permissions for every role
-		permissions, err := authManager.RetrieveRolePermissions(context.TODO(), authRole.RoleId)
+	switch entityType {
+	case "Folder":
+		_, folder, err = v.GetFolderIfExists(ctx, finder, datacenter, entityName)
 		if err != nil {
-			return nil, err
+			return false, err
 		}
-		for _, perm := range permissions {
-			// if current user has the role, append all user privileges to privileges slice.
-			if perm.Principal == userName {
-				for _, priv := range authRole.Privilege {
-					privileges[priv] = true
-				}
-			}
+		moID = folder.Reference()
+	case "ResourcePool":
+		_, resourcePool, err = v.GetResourcePoolIfExists(ctx, finder, datacenter, clusterName, entityName)
+		if err != nil {
+			return false, err
+		}
+		moID = resourcePool.Reference()
+	case "vApp":
+		_, vapp, err = v.GetVAppIfExists(ctx, finder, datacenter, entityName)
+		if err != nil {
+			return false, err
+		}
+		moID = vapp.Reference()
+	case "Host":
+		_, host, err = v.GetHostIfExists(ctx, finder, datacenter, clusterName, entityName)
+		if err != nil {
+			return false, err
+		}
+		moID = host.Reference()
+	case "Cluster":
+		_, cluster, err = v.GetClusterIfExists(ctx, finder, datacenter, entityName)
+		if err != nil {
+			return false, err
+		}
+		moID = cluster.Reference()
+	}
+
+	privilegeResult, err := authManager.FetchUserPrivilegeOnEntities(ctx, []types.ManagedObjectReference{moID}, userName)
+	if err != nil {
+		return false, err
+	}
+
+	privilegesMap := make(map[string]bool)
+	for _, result := range privilegeResult {
+		for _, privilege := range result.Privileges {
+			privilegesMap[privilege] = true
 		}
 	}
-	return privileges, nil
+
+	for _, privilege := range privileges {
+		if _, ok := privilegesMap[privilege]; !ok {
+			return false, fmt.Errorf("user: %s does not have privilege: %s on entity type: %s with name: %s", userName, privilege, entityType, entityName)
+		}
+		fmt.Printf("Privilege: %s, found: %v\n", privilege, privilegesMap[privilege])
+	}
+
+	return true, nil
 }
 
 func GetOrCreateSession(
@@ -233,4 +272,143 @@ func ClearCache(sessionKey string) {
 	sessionMU.Lock()
 	defer sessionMU.Unlock()
 	delete(sessionCache, sessionKey)
+}
+
+func (v *VSphereCloudDriver) CreateVSphereVMFolder(ctx context.Context, datacenter string, folders []string) error {
+	finder, _, err := v.getFinderWithDatacenter(ctx, datacenter)
+	if err != nil {
+		return err
+	}
+
+	for _, folder := range folders {
+		folderExists, _, err := v.GetFolderIfExists(ctx, finder, datacenter, folder)
+		if folderExists {
+			continue
+		}
+
+		dir := path.Dir(folder)
+		name := path.Base(folder)
+
+		if dir == "" {
+			dir = "/"
+		}
+
+		folder, err := finder.Folder(ctx, dir)
+		if err != nil {
+			return fmt.Errorf("error fetching folder: %s. Code:%d", err.Error(), http.StatusInternalServerError)
+		}
+
+		if _, err := folder.CreateFolder(ctx, name); err != nil {
+			return fmt.Errorf("error creating folder: %s. Code:%d", err.Error(), http.StatusInternalServerError)
+		}
+	}
+
+	return nil
+}
+
+func (v *VSphereCloudDriver) getFinderWithDatacenter(ctx context.Context, datacenter string) (*find.Finder, string, error) {
+	finder, err := v.getFinder(ctx)
+	if err != nil {
+		return nil, "", err
+	}
+	dc, govErr := finder.DatacenterOrDefault(ctx, datacenter)
+	if govErr != nil {
+		log.Error(govErr, "failed to fetch datacenter", "Datacenter:", datacenter)
+		return nil, "", fmt.Errorf("failed to fetch datacenter: %s, code: %d", govErr.Error(), http.StatusBadRequest)
+	}
+	//set the datacenter
+	finder.SetDatacenter(dc)
+
+	return finder, dc.Name(), nil
+}
+
+func (v *VSphereCloudDriver) getFinder(ctx context.Context) (*find.Finder, error) {
+	if v.Client == nil {
+		return nil, fmt.Errorf("failed to fetch govmomi client: %d", http.StatusBadRequest)
+	}
+
+	finder := find.NewFinder(v.Client.Client, true)
+	return finder, nil
+}
+
+func (v *VSphereCloudDriver) FolderExists(ctx context.Context, finder *find.Finder, datacenter, folderName string) (bool, error) {
+
+	if _, err := finder.Folder(ctx, folderName); err != nil {
+		return false, nil
+	}
+	return true, nil
+}
+
+func (v *VSphereCloudDriver) GetFolderNameByID(ctx context.Context, datacenter, id string) (string, error) {
+	finder, dc, err := v.getFinderWithDatacenter(ctx, datacenter)
+	if err != nil {
+		return "", err
+	}
+
+	fos, govErr := finder.FolderList(ctx, "*")
+	if govErr != nil {
+		return "", fmt.Errorf("failed to fetch vSphere folders. Datacenter: %s, Error: %s", datacenter, govErr.Error())
+	}
+
+	prefix := fmt.Sprintf("/%s/vm/", dc)
+	for _, fo := range fos {
+		inventoryPath := fo.InventoryPath
+		//get vm folders, items with path prefix '/{Datacenter}/vm'
+		if strings.HasPrefix(inventoryPath, prefix) {
+			folderName := strings.TrimPrefix(inventoryPath, prefix)
+			//skip spectro folders & sub-folders
+			if !strings.HasPrefix(folderName, "spc-") && !strings.Contains(folderName, "/spc-") {
+				if fo.Reference().Value == id {
+					return folderName, nil
+				}
+			}
+		}
+	}
+
+	return "", fmt.Errorf("unable to find folder with id: %s", id)
+}
+
+func (v *VSphereCloudDriver) GetFinderWithDatacenter(ctx context.Context, datacenter string) (*find.Finder, string, error) {
+	finder, err := v.getFinder(ctx)
+	if err != nil {
+		return nil, "", err
+	}
+	dc, govErr := finder.DatacenterOrDefault(ctx, datacenter)
+	if govErr != nil {
+		return nil, "", fmt.Errorf("failed to fetch datacenter: %s. code: %s"+govErr.Error(), http.StatusBadRequest)
+	}
+	//set the datacenter
+	finder.SetDatacenter(dc)
+
+	return finder, dc.Name(), nil
+}
+
+func (v *VSphereCloudDriver) GetVmwareUserPrivileges(userName, datacenter string, driver *VSphereCloudDriver, authManager *object.AuthorizationManager) (map[string]bool, string, error) {
+	var folderName string
+
+	// Get the current user's roles
+	authRoles, err := authManager.RoleList(context.TODO())
+	if err != nil {
+		return nil, "", err
+	}
+
+	// create a map to store privileges for current user
+	privileges := make(map[string]bool)
+
+	// Print the roles
+	for _, authRole := range authRoles {
+		// print permissions for every role
+		permissions, err := authManager.RetrieveRolePermissions(context.TODO(), authRole.RoleId)
+		if err != nil {
+			return nil, "", err
+		}
+		for _, perm := range permissions {
+			if perm.Principal == userName {
+				for _, priv := range authRole.Privilege {
+					privileges[priv] = true
+				}
+			}
+		}
+	}
+	return privileges, folderName, nil
 }
