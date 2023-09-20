@@ -27,11 +27,13 @@ import (
 	v8or "github.com/spectrocloud-labs/valid8or/api/v1alpha1"
 	"github.com/spectrocloud-labs/valid8or/pkg/types"
 	v8ores "github.com/spectrocloud-labs/valid8or/pkg/validationresult"
+	"github.com/vmware/govmomi/object"
 	"sigs.k8s.io/controller-runtime/pkg/reconcile"
 	"strconv"
 	"time"
 
 	"github.com/spectrocloud-labs/valid8or-plugin-vsphere/api/v1alpha1"
+	vtags "github.com/vmware/govmomi/vapi/tags"
 	corev1 "k8s.io/api/core/v1"
 	apierrs "k8s.io/apimachinery/pkg/api/errors"
 	"k8s.io/apimachinery/pkg/runtime"
@@ -83,13 +85,26 @@ func (r *VsphereValidatorReconciler) Reconcile(ctx context.Context, req ctrl.Req
 		}
 	}
 
-	vsphereCloudDriver, err := vsphere.NewVSphereDriver(r.Log, vsphereCloudAccount.VcenterServer, vsphereCloudAccount.Username, vsphereCloudAccount.Password)
+	vsphereCloudDriver, err := vsphere.NewVSphereDriver(vsphereCloudAccount.VcenterServer, vsphereCloudAccount.Username, vsphereCloudAccount.Password, validator.Spec.Datacenter)
 	if err != nil {
 		return ctrl.Result{}, err
 	}
 
-	rolePrivilegeValidationService := roleprivilege.NewRolePrivilegeValidationService(r.Log, vsphereCloudDriver)
-	tagValidationService := tags.NewTagsValidationService(r.Log, vsphereCloudDriver)
+	// Get the authorization manager from the Client
+
+	authManager := object.NewAuthorizationManager(vsphereCloudDriver.Client.Client)
+	if authManager == nil {
+		return ctrl.Result{}, err
+	}
+
+	// Get the current user
+	userName, err := vsphereCloudDriver.GetCurrentVmwareUser(ctx)
+	if err != nil {
+		return ctrl.Result{}, err
+	}
+
+	rolePrivilegeValidationService := roleprivilege.NewRolePrivilegeValidationService(r.Log, vsphereCloudDriver, validator.Spec.Datacenter, authManager, userName)
+	tagValidationService := tags.NewTagsValidationService(r.Log)
 
 	// Get the active validator's validation result
 	vr := &v8or.ValidationResult{}
@@ -118,7 +133,23 @@ func (r *VsphereValidatorReconciler) Reconcile(ctx context.Context, req ctrl.Req
 		return ctrl.Result{}, err
 	}
 
+	tagsManager := vtags.NewManager(vsphereCloudDriver.RestClient)
+	finder, _, err := vsphereCloudDriver.GetFinderWithDatacenter(ctx, vsphereCloudDriver.Datacenter)
+	if err != nil {
+		return ctrl.Result{}, err
+	}
+
 	failed := &types.MonotonicBool{}
+
+	// entity privilege validation rules
+	for _, rule := range validator.Spec.EntityPrivilegeValidationRules {
+		validationResult, err := rolePrivilegeValidationService.ReconcileEntityPrivilegeRule(rule, finder)
+		if err != nil {
+			r.Log.V(0).Error(err, "failed to reconcile entity privilege rule")
+		}
+		v8ores.SafeUpdateValidationResult(r.Client, nn, validationResult, failed, err, r.Log)
+	}
+	r.Log.V(0).Info("Validated privileges for account", "user", vsphereCloudDriver.VCenterUsername)
 
 	// role privilege validation rules
 	for _, rule := range validator.Spec.RolePrivilegeValidationRules {
@@ -134,7 +165,7 @@ func (r *VsphereValidatorReconciler) Reconcile(ctx context.Context, req ctrl.Req
 	r.Log.V(0).Info("Checking if region and zone tags are properly assigned")
 	regionZoneTagRule := validator.Spec.RegionZoneValidationRule
 
-	validationResult, err := tagValidationService.ReconcileRegionZoneTagRules(regionZoneTagRule)
+	validationResult, err := tagValidationService.ReconcileRegionZoneTagRules(tagsManager, finder, regionZoneTagRule)
 	if err != nil {
 		r.Log.V(0).Error(err, "failed to reconcile tag validation rule")
 	}
@@ -143,7 +174,7 @@ func (r *VsphereValidatorReconciler) Reconcile(ctx context.Context, req ctrl.Req
 
 	// requeue after two minutes for re-validation
 	r.Log.V(0).Info("Requeuing for re-validation in two minutes.", "name", req.Name, "namespace", req.Namespace)
-	return ctrl.Result{RequeueAfter: time.Second * 120}, nil
+	return ctrl.Result{}, nil
 }
 
 func (r *VsphereValidatorReconciler) secretKeyAuth(req ctrl.Request, validator *v1alpha1.VsphereValidator) (*vsphere.VsphereCloudAccount, *reconcile.Result) {

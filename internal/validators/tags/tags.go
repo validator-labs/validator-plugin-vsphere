@@ -2,11 +2,11 @@ package tags
 
 import (
 	"context"
+	"errors"
 	"fmt"
 	"github.com/go-logr/logr"
 	"github.com/spectrocloud-labs/valid8or-plugin-vsphere/api/v1alpha1"
 	"github.com/spectrocloud-labs/valid8or-plugin-vsphere/internal/constants"
-	"github.com/spectrocloud-labs/valid8or-plugin-vsphere/internal/vsphere"
 	v8or "github.com/spectrocloud-labs/valid8or/api/v1alpha1"
 	v8orconstants "github.com/spectrocloud-labs/valid8or/pkg/constants"
 	"github.com/spectrocloud-labs/valid8or/pkg/types"
@@ -18,6 +18,10 @@ import (
 	corev1 "k8s.io/api/core/v1"
 )
 
+// to enable monkey patching in integration tests
+var GetCategories = getCategories
+var GetAttachedTagsOnObjects = getAttachedTagsOnObjects
+
 type RegionZoneCategoryExistsInput struct {
 	Datacenter         string
 	Cluster            []string
@@ -26,21 +30,16 @@ type RegionZoneCategoryExistsInput struct {
 }
 
 type TagsValidationService struct {
-	log    logr.Logger
-	driver *vsphere.VSphereCloudDriver
+	Log logr.Logger
 }
 
-func NewTagsValidationService(log logr.Logger, driver *vsphere.VSphereCloudDriver) *TagsValidationService {
+func NewTagsValidationService(log logr.Logger) *TagsValidationService {
 	return &TagsValidationService{
-		log:    log,
-		driver: driver,
+		Log: log,
 	}
 }
 
-func (s *TagsValidationService) ReconcileRegionZoneTagRules(regionZoneValidationRule v1alpha1.RegionZoneValidationRule) (*types.ValidationResult, error) {
-	tagsManager := tags.NewManager(s.driver.RestClient)
-	finder := find.NewFinder(s.driver.Client.Client, true)
-
+func (s *TagsValidationService) ReconcileRegionZoneTagRules(tagsManager *tags.Manager, finder *find.Finder, regionZoneValidationRule v1alpha1.RegionZoneValidationRule) (*types.ValidationResult, error) {
 	vr := buildValidationResult(constants.ValidationTypeTag)
 
 	input := RegionZoneCategoryExistsInput{
@@ -50,18 +49,16 @@ func (s *TagsValidationService) ReconcileRegionZoneTagRules(regionZoneValidation
 		Cluster:            regionZoneValidationRule.Clusters,
 	}
 
-	regionZoneCategoryExist, err := regionZoneCategoryExists(tagsManager, finder, input)
-	if err != nil {
+	valid, err := RegionZoneCategoryExists(tagsManager, finder, input)
+	if !valid {
 		vr.State = ptr.Ptr(v8or.ValidationFailed)
 		vr.Condition.Failures = append(vr.Condition.Failures, "One or more required tags was not found")
 		vr.Condition.Message = "One or more required tags was not found"
 		vr.Condition.Status = corev1.ConditionFalse
-		return nil, err
-	}
-	if regionZoneCategoryExist != nil && *regionZoneCategoryExist {
-		s.log.V(0).Info("Region and Zone tags exist")
+		return vr, err
 	}
 
+	s.Log.V(0).Info("Region and Zone tags exist")
 	return vr, nil
 }
 
@@ -76,13 +73,12 @@ func buildValidationResult(validationType string) *types.ValidationResult {
 	return validationResult
 }
 
-func regionZoneCategoryExists(tagsManager *tags.Manager, finder *find.Finder, input RegionZoneCategoryExistsInput) (*bool, error) {
-	isTrue, isFalse := true, false
+func RegionZoneCategoryExists(tagsManager *tags.Manager, finder *find.Finder, input RegionZoneCategoryExistsInput) (bool, error) {
 	regionCategoryID, zoneCategoryID := "", ""
 
-	cats, err := tagsManager.GetCategories(context.TODO())
+	cats, err := GetCategories(tagsManager)
 	if err != nil {
-		return &isFalse, err
+		return false, err
 	}
 	var regionZoneTags []tags.Category
 	for _, category := range cats {
@@ -97,24 +93,24 @@ func regionZoneCategoryExists(tagsManager *tags.Manager, finder *find.Finder, in
 	}
 
 	if len(regionZoneTags) < 2 {
-		return &isFalse, nil
+		return false, errors.New("one or more region/zone tags don't exist")
 	}
 
 	// check if datacenter has region tag
 	list, err := finder.ManagedObjectList(context.TODO(), fmt.Sprintf("/%s", input.Datacenter))
 	if err != nil {
-		return nil, err
+		return false, err
 	}
 
 	// return early if no can't find the managedobject list
 	if len(list) == 0 {
-		return nil, nil
+		return false, nil
 	}
 	var refs []mo.Reference
 	refs = append(refs, list[0].Object.Reference())
-	attachedTags, err := tagsManager.GetAttachedTagsOnObjects(context.TODO(), refs)
+	attachedTags, err := GetAttachedTagsOnObjects(tagsManager, refs)
 	if err != nil {
-		return nil, err
+		return false, err
 	}
 	isDatacenterTaggedWithRegion := false
 
@@ -132,20 +128,20 @@ func regionZoneCategoryExists(tagsManager *tags.Manager, finder *find.Finder, in
 	for _, cluster := range input.Cluster {
 		list, err = finder.ManagedObjectList(context.TODO(), fmt.Sprintf("/%s/host/%s", input.Datacenter, cluster))
 		if err != nil {
-			return nil, err
+			return false, err
 		}
 		// return early if no can't find the managedobject list
 		if len(list) == 0 {
-			return nil, nil
+			return false, nil
 		}
 		refs = nil
 		refs = append(refs, list[0].Object.Reference())
-		attachedTags, err := tagsManager.GetAttachedTagsOnObjects(context.TODO(), refs)
+		clusterattachedTags, err := GetAttachedTagsOnObjects(tagsManager, refs)
 		if err != nil {
-			return nil, err
+			return false, err
 		}
 		found := false
-		for _, tag := range attachedTags {
+		for _, tag := range clusterattachedTags {
 			if found {
 				break
 			}
@@ -160,9 +156,16 @@ func regionZoneCategoryExists(tagsManager *tags.Manager, finder *find.Finder, in
 	}
 
 	if areComputeClustersTaggedWithZone && isDatacenterTaggedWithRegion && len(regionZoneTags) >= 2 {
-		return &isTrue, nil
+		return true, nil
 	}
 
-	return &isFalse, nil
+	return false, errors.New("region zone categories don't exist")
 }
 
+func getAttachedTagsOnObjects(tagsManager *tags.Manager, refs []mo.Reference) ([]tags.AttachedTags, error) {
+	return tagsManager.GetAttachedTagsOnObjects(context.TODO(), refs)
+}
+
+func getCategories(tm *tags.Manager) ([]tags.Category, error) {
+	return tm.GetCategories(context.TODO())
+}
