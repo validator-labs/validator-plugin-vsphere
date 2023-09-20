@@ -4,11 +4,13 @@ import (
 	"github.com/go-logr/logr"
 	"github.com/spectrocloud-labs/valid8or-plugin-vsphere/api/v1alpha1"
 	"github.com/spectrocloud-labs/valid8or-plugin-vsphere/internal/vcsim"
+	"github.com/vmware/govmomi/object"
 	"testing"
 )
 
 func TestRolePrivilegeValidationService_ReconcileRolePrivilegesRule(t *testing.T) {
-	vcSim := vcsim.NewVCSim("admin@vsphere.local")
+	userName := "admin@vsphere.local"
+	vcSim := vcsim.NewVCSim(userName)
 
 	vcSim.Start()
 	privileges := make(map[string]bool)
@@ -17,14 +19,17 @@ func TestRolePrivilegeValidationService_ReconcileRolePrivilegesRule(t *testing.T
 	var log logr.Logger
 	rule := v1alpha1.GenericRolePrivilegeValidationRule{
 		Name:        "Cns.Searchable",
-		Description: "",
 		IsEnabled:   true,
-		Severity:    "",
 		RuleType:    "VMwareRolePrivilege",
 		Expressions: []string{`"Cns.Searchable" IN (vmware_user_privileges)`},
 	}
 
-	validationService := NewRolePrivilegeValidationService(log, vcSim.Driver, nil)
+	authManager := object.NewAuthorizationManager(vcSim.Driver.Client.Client)
+	if authManager == nil {
+		t.Fatal("Error in creating auth manager")
+	}
+
+	validationService := NewRolePrivilegeValidationService(log, vcSim.Driver, "DC0", authManager, userName)
 	t.Log(rule, privileges, validationService)
 	_, err := validationService.ReconcileRolePrivilegesRule(rule, privileges)
 	if err != nil {
