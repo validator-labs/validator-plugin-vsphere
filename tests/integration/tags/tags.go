@@ -13,6 +13,7 @@ import (
 	_ "github.com/vmware/govmomi/vapi/simulator"
 	vtags "github.com/vmware/govmomi/vapi/tags"
 	"github.com/vmware/govmomi/vim25/mo"
+	v1 "k8s.io/api/core/v1"
 )
 
 var fakeThumbprint = "A3:B5:9E:5F:E8:84:EE:84:34:D9:8E:EF:85:8E:3F:B6:62:AC:10:85"
@@ -74,27 +75,27 @@ var attachedTags = []vtags.AttachedTags{
 func Execute() error {
 	testCtx := test.NewTestContext()
 	return test.Flow(testCtx).
-		Test(NewVMMigrationTest("vm-migration-integration-test")).
+		Test(NewtagValidationTest("vali8or-plugin-tags-integration-test")).
 		TearDown().Audit()
 }
 
-type VMMigrationTest struct {
+type TagValidationTest struct {
 	*test.BaseTest
 	log *log.Entry
 }
 
-func NewVMMigrationTest(description string) *VMMigrationTest {
-	return &VMMigrationTest{
+func NewtagValidationTest(description string) *TagValidationTest {
+	return &TagValidationTest{
 		log:      log.WithField("test", "role-privilege-integration-test"),
 		BaseTest: test.NewBaseTest("vsphere-plugin", description, nil),
 	}
 }
 
-func (t *VMMigrationTest) Execute(ctx *test.TestContext) (tr *test.TestResult) {
+func (t *TagValidationTest) Execute(ctx *test.TestContext) (tr *test.TestResult) {
 	t.log.Printf("Executing %s and %s", t.GetName(), t.GetDescription())
-	//if tr := t.PreRequisite(ctx); tr.IsFailed() {
-	//	return tr
-	//}
+	if tr := t.PreRequisite(ctx); tr.IsFailed() {
+		return tr
+	}
 
 	if result := t.testGenerateManifestsInteractive(ctx); result.IsFailed() {
 		return result
@@ -103,10 +104,9 @@ func (t *VMMigrationTest) Execute(ctx *test.TestContext) (tr *test.TestResult) {
 	return test.Success()
 }
 
-func (t *VMMigrationTest) testGenerateManifestsInteractive(ctx *test.TestContext) (tr *test.TestResult) {
-	vcSim := vcsim.NewVCSim("admin@vsphere.local")
-	vcSim.Start()
-	vsphereCloudAccount := vcSim.GetTestVsphereAccount()
+func (t *TagValidationTest) testGenerateManifestsInteractive(ctx *test.TestContext) (tr *test.TestResult) {
+	vcSim := ctx.Get("vcsim")
+	vsphereCloudAccount := vcSim.(*vcsim.VCSimulator).GetTestVsphereAccount()
 
 	vsphereCloudDriver, err := vsphere.NewVSphereDriver(vsphereCloudAccount.VcenterServer, vsphereCloudAccount.Username, vsphereCloudAccount.Password, "DC0")
 	if err != nil {
@@ -132,6 +132,7 @@ func (t *VMMigrationTest) testGenerateManifestsInteractive(ctx *test.TestContext
 		validationResult types.ValidationResult
 		categories       []vtags.Category
 		attachedTags     []vtags.AttachedTags
+		expectedStatus   v1.ConditionStatus
 	}{
 		{
 			name:             "DataCenter and Cluster tags Exist",
@@ -139,6 +140,7 @@ func (t *VMMigrationTest) testGenerateManifestsInteractive(ctx *test.TestContext
 			validationResult: types.ValidationResult{},
 			categories:       categories,
 			attachedTags:     attachedTags,
+			expectedStatus:   v1.ConditionTrue,
 		},
 		{
 			name:             "Empty categories and attachedTags",
@@ -146,6 +148,7 @@ func (t *VMMigrationTest) testGenerateManifestsInteractive(ctx *test.TestContext
 			validationResult: types.ValidationResult{},
 			categories:       []vtags.Category{},
 			attachedTags:     []vtags.AttachedTags{},
+			expectedStatus:   v1.ConditionFalse,
 		},
 	}
 	for _, tc := range testCases {
@@ -156,48 +159,32 @@ func (t *VMMigrationTest) testGenerateManifestsInteractive(ctx *test.TestContext
 			return tc.attachedTags, nil
 		}
 		vr, err := tagService.ReconcileRegionZoneTagRules(tm, finder, rule)
-		if tc.expectedErr && err == nil {
-			tr.Failed()
-		} else if vr.Condition.Status != "True" {
-			tr.Failed()
+		if vr.Condition.Status != tc.expectedStatus {
+			test.Failure("Expected status is not equal to condition status")
+		}
+		if err == nil && tc.expectedErr {
+			test.Failure("Expected error but got no error")
 		}
 	}
 
-	return tr
+	return test.Success()
 }
 
-//func (t *VMMigrationTest) testDeployFromConfigFile() (tr *test.TestResult) {
-//	confFileCmd, buffer := common.InitCmd([]string{
-//		"vmo", "migrate-vm", "-f", t.filePath("vm.yaml"),
-//	})
-//	return common.ExecCLI(confFileCmd, buffer, t.log)
-//}
+func (t *TagValidationTest) PreRequisite(ctx *test.TestContext) (tr *test.TestResult) {
+	t.log.Printf("Executing ExecuteRequisite for %s and %s", t.GetName(), t.GetDescription())
 
-//func (t *VMMigrationTest) PreRequisite(ctx *test.TestContext) (tr *test.TestResult) {
-//	t.log.Printf("Executing ExecuteRequisite for %s and %s", t.GetName(), t.GetDescription())
-//
-//
-//
-//	// setup vCenter simulator
-//	vcSimulator := vcsim.NewVCSim("admin2@vsphere.local")
-//	vcSimulator.Start()
-//	ctx.Put("vcsim", vcSimulator)
-//
-//	return test.Success()
-//}
+	// setup vCenter simulator
+	vcSim := vcsim.NewVCSim("admin@vsphere.local")
+	vcSim.Start()
+	ctx.Put("vcsim", vcSim)
 
-func (t *VMMigrationTest) TearDown(ctx *test.TestContext) {
+	return test.Success()
+}
+
+func (t *TagValidationTest) TearDown(ctx *test.TestContext) {
 	t.log.Printf("Executing TearDown for %s and %s ", t.GetName(), t.GetDescription())
-
-	//if err := common.TearDownFun()(ctx); err != nil {
-	//	t.log.Errorf("Failed to run teardown fun: %v", err)
-	//}
 
 	// shut down vCenter simulator
 	vcSimulator := ctx.Get("vcsim")
 	vcSimulator.(*vcsim.VCSimulator).Shutdown()
 }
-
-//func (t *VMMigrationTest) filePath(file string) string {
-//	return fmt.Sprintf("%s/%s/%s", file_utils.VMTestCasesPath(), "data", file)
-//}

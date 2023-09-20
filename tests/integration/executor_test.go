@@ -14,7 +14,7 @@ var _ = ginkgo.Describe("Palette CLI Integration Test Suite", func() {
 		ginkgo.It("should not error", func() {
 			testCtx := test.NewTestContext()
 			err := test.Flow(testCtx).
-				Test(common.NewSingleFuncTest("login-test", tags.Execute)).
+				Test(common.NewSingleFuncTest("tags-test", tags.Execute)).
 				TearDown().
 				Audit()
 			gomega.Expect(err).To(gomega.Not(gomega.HaveOccurred()))
