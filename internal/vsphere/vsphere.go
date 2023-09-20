@@ -383,13 +383,11 @@ func (v *VSphereCloudDriver) GetFinderWithDatacenter(ctx context.Context, datace
 	return finder, dc.Name(), nil
 }
 
-func (v *VSphereCloudDriver) GetVmwareUserPrivileges(userName, datacenter string, driver *VSphereCloudDriver, authManager *object.AuthorizationManager) (map[string]bool, string, error) {
-	var folderName string
-
+func (v *VSphereCloudDriver) GetVmwareUserPrivileges(userName, datacenter string, driver *VSphereCloudDriver, authManager *object.AuthorizationManager) (map[string]bool, error) {
 	// Get the current user's roles
 	authRoles, err := authManager.RoleList(context.TODO())
 	if err != nil {
-		return nil, "", err
+		return nil, err
 	}
 
 	// create a map to store privileges for current user
@@ -400,7 +398,7 @@ func (v *VSphereCloudDriver) GetVmwareUserPrivileges(userName, datacenter string
 		// print permissions for every role
 		permissions, err := authManager.RetrieveRolePermissions(context.TODO(), authRole.RoleId)
 		if err != nil {
-			return nil, "", err
+			return nil, err
 		}
 		for _, perm := range permissions {
 			if perm.Principal == userName {
@@ -410,5 +408,5 @@ func (v *VSphereCloudDriver) GetVmwareUserPrivileges(userName, datacenter string
 			}
 		}
 	}
-	return privileges, folderName, nil
+	return privileges, nil
 }

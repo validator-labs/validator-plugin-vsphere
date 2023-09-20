@@ -138,12 +138,14 @@ func (r *VsphereValidatorReconciler) Reconcile(ctx context.Context, req ctrl.Req
 	if err != nil {
 		return ctrl.Result{}, err
 	}
+
 	failed := &types.MonotonicBool{}
+
 	// entity privilege validation rules
 	for _, rule := range validator.Spec.EntityPrivilegeValidationRules {
 		validationResult, err := rolePrivilegeValidationService.ReconcileEntityPrivilegeRule(rule, finder)
 		if err != nil {
-			r.Log.V(0).Error(err, "failed to reconcile role privilege rule")
+			r.Log.V(0).Error(err, "failed to reconcile entity privilege rule")
 		}
 		v8ores.SafeUpdateValidationResult(r.Client, nn, validationResult, failed, err, r.Log)
 	}

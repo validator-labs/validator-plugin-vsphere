@@ -16,7 +16,7 @@ spec:
   entityPrivilegeValidationRules:
     - name: "Deploy VM to folder sp-prakash"
       clusterName: "Cluster2"
-      entityName: "rp-cluster2-palette-ui"
+      entityName: "rp-cluster2-palette-advanced-projects"
       entityType: "ResourcePool"
       privileges:
       - "VirtualMachine.Config.AddExistingDisk"

@@ -63,7 +63,7 @@ func buildValidationResult(rule v1alpha1.GenericRolePrivilegeValidationRule, val
 }
 
 func (s *RolePrivilegeValidationService) GetUserRolePrivilegesMapping() (map[string]bool, error) {
-	privileges, _, err := getUserPrivileges(s.driver, s.authManager, s.datacenter, s.userName)
+	privileges, err := getUserPrivileges(s.driver, s.authManager, s.datacenter, s.userName)
 	if err != nil {
 		return nil, err
 	}
@@ -159,12 +159,12 @@ func toSlice(m map[string]bool) []interface{} {
 	return values
 }
 
-func getUserPrivileges(vsphereCloudDriver *vsphere.VSphereCloudDriver, authManager *object.AuthorizationManager, datacenter, userName string) (map[string]bool, string, error) {
+func getUserPrivileges(vsphereCloudDriver *vsphere.VSphereCloudDriver, authManager *object.AuthorizationManager, datacenter, userName string) (map[string]bool, error) {
 	// Get list of roles for current user
-	userPrivileges, _, err := vsphereCloudDriver.GetVmwareUserPrivileges(userName, datacenter, vsphereCloudDriver, authManager)
+	userPrivileges, err := vsphereCloudDriver.GetVmwareUserPrivileges(userName, datacenter, vsphereCloudDriver, authManager)
 	if err != nil {
-		return nil, "", err
+		return nil, err
 	}
 
-	return userPrivileges, "", nil
+	return userPrivileges, nil
 }
