@@ -16,7 +16,6 @@ import (
 	v1 "k8s.io/api/core/v1"
 )
 
-var fakeThumbprint = "A3:B5:9E:5F:E8:84:EE:84:34:D9:8E:EF:85:8E:3F:B6:62:AC:10:85"
 var categories = []vtags.Category{
 	{
 		ID:              "urn:vmomi:InventoryServiceCategory:552dfe88-38ab-4c76-8791-14a2156a5f3f:GLOBAL",
@@ -37,6 +36,14 @@ var categories = []vtags.Category{
 	{
 		ID:              "urn:vmomi:InventoryServiceCategory:4adb4e4b-8aee-4beb-8f6c-66d22d768cbc:GLOBAL",
 		Name:            "AVICLUSTER_UUID",
+		Description:     "",
+		Cardinality:     "SINGLE",
+		AssociableTypes: []string{"com.vmware.content.library.Item"},
+		UsedBy:          []string{},
+	},
+	{
+		ID:              "urn:vmomi:InventoryServiceCategory:4adb4e4b-8aee-4beb-8f6c-66d22d76abcd:GLOBAL",
+		Name:            "owner",
 		Description:     "",
 		Cardinality:     "SINGLE",
 		AssociableTypes: []string{"com.vmware.content.library.Item"},
@@ -70,12 +77,25 @@ var attachedTags = []vtags.AttachedTags{
 			},
 		},
 	},
+	{
+		ObjectID: nil,
+		TagIDs:   []string{"urn:vmomi:InventoryServiceTag:e886a5b2-73cd-488e-85be-9c8b1bc740eb:GLOBAL"},
+		Tags: []vtags.Tag{
+			{
+				ID:          "urn:vmomi:InventoryServiceTag:e886a5b2-73cd-488e-85be-9c8b1bc740eb:GLOBAL",
+				Description: "",
+				Name:        "owner",
+				CategoryID:  "urn:vmomi:InventoryServiceCategory:4adb4e4b-8aee-4beb-8f6c-66d22d76abcd:GLOBAL",
+				UsedBy:      nil,
+			},
+		},
+	},
 }
 
 func Execute() error {
 	testCtx := test.NewTestContext()
 	return test.Flow(testCtx).
-		Test(NewtagValidationTest("vali8or-plugin-tags-integration-test")).
+		Test(NewTagValidationTest("vali8or-plugin-tags-integration-test")).
 		TearDown().Audit()
 }
 
@@ -84,9 +104,9 @@ type TagValidationTest struct {
 	log *log.Entry
 }
 
-func NewtagValidationTest(description string) *TagValidationTest {
+func NewTagValidationTest(description string) *TagValidationTest {
 	return &TagValidationTest{
-		log:      log.WithField("test", "role-privilege-integration-test"),
+		log:      log.WithField("test", "tag-validation-integration-test"),
 		BaseTest: test.NewBaseTest("vsphere-plugin", description, nil),
 	}
 }
@@ -97,14 +117,14 @@ func (t *TagValidationTest) Execute(ctx *test.TestContext) (tr *test.TestResult)
 		return tr
 	}
 
-	if result := t.testGenerateManifestsInteractive(ctx); result.IsFailed() {
+	if result := t.testTagsOnObjects(ctx); result.IsFailed() {
 		return result
 	}
 
 	return test.Success()
 }
 
-func (t *TagValidationTest) testGenerateManifestsInteractive(ctx *test.TestContext) (tr *test.TestResult) {
+func (t *TagValidationTest) testTagsOnObjects(ctx *test.TestContext) (tr *test.TestResult) {
 	vcSim := ctx.Get("vcsim")
 	vsphereCloudAccount := vcSim.(*vcsim.VCSimulator).GetTestVsphereAccount()
 
@@ -119,11 +139,26 @@ func (t *TagValidationTest) testGenerateManifestsInteractive(ctx *test.TestConte
 	var log logr.Logger
 	tagService := tags.NewTagsValidationService(log)
 
-	rule := v1alpha1.RegionZoneValidationRule{
-		RegionCategoryName: "k8s-region",
-		ZoneCategoryName:   "k8s-zone",
-		Datacenter:         "DC0",
-		Clusters:           []string{"DC0_C0"},
+	rules := []v1alpha1.TagValidationRule{
+		{
+			Name:       "Datacenter validation rule",
+			EntityType: "Datacenter",
+			EntityName: "DC0",
+			Tag:        "k8s-region",
+		},
+		{
+			Name:       "Cluster validation rule",
+			EntityType: "Cluster",
+			EntityName: "DC0_C0",
+			Tag:        "k8s-zone",
+		},
+		{
+			Name:        "Host validation rule",
+			ClusterName: "DC0_C0",
+			EntityType:  "Host",
+			EntityName:  "DC0_C0_H0",
+			Tag:         "owner",
+		},
 	}
 
 	testCases := []struct {
@@ -158,12 +193,15 @@ func (t *TagValidationTest) testGenerateManifestsInteractive(ctx *test.TestConte
 		tags.GetAttachedTagsOnObjects = func(tagsManager *vtags.Manager, refs []mo.Reference) ([]vtags.AttachedTags, error) {
 			return tc.attachedTags, nil
 		}
-		vr, err := tagService.ReconcileRegionZoneTagRules(tm, finder, rule)
-		if vr.Condition.Status != tc.expectedStatus {
-			test.Failure("Expected status is not equal to condition status")
-		}
-		if err == nil && tc.expectedErr {
-			test.Failure("Expected error but got no error")
+
+		for _, rule := range rules {
+			vr, err := tagService.ReconcileTagRules(tm, finder, vsphereCloudDriver, rule)
+			if vr.Condition.Status != tc.expectedStatus {
+				test.Failure("Expected status is not equal to condition status")
+			}
+			if err == nil && tc.expectedErr {
+				test.Failure("Expected error but got no error")
+			}
 		}
 	}
 

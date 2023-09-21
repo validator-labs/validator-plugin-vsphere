@@ -143,7 +143,6 @@ func (v *VSphereCloudDriver) GetUserPrivilegeOnEntities(ctx context.Context, aut
 		if _, ok := privilegesMap[privilege]; !ok {
 			return false, fmt.Errorf("user: %s does not have privilege: %s on entity type: %s with name: %s", userName, privilege, entityType, entityName)
 		}
-		fmt.Printf("Privilege: %s, found: %v\n", privilege, privilegesMap[privilege])
 	}
 
 	return true, nil

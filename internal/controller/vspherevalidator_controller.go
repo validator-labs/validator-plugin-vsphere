@@ -161,16 +161,16 @@ func (r *VsphereValidatorReconciler) Reconcile(ctx context.Context, req ctrl.Req
 	}
 	r.Log.V(0).Info("Validated privileges for account", "user", vsphereCloudDriver.VCenterUsername)
 
-	// Region and Zone tags validation rule
-	r.Log.V(0).Info("Checking if region and zone tags are properly assigned")
-	regionZoneTagRule := validator.Spec.RegionZoneValidationRule
-
-	validationResult, err := tagValidationService.ReconcileRegionZoneTagRules(tagsManager, finder, regionZoneTagRule)
-	if err != nil {
-		r.Log.V(0).Error(err, "failed to reconcile tag validation rule")
+	// tag validation rules
+	r.Log.V(0).Info("Checking if tags are properly assigned")
+	for _, rule := range validator.Spec.TagValidationRules {
+		validationResult, err := tagValidationService.ReconcileTagRules(tagsManager, finder, vsphereCloudDriver, rule)
+		if err != nil {
+			r.Log.V(0).Error(err, "failed to reconcile role privilege rule")
+		}
+		v8ores.SafeUpdateValidationResult(r.Client, nn, validationResult, failed, err, r.Log)
 	}
-	v8ores.SafeUpdateValidationResult(r.Client, nn, validationResult, failed, err, r.Log)
-	r.Log.V(0).Info("Finished checking region and zone tags for", "Datacenter", regionZoneTagRule.Datacenter, "Clusters", regionZoneTagRule.Clusters)
+	r.Log.V(0).Info("Validated tags for account", "user", vsphereCloudDriver.VCenterUsername)
 
 	// requeue after two minutes for re-validation
 	r.Log.V(0).Info("Requeuing for re-validation in two minutes.", "name", req.Name, "namespace", req.Namespace)

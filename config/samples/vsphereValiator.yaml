@@ -91,13 +91,16 @@ spec:
       - "VirtualMachine.State.RemoveSnapshot"
       - "VirtualMachine.State.RenameSnapshot"
       - "VirtualMachine.State.RevertToSnapshot"
-  regionZoneValidationRule:
-    regionCategoryName: "k8s-region"
-    zoneCategoryName: "k8s-zone"
-    datacenter: "Datacenter"
-    clusters:
-      - Cluster1
-      - Cluster2
+  tagValidationRules:
+    - name: "Datacenter k8s-region tag validation"
+      entityType: "Datacenter"
+      entityName: "Datacenter"
+      tag: "k8s-region"
+    - name: "Folder tag validation"
+      clusterName: "Cluster2"
+      entityType: "Folder"
+      entityName: "sp-prakash"
+      tag: "owner"
   rolePrivilegeValidationRules:
     - name: Cns.Searchable
       isEnabled: true

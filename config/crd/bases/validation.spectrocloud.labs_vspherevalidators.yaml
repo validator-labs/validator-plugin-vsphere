@@ -59,31 +59,12 @@ spec:
                         type: string
                       type: array
                   required:
-                  - clusterName
                   - entityName
                   - entityType
                   - name
                   - privileges
                   type: object
                 type: array
-              regionZoneValidationRule:
-                properties:
-                  clusters:
-                    items:
-                      type: string
-                    type: array
-                  datacenter:
-                    type: string
-                  regionCategoryName:
-                    type: string
-                  zoneCategoryName:
-                    type: string
-                required:
-                - clusters
-                - datacenter
-                - regionCategoryName
-                - zoneCategoryName
-                type: object
               rolePrivilegeValidationRules:
                 items:
                   properties:
@@ -104,12 +85,32 @@ spec:
                   - ruleType
                   type: object
                 type: array
+              tagValidationRules:
+                items:
+                  properties:
+                    clusterName:
+                      type: string
+                    entityName:
+                      type: string
+                    entityType:
+                      type: string
+                    name:
+                      type: string
+                    tag:
+                      type: string
+                  required:
+                  - entityName
+                  - entityType
+                  - name
+                  - tag
+                  type: object
+                type: array
             required:
             - auth
             - datacenter
             - entityPrivilegeValidationRules
-            - regionZoneValidationRule
             - rolePrivilegeValidationRules
+            - tagValidationRules
             type: object
           status:
             description: VsphereValidatorStatus defines the observed state of VsphereValidator
