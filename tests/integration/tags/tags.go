@@ -42,6 +42,14 @@ var categories = []vtags.Category{
 		AssociableTypes: []string{"com.vmware.content.library.Item"},
 		UsedBy:          []string{},
 	},
+	{
+		ID:              "urn:vmomi:InventoryServiceCategory:4adb4e4b-8aee-4beb-8f6c-66d22d76abcd:GLOBAL",
+		Name:            "owner",
+		Description:     "",
+		Cardinality:     "SINGLE",
+		AssociableTypes: []string{"com.vmware.content.library.Item"},
+		UsedBy:          []string{},
+	},
 }
 var attachedTags = []vtags.AttachedTags{
 	{
@@ -66,6 +74,19 @@ var attachedTags = []vtags.AttachedTags{
 				Description: "",
 				Name:        "zone1",
 				CategoryID:  "urn:vmomi:InventoryServiceCategory:167242af-7e93-41ed-8704-52791115e1a8:GLOBAL",
+				UsedBy:      nil,
+			},
+		},
+	},
+	{
+		ObjectID: nil,
+		TagIDs:   []string{"urn:vmomi:InventoryServiceTag:e886a5b2-73cd-488e-85be-9c8b1bc740eb:GLOBAL"},
+		Tags: []vtags.Tag{
+			{
+				ID:          "urn:vmomi:InventoryServiceTag:e886a5b2-73cd-488e-85be-9c8b1bc740eb:GLOBAL",
+				Description: "",
+				Name:        "owner",
+				CategoryID:  "urn:vmomi:InventoryServiceCategory:4adb4e4b-8aee-4beb-8f6c-66d22d76abcd:GLOBAL",
 				UsedBy:      nil,
 			},
 		},
@@ -119,11 +140,26 @@ func (t *TagValidationTest) testGenerateManifestsInteractive(ctx *test.TestConte
 	var log logr.Logger
 	tagService := tags.NewTagsValidationService(log)
 
-	rule := v1alpha1.RegionZoneValidationRule{
-		RegionCategoryName: "k8s-region",
-		ZoneCategoryName:   "k8s-zone",
-		Datacenter:         "DC0",
-		Clusters:           []string{"DC0_C0"},
+	rules := []v1alpha1.TagValidationRule{
+		{
+			Name:       "Datacenter validation rule",
+			EntityType: "Datacenter",
+			EntityName: "DC0",
+			Tag:        "k8s-region",
+		},
+		{
+			Name:       "Cluster validation rule",
+			EntityType: "Cluster",
+			EntityName: "DC0_C0",
+			Tag:        "k8s-zone",
+		},
+		{
+			Name:        "Host validation rule",
+			ClusterName: "DC0_C0",
+			EntityType:  "Host",
+			EntityName:  "DC0_C0_H0",
+			Tag:         "owner",
+		},
 	}
 
 	testCases := []struct {
@@ -158,12 +194,15 @@ func (t *TagValidationTest) testGenerateManifestsInteractive(ctx *test.TestConte
 		tags.GetAttachedTagsOnObjects = func(tagsManager *vtags.Manager, refs []mo.Reference) ([]vtags.AttachedTags, error) {
 			return tc.attachedTags, nil
 		}
-		vr, err := tagService.ReconcileRegionZoneTagRules(tm, finder, rule)
-		if vr.Condition.Status != tc.expectedStatus {
-			test.Failure("Expected status is not equal to condition status")
-		}
-		if err == nil && tc.expectedErr {
-			test.Failure("Expected error but got no error")
+
+		for _, rule := range rules {
+			vr, err := tagService.ReconcileRegionZoneTagRules(tm, finder, vsphereCloudDriver, rule)
+			if vr.Condition.Status != tc.expectedStatus {
+				test.Failure("Expected status is not equal to condition status")
+			}
+			if err == nil && tc.expectedErr {
+				test.Failure("Expected error but got no error")
+			}
 		}
 	}
 

@@ -16,7 +16,7 @@ type VsphereValidatorSpec struct {
 	Datacenter                     string                               `json:"datacenter"`
 	EntityPrivilegeValidationRules []EntityPrivilegeValidationRule      `json:"entityPrivilegeValidationRules"`
 	RolePrivilegeValidationRules   []GenericRolePrivilegeValidationRule `json:"rolePrivilegeValidationRules"`
-	RegionZoneValidationRule       RegionZoneValidationRule             `json:"regionZoneValidationRule"`
+	TagValidationRules             []TagValidationRule                  `json:"tagValidationRules"`
 }
 
 type VsphereAuth struct {
@@ -25,7 +25,7 @@ type VsphereAuth struct {
 
 type EntityPrivilegeValidationRule struct {
 	Name        string   `json:"name"`
-	ClusterName string   `json:"clusterName"`
+	ClusterName string   `json:"clusterName,omitempty"`
 	EntityType  string   `json:"entityType"`
 	EntityName  string   `json:"entityName"`
 	Privileges  []string `json:"privileges"`
@@ -38,11 +38,12 @@ type GenericRolePrivilegeValidationRule struct {
 	Expressions []string `json:"expressions"`
 }
 
-type RegionZoneValidationRule struct {
-	RegionCategoryName string   `json:"regionCategoryName"`
-	ZoneCategoryName   string   `json:"zoneCategoryName"`
-	Datacenter         string   `json:"datacenter"`
-	Clusters           []string `json:"clusters"`
+type TagValidationRule struct {
+	Name        string `json:"name"`
+	ClusterName string `json:"clusterName,omitempty"`
+	EntityType  string `json:"entityType"`
+	EntityName  string `json:"entityName"`
+	Tag         string `json:"tag"`
 }
 
 type CloudAccountValidationRule struct {
