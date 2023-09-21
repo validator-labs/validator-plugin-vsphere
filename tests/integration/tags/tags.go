@@ -16,7 +16,6 @@ import (
 	v1 "k8s.io/api/core/v1"
 )
 
-var fakeThumbprint = "A3:B5:9E:5F:E8:84:EE:84:34:D9:8E:EF:85:8E:3F:B6:62:AC:10:85"
 var categories = []vtags.Category{
 	{
 		ID:              "urn:vmomi:InventoryServiceCategory:552dfe88-38ab-4c76-8791-14a2156a5f3f:GLOBAL",
@@ -96,7 +95,7 @@ var attachedTags = []vtags.AttachedTags{
 func Execute() error {
 	testCtx := test.NewTestContext()
 	return test.Flow(testCtx).
-		Test(NewtagValidationTest("vali8or-plugin-tags-integration-test")).
+		Test(NewTagValidationTest("vali8or-plugin-tags-integration-test")).
 		TearDown().Audit()
 }
 
@@ -105,9 +104,9 @@ type TagValidationTest struct {
 	log *log.Entry
 }
 
-func NewtagValidationTest(description string) *TagValidationTest {
+func NewTagValidationTest(description string) *TagValidationTest {
 	return &TagValidationTest{
-		log:      log.WithField("test", "role-privilege-integration-test"),
+		log:      log.WithField("test", "tag-validation-integration-test"),
 		BaseTest: test.NewBaseTest("vsphere-plugin", description, nil),
 	}
 }
@@ -118,14 +117,14 @@ func (t *TagValidationTest) Execute(ctx *test.TestContext) (tr *test.TestResult)
 		return tr
 	}
 
-	if result := t.testGenerateManifestsInteractive(ctx); result.IsFailed() {
+	if result := t.testTagsOnObjects(ctx); result.IsFailed() {
 		return result
 	}
 
 	return test.Success()
 }
 
-func (t *TagValidationTest) testGenerateManifestsInteractive(ctx *test.TestContext) (tr *test.TestResult) {
+func (t *TagValidationTest) testTagsOnObjects(ctx *test.TestContext) (tr *test.TestResult) {
 	vcSim := ctx.Get("vcsim")
 	vsphereCloudAccount := vcSim.(*vcsim.VCSimulator).GetTestVsphereAccount()
 
@@ -196,7 +195,7 @@ func (t *TagValidationTest) testGenerateManifestsInteractive(ctx *test.TestConte
 		}
 
 		for _, rule := range rules {
-			vr, err := tagService.ReconcileRegionZoneTagRules(tm, finder, vsphereCloudDriver, rule)
+			vr, err := tagService.ReconcileTagRules(tm, finder, vsphereCloudDriver, rule)
 			if vr.Condition.Status != tc.expectedStatus {
 				test.Failure("Expected status is not equal to condition status")
 			}

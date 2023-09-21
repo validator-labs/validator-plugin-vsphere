@@ -23,13 +23,6 @@ import (
 var GetCategories = getCategories
 var GetAttachedTagsOnObjects = getAttachedTagsOnObjects
 
-//type RegionZoneCategoryExistsInput struct {
-//	Datacenter         string
-//	Cluster            []string
-//	RegionCategoryName string
-//	ZoneCategoryName   string
-//}
-
 type TagsValidationService struct {
 	Log logr.Logger
 }
@@ -40,8 +33,8 @@ func NewTagsValidationService(log logr.Logger) *TagsValidationService {
 	}
 }
 
-func (s *TagsValidationService) ReconcileRegionZoneTagRules(tagsManager *tags.Manager, finder *find.Finder, driver *vsphere.VSphereCloudDriver, tagValidationRule v1alpha1.TagValidationRule) (*types.ValidationResult, error) {
-	vr := buildValidationResult(constants.ValidationTypeTag)
+func (s *TagsValidationService) ReconcileTagRules(tagsManager *tags.Manager, finder *find.Finder, driver *vsphere.VSphereCloudDriver, tagValidationRule v1alpha1.TagValidationRule) (*types.ValidationResult, error) {
+	vr := buildValidationResult(tagValidationRule, constants.ValidationTypeTag)
 
 	valid, err := tagIsValid(tagsManager, finder, driver.Datacenter, tagValidationRule.ClusterName, tagValidationRule.EntityType, tagValidationRule.EntityName, tagValidationRule.Tag)
 	if !valid {
@@ -56,11 +49,11 @@ func (s *TagsValidationService) ReconcileRegionZoneTagRules(tagsManager *tags.Ma
 	return vr, nil
 }
 
-func buildValidationResult(validationType string) *types.ValidationResult {
+func buildValidationResult(rule v1alpha1.TagValidationRule, validationType string) *types.ValidationResult {
 	state := v8or.ValidationSucceeded
 	latestCondition := v8or.DefaultValidationCondition()
 	latestCondition.Message = "Required entity tags were found"
-	latestCondition.ValidationRule = fmt.Sprintf("%s-%s-%s", v8orconstants.ValidationRulePrefix, "region", "zone")
+	latestCondition.ValidationRule = fmt.Sprintf("%s-%s-%s-%s", v8orconstants.ValidationRulePrefix, "tag", rule.EntityType, rule.Tag)
 	latestCondition.ValidationType = validationType
 	validationResult := &v8ortypes.ValidationResult{Condition: &latestCondition, State: &state}
 
@@ -99,7 +92,7 @@ func tagIsValid(tagsManager *tags.Manager, finder *find.Finder, datacenterName, 
 		inventoryPath = fmt.Sprintf(constants.VirtualMachineInventoryPath, entityName)
 	}
 
-	// check if datacenter has region tag
+	// check if object has tag
 	list, err := finder.ManagedObjectList(context.TODO(), inventoryPath)
 	if err != nil {
 		return false, err
