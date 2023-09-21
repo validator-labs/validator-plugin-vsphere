@@ -11,6 +11,6 @@ const (
 	HostSystemInventoryPath     = "/%s/host/%s/%s"
 	VirtualMachineInventoryPath = "%s"
 	FolderInventoryPath         = "%s"
-	ResourcePoolInventoryPath   = "\"/%s/host/%s/Resources/%s\""
+	ResourcePoolInventoryPath   = "/%s/host/%s/Resources/%s"
 	VAppInventoryPath           = ""
 )
