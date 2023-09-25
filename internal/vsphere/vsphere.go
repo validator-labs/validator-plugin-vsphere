@@ -3,8 +3,15 @@ package vsphere
 import (
 	"context"
 	"fmt"
+	"net/http"
+	"net/url"
+	"path"
+	"sort"
+	"strings"
+	"sync"
+	"time"
+
 	"github.com/pkg/errors"
-	log "github.com/sirupsen/logrus"
 	"github.com/vmware/govmomi"
 	"github.com/vmware/govmomi/find"
 	"github.com/vmware/govmomi/object"
@@ -13,14 +20,9 @@ import (
 	"github.com/vmware/govmomi/vapi/rest"
 	"github.com/vmware/govmomi/vim25"
 	"github.com/vmware/govmomi/vim25/methods"
+	"github.com/vmware/govmomi/vim25/mo"
 	"github.com/vmware/govmomi/vim25/soap"
 	"github.com/vmware/govmomi/vim25/types"
-	"net/http"
-	"net/url"
-	"path"
-	"strings"
-	"sync"
-	"time"
 )
 
 const KeepAliveIntervalInMinute = 10
@@ -312,8 +314,7 @@ func (v *VSphereCloudDriver) getFinderWithDatacenter(ctx context.Context, datace
 	}
 	dc, govErr := finder.DatacenterOrDefault(ctx, datacenter)
 	if govErr != nil {
-		log.Error(govErr, "failed to fetch datacenter", "Datacenter:", datacenter)
-		return nil, "", fmt.Errorf("failed to fetch datacenter: %s, code: %d", govErr.Error(), http.StatusBadRequest)
+		return nil, "", fmt.Errorf("failed to fetch datacenter: %s. code: %d", govErr.Error(), http.StatusBadRequest)
 	}
 	//set the datacenter
 	finder.SetDatacenter(dc)
@@ -408,4 +409,74 @@ func (v *VSphereCloudDriver) GetVmwareUserPrivileges(userName, datacenter string
 		}
 	}
 	return privileges, nil
+}
+
+func (v *VSphereCloudDriver) GetVSphereResourcePools(ctx context.Context, datacenter string, cluster string) (resourcePools []string, err error) {
+	finder, dc, err := v.getFinderWithDatacenter(ctx, datacenter)
+	if err != nil {
+		return nil, err
+	}
+
+	searchPath := fmt.Sprintf("/%s/host/%s/Resources/*", dc, cluster)
+	pools, govErr := finder.ResourcePoolList(ctx, searchPath)
+	if govErr != nil {
+		//ignore NotFoundError, to allow selection of "Resources" as the default option for rs pool
+		if _, ok := govErr.(*find.NotFoundError); !ok {
+			return nil, fmt.Errorf("failed to fetch vSphere resource pools. datacenter: %s, code: %d", datacenter, http.StatusBadRequest)
+		}
+	}
+
+	for i := 0; i < len(pools); i++ {
+		pool := pools[i]
+		prefix := fmt.Sprintf("/%s/host/%s/Resources/", dc, cluster)
+		poolPath := strings.TrimPrefix(pool.InventoryPath, prefix)
+		resourcePools = append(resourcePools, poolPath)
+		childPoolSearchPath := fmt.Sprintf("/%s/host/%s/Resources/%s/*", dc, cluster, poolPath)
+		childPools, err := finder.ResourcePoolList(ctx, childPoolSearchPath)
+		if err == nil {
+			pools = append(pools, childPools...)
+		}
+	}
+
+	sort.Strings(resourcePools)
+	return resourcePools, nil
+}
+
+func (v *VSphereCloudDriver) getClusterDatastores(ctx context.Context, finder *find.Finder, datacenter string, cluster mo.ClusterComputeResource) (datastores []string, err error) {
+	dsMobjRefs := cluster.Datastore
+
+	for i := range dsMobjRefs {
+		inventoryPath := ""
+		dsObjRef, err := finder.ObjectReference(ctx, dsMobjRefs[i])
+		if err != nil {
+			return nil, fmt.Errorf("error: %s, code: %d", err.Error(), http.StatusBadRequest)
+		}
+		if dsObjRef != nil {
+			ref := dsObjRef
+			switch ref.(type) {
+			case *object.Datastore:
+				n := dsObjRef.(*object.Datastore)
+				inventoryPath = n.InventoryPath
+			default:
+				continue
+			}
+
+			if inventoryPath != "" {
+				prefix := fmt.Sprintf("/%s/datastore/", datacenter)
+				datastore := strings.TrimPrefix(inventoryPath, prefix)
+				datastores = append(datastores, datastore)
+			}
+		}
+	}
+
+	sort.Strings(datastores)
+	return datastores, nil
+}
+
+func (v *VSphereCloudDriver) getClusterComputeResources(ctx context.Context, finder *find.Finder) ([]*object.ClusterComputeResource, error) {
+	ccrs, err := finder.ClusterComputeResourceList(ctx, "*")
+	if err != nil {
+		return nil, fmt.Errorf("failed to get compute cluster resources: %s", err.Error())
+	}
+	return ccrs, nil
 }

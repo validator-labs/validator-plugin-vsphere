@@ -11,6 +11,22 @@ metadata:
   namespace: valid8or
 spec:
   datacenter: "Datacenter"
+  computeResourceRules:
+    - name: "rp-cluster2-palette-advanced-projects check resources"
+      clusterName: Cluster2
+      scope: cluster
+      entityName: "Cluster2"
+      nodepoolResourceRequirements:
+        - name: master-pool
+          numberOfNodes: 3
+          cpu: "9GHz"
+          memory: 16Gi
+          diskSpace: 80Gi
+        - name: worker-pool
+          numberOfNodes: 2
+          cpu: "10GHz"
+          memory: 32Gi
+          diskSpace: 100Gi
   auth:
     secretName: validator-secret
   entityPrivilegeValidationRules:

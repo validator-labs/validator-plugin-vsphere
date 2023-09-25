@@ -41,6 +41,45 @@ spec:
                 required:
                 - secretName
                 type: object
+              computeResourceRules:
+                items:
+                  properties:
+                    clusterName:
+                      type: string
+                    entityName:
+                      type: string
+                    name:
+                      type: string
+                    nodepoolResourceRequirements:
+                      items:
+                        properties:
+                          cpu:
+                            type: string
+                          diskSpace:
+                            type: string
+                          memory:
+                            type: string
+                          name:
+                            type: string
+                          numberOfNodes:
+                            type: integer
+                        required:
+                        - cpu
+                        - diskSpace
+                        - memory
+                        - name
+                        - numberOfNodes
+                        type: object
+                      type: array
+                    scope:
+                      type: string
+                  required:
+                  - entityName
+                  - name
+                  - nodepoolResourceRequirements
+                  - scope
+                  type: object
+                type: array
               datacenter:
                 type: string
               entityPrivilegeValidationRules:
@@ -107,6 +146,7 @@ spec:
                 type: array
             required:
             - auth
+            - computeResourceRules
             - datacenter
             - entityPrivilegeValidationRules
             - rolePrivilegeValidationRules

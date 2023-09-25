@@ -17,10 +17,19 @@ type VsphereValidatorSpec struct {
 	EntityPrivilegeValidationRules []EntityPrivilegeValidationRule      `json:"entityPrivilegeValidationRules"`
 	RolePrivilegeValidationRules   []GenericRolePrivilegeValidationRule `json:"rolePrivilegeValidationRules"`
 	TagValidationRules             []TagValidationRule                  `json:"tagValidationRules"`
+	ComputeResourceRules           []ComputeResourceRule                `json:"computeResourceRules"`
 }
 
 type VsphereAuth struct {
 	SecretName string `json:"secretName"`
+}
+
+type ComputeResourceRule struct {
+	Name                         string                        `json:"name"`
+	ClusterName                  string                        `json:"clusterName,omitempty"`
+	Scope                        string                        `json:"scope"`
+	EntityName                   string                        `json:"entityName"`
+	NodepoolResourceRequirements []NodepoolResourceRequirement `json:"nodepoolResourceRequirements"`
 }
 
 type EntityPrivilegeValidationRule struct {
@@ -44,6 +53,14 @@ type TagValidationRule struct {
 	EntityType  string `json:"entityType"`
 	EntityName  string `json:"entityName"`
 	Tag         string `json:"tag"`
+}
+
+type NodepoolResourceRequirement struct {
+	Name          string `json:"name"`
+	NumberOfNodes int    `json:"numberOfNodes"`
+	CPU           string `json:"cpu"`
+	Memory        string `json:"memory"`
+	DiskSpace     string `json:"diskSpace"`
 }
 
 type CloudAccountValidationRule struct {

@@ -21,6 +21,7 @@ import (
 	"fmt"
 	"github.com/go-logr/logr"
 	"github.com/spectrocloud-labs/valid8or-plugin-vsphere/internal/constants"
+	"github.com/spectrocloud-labs/valid8or-plugin-vsphere/internal/validators/computeresources"
 	"github.com/spectrocloud-labs/valid8or-plugin-vsphere/internal/validators/roleprivilege"
 	"github.com/spectrocloud-labs/valid8or-plugin-vsphere/internal/validators/tags"
 	"github.com/spectrocloud-labs/valid8or-plugin-vsphere/internal/vsphere"
@@ -86,6 +87,7 @@ func (r *VsphereValidatorReconciler) Reconcile(ctx context.Context, req ctrl.Req
 	}
 
 	vsphereCloudDriver, err := vsphere.NewVSphereDriver(vsphereCloudAccount.VcenterServer, vsphereCloudAccount.Username, vsphereCloudAccount.Password, validator.Spec.Datacenter)
+
 	if err != nil {
 		return ctrl.Result{}, err
 	}
@@ -105,6 +107,7 @@ func (r *VsphereValidatorReconciler) Reconcile(ctx context.Context, req ctrl.Req
 
 	rolePrivilegeValidationService := roleprivilege.NewRolePrivilegeValidationService(r.Log, vsphereCloudDriver, validator.Spec.Datacenter, authManager, userName)
 	tagValidationService := tags.NewTagsValidationService(r.Log)
+	computeResourceValidationService := computeresources.NewComputeResourcesValidationService(r.Log, vsphereCloudDriver)
 
 	// Get the active validator's validation result
 	vr := &v8or.ValidationResult{}
@@ -140,6 +143,15 @@ func (r *VsphereValidatorReconciler) Reconcile(ctx context.Context, req ctrl.Req
 	}
 
 	failed := &types.MonotonicBool{}
+
+	// computeresources validation rules
+	for _, rule := range validator.Spec.ComputeResourceRules {
+		validationResult, err := computeResourceValidationService.ReconcileComputeResourceValidationRule(rule, finder, vsphereCloudDriver)
+		if err != nil {
+			r.Log.V(0).Error(err, "failed to reconcile computeresources validation rule")
+		}
+		v8ores.SafeUpdateValidationResult(r.Client, nn, validationResult, failed, err, r.Log)
+	}
 
 	// entity privilege validation rules
 	for _, rule := range validator.Spec.EntityPrivilegeValidationRules {
