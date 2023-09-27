@@ -41,10 +41,7 @@ type EntityPrivilegeValidationRule struct {
 }
 
 type GenericRolePrivilegeValidationRule struct {
-	Name        string   `json:"name"`
-	IsEnabled   bool     `json:"isEnabled"`
-	RuleType    string   `json:"ruleType"`
-	Expressions []string `json:"expressions"`
+	Name string `json:"name"`
 }
 
 type TagValidationRule struct {

@@ -14,8 +14,8 @@ spec:
   computeResourceRules:
     - name: "rp-cluster2-palette-advanced-projects check resources"
       clusterName: Cluster2
-      scope: cluster
-      entityName: "Cluster2"
+      scope: resourcepool
+      entityName: "rp-cluster2-palette-advanced-projects"
       nodepoolResourceRequirements:
         - name: master-pool
           numberOfNodes: 3
@@ -33,7 +33,7 @@ spec:
     - name: "Deploy VM to folder sp-prakash"
       clusterName: "Cluster2"
       entityName: "rp-cluster2-palette-advanced-projects"
-      entityType: "ResourcePool"
+      entityType: "resourcepool"
       privileges:
       - "VirtualMachine.Config.AddExistingDisk"
       - "VirtualMachine.Config.AddNewDisk"
@@ -109,52 +109,20 @@ spec:
       - "VirtualMachine.State.RevertToSnapshot"
   tagValidationRules:
     - name: "Datacenter k8s-region tag validation"
-      entityType: "Datacenter"
-      entityName: "Datacenter"
-      tag: "k8s-region"
+      entityType: "vm"
+      entityName: "ubuntu-test-mig-multi-disk"
+      tag: "owner"
     - name: "Folder tag validation"
       clusterName: "Cluster2"
-      entityType: "Folder"
+      entityType: "folder"
       entityName: "sp-prakash"
       tag: "owner"
   rolePrivilegeValidationRules:
     - name: Cns.Searchable
-      isEnabled: true
-      ruleType: VMwareRolePrivilege
-      expressions:
-        - '"Cns.Searchable" IN (vmware_user_privileges)'
     - name: Datastore.Browse
-      isEnabled: true
-      ruleType: VMwareRolePrivilege
-      expressions:
-        - '"Datastore.Browse" IN (vmware_user_privileges)'
     - name: InventoryService.Tagging.CreateTag
-      isEnabled: true
-      ruleType: VMwareRolePrivilege
-      expressions:
-        - '"InventoryService.Tagging.CreateTag" IN (vmware_user_privileges)'
     - name: InventoryService.Tagging.EditTag
-      isEnabled: true
-      ruleType: VMwareRolePrivilege
-      expressions:
-        - '"InventoryService.Tagging.EditTag" IN (vmware_user_privileges)'
     - name: Network.Assign
-      isEnabled: true
-      ruleType: VMwareRolePrivilege
-      expressions:
-        - '"Network.Assign" IN (vmware_user_privileges)'
     - name: Sessions.ValidateSession
-      isEnabled: true
-      ruleType: VMwareRolePrivilege
-      expressions:
-        - '"Sessions.ValidateSession" IN (vmware_user_privileges)'
     - name: StorageProfile.View
-      isEnabled: true
-      ruleType: VMwareRolePrivilege
-      expressions:
-        - '"StorageProfile.View" IN (vmware_user_privileges)'
     - name: StorageViews.View
-      isEnabled: true
-      ruleType: VMwareRolePrivilege
-      expressions:
-        - '"StorageViews.View" IN (vmware_user_privileges)'

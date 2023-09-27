@@ -22,7 +22,7 @@ import (
 	"github.com/go-logr/logr"
 	"github.com/spectrocloud-labs/valid8or-plugin-vsphere/internal/constants"
 	"github.com/spectrocloud-labs/valid8or-plugin-vsphere/internal/validators/computeresources"
-	"github.com/spectrocloud-labs/valid8or-plugin-vsphere/internal/validators/roleprivilege"
+	"github.com/spectrocloud-labs/valid8or-plugin-vsphere/internal/validators/privileges"
 	"github.com/spectrocloud-labs/valid8or-plugin-vsphere/internal/validators/tags"
 	"github.com/spectrocloud-labs/valid8or-plugin-vsphere/internal/vsphere"
 	v8or "github.com/spectrocloud-labs/valid8or/api/v1alpha1"
@@ -105,7 +105,7 @@ func (r *VsphereValidatorReconciler) Reconcile(ctx context.Context, req ctrl.Req
 		return ctrl.Result{}, err
 	}
 
-	rolePrivilegeValidationService := roleprivilege.NewRolePrivilegeValidationService(r.Log, vsphereCloudDriver, validator.Spec.Datacenter, authManager, userName)
+	rolePrivilegeValidationService := privileges.NewPrivilegeValidationService(r.Log, vsphereCloudDriver, validator.Spec.Datacenter, authManager, userName)
 	tagValidationService := tags.NewTagsValidationService(r.Log)
 	computeResourceValidationService := computeresources.NewComputeResourcesValidationService(r.Log, vsphereCloudDriver)
 
@@ -186,7 +186,7 @@ func (r *VsphereValidatorReconciler) Reconcile(ctx context.Context, req ctrl.Req
 
 	// requeue after two minutes for re-validation
 	r.Log.V(0).Info("Requeuing for re-validation in two minutes.", "name", req.Name, "namespace", req.Namespace)
-	return ctrl.Result{}, nil
+	return ctrl.Result{RequeueAfter: 2 * time.Minute}, nil
 }
 
 func (r *VsphereValidatorReconciler) secretKeyAuth(req ctrl.Request, validator *v1alpha1.VsphereValidator) (*vsphere.VsphereCloudAccount, *reconcile.Result) {
