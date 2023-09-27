@@ -97,13 +97,13 @@ func (v *VSphereCloudDriver) GetUserPrivilegeOnEntities(ctx context.Context, aut
 	var moID types.ManagedObjectReference
 
 	switch entityType {
-	case "Folder":
+	case "folder":
 		_, folder, err = v.GetFolderIfExists(ctx, finder, datacenter, entityName)
 		if err != nil {
 			return false, err
 		}
 		moID = folder.Reference()
-	case "ResourcePool":
+	case "resourcepool":
 		_, resourcePool, err = v.GetResourcePoolIfExists(ctx, finder, datacenter, clusterName, entityName)
 		if err != nil {
 			return false, err
@@ -115,13 +115,13 @@ func (v *VSphereCloudDriver) GetUserPrivilegeOnEntities(ctx context.Context, aut
 			return false, err
 		}
 		moID = vapp.Reference()
-	case "Host":
+	case "host":
 		_, host, err = v.GetHostIfExists(ctx, finder, datacenter, clusterName, entityName)
 		if err != nil {
 			return false, err
 		}
 		moID = host.Reference()
-	case "Cluster":
+	case "cluster":
 		_, cluster, err = v.GetClusterIfExists(ctx, finder, datacenter, entityName)
 		if err != nil {
 			return false, err

@@ -107,21 +107,10 @@ spec:
               rolePrivilegeValidationRules:
                 items:
                   properties:
-                    expressions:
-                      items:
-                        type: string
-                      type: array
-                    isEnabled:
-                      type: boolean
                     name:
                       type: string
-                    ruleType:
-                      type: string
                   required:
-                  - expressions
-                  - isEnabled
                   - name
-                  - ruleType
                   type: object
                 type: array
               tagValidationRules:
