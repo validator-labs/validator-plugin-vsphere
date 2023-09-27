@@ -13,6 +13,7 @@ import (
 	"github.com/spectrocloud-labs/valid8or/pkg/types"
 	"github.com/spectrocloud-labs/valid8or/pkg/util/ptr"
 	"github.com/vmware/govmomi/find"
+	"github.com/vmware/govmomi/object"
 	"github.com/vmware/govmomi/property"
 	"github.com/vmware/govmomi/units"
 	"github.com/vmware/govmomi/vim25/mo"
@@ -20,6 +21,8 @@ import (
 	"k8s.io/apimachinery/pkg/api/resource"
 	"strings"
 )
+
+var GetResourcePoolAndVMs = getResourcePoolAndVMs
 
 type ComputeResourcesValidationService struct {
 	log    logr.Logger
@@ -137,31 +140,14 @@ func (c *ComputeResourcesValidationService) ReconcileComputeResourceValidationRu
 		res.Storage.Capacity, res.Storage.Free = getDatastoreInfo(datastores)
 
 	case "resourcepool":
-		var resourcePool mo.ResourcePool
-		var virtualMachines []mo.VirtualMachine
 		var cluster mo.ClusterComputeResource
 		var datastores []mo.Datastore
 
-		obj, err := finder.ResourcePool(ctx, fmt.Sprintf(constants.ResourcePoolInventoryPath, driver.Datacenter, rule.ClusterName, rule.EntityName))
-		if err != nil {
-			return nil, err
-		}
-
-		pc := property.DefaultCollector(obj.Client())
-		err = pc.RetrieveOne(ctx, obj.Reference(), nil, &resourcePool)
-		if err != nil {
-			return nil, err
-		}
-
-		err = pc.Retrieve(ctx, resourcePool.Vm, nil, &virtualMachines)
-		if err != nil {
-			return nil, err
-		}
-
+		resourcePool, virtualMachines, err := GetResourcePoolAndVMs(ctx, fmt.Sprintf(constants.ResourcePoolInventoryPath, driver.Datacenter, rule.ClusterName, rule.EntityName), finder)
 		res.CPU.Capacity += *resourcePool.Config.CpuAllocation.Limit
 		res.Memory.Capacity += *resourcePool.Config.MemoryAllocation.Limit << 20
 
-		for _, vm := range virtualMachines {
+		for _, vm := range *virtualMachines {
 			res.CPU.Used += int64(vm.Summary.QuickStats.OverallCpuUsage)
 			res.Memory.Used += int64(vm.Summary.QuickStats.HostMemoryUsage) << 20
 		}
@@ -246,6 +232,34 @@ func (c *ComputeResourcesValidationService) ReconcileComputeResourceValidationRu
 	}
 
 	return vr, nil
+}
+
+func getResourcePoolAndVMs(ctx context.Context, inventoryPath string, finder *find.Finder) (*mo.ResourcePool, *[]mo.VirtualMachine, error) {
+	var resourcePool mo.ResourcePool
+	var virtualMachines []mo.VirtualMachine
+
+	obj, err := getResourcePoolObj(ctx, inventoryPath, finder)
+	if err != nil {
+		return nil, nil, err
+	}
+
+	pc := property.DefaultCollector(obj.Client())
+	err = pc.RetrieveOne(ctx, obj.Reference(), nil, &resourcePool)
+	if err != nil {
+		return nil, nil, err
+	}
+
+	err = pc.Retrieve(ctx, resourcePool.Vm, nil, &virtualMachines)
+	if err != nil {
+		return nil, nil, err
+	}
+
+	return &resourcePool, &virtualMachines, err
+
+}
+
+func getResourcePoolObj(ctx context.Context, inventoryPath string, finder *find.Finder) (*object.ResourcePool, error) {
+	return finder.ResourcePool(ctx, inventoryPath)
 }
 
 func getDatastoreInfo(datastores []mo.Datastore) (capacity int64, freeSpace int64) {
