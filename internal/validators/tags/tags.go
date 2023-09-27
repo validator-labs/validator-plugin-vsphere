@@ -78,17 +78,17 @@ func tagIsValid(tagsManager *tags.Manager, finder *find.Finder, datacenterName, 
 	}
 
 	switch entityType {
-	case "Datacenter":
+	case "datacenter":
 		inventoryPath = fmt.Sprintf(constants.DatacenterInventoryPath, entityName)
-	case "Folder":
+	case "folder":
 		inventoryPath = fmt.Sprintf(constants.FolderInventoryPath, entityName)
-	case "Cluster":
+	case "cluster":
 		inventoryPath = fmt.Sprintf(constants.ClusterInventoryPath, datacenterName, entityName)
-	case "Host":
+	case "host":
 		inventoryPath = fmt.Sprintf(constants.HostSystemInventoryPath, datacenterName, clusterName, entityName)
-	case "ResourcePool":
+	case "resourcepool":
 		inventoryPath = fmt.Sprintf(constants.ResourcePoolInventoryPath, datacenterName, clusterName, entityName)
-	case "VM":
+	case "vm":
 		inventoryPath = fmt.Sprintf(constants.VirtualMachineInventoryPath, entityName)
 	}
 

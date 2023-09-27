@@ -109,12 +109,12 @@ spec:
       - "VirtualMachine.State.RevertToSnapshot"
   tagValidationRules:
     - name: "Datacenter k8s-region tag validation"
-      entityType: "Datacenter"
-      entityName: "Datacenter"
-      tag: "k8s-region"
+      entityType: "vm"
+      entityName: "ubuntu-test-mig-multi-disk"
+      tag: "owner"
     - name: "Folder tag validation"
       clusterName: "Cluster2"
-      entityType: "Folder"
+      entityType: "folder"
       entityName: "sp-prakash"
       tag: "owner"
   rolePrivilegeValidationRules:

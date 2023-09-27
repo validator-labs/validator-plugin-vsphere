@@ -186,7 +186,7 @@ func (r *VsphereValidatorReconciler) Reconcile(ctx context.Context, req ctrl.Req
 
 	// requeue after two minutes for re-validation
 	r.Log.V(0).Info("Requeuing for re-validation in two minutes.", "name", req.Name, "namespace", req.Namespace)
-	return ctrl.Result{}, nil
+	return ctrl.Result{RequeueAfter: 2 * time.Minute}, nil
 }
 
 func (r *VsphereValidatorReconciler) secretKeyAuth(req ctrl.Request, validator *v1alpha1.VsphereValidator) (*vsphere.VsphereCloudAccount, *reconcile.Result) {
