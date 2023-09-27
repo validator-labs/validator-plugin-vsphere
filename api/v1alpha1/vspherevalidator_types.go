@@ -12,29 +12,52 @@ type VsphereValidatorSpec struct {
 	// INSERT ADDITIONAL SPEC FIELDS - desired state of cluster
 	// Important: Run "make" to regenerate code after modifying this file
 
-	Auth                         VsphereAuth                   `json:"auth"`
-	RolePrivilegeValidationRules []RolePrivilegeValidationRule `json:"rolePrivilegeValidationRules"`
-	RegionZoneValidationRule     RegionZoneValidationRule      `json:"regionZoneValidationRule"`
+	Auth                           VsphereAuth                          `json:"auth"`
+	Datacenter                     string                               `json:"datacenter"`
+	EntityPrivilegeValidationRules []EntityPrivilegeValidationRule      `json:"entityPrivilegeValidationRules"`
+	RolePrivilegeValidationRules   []GenericRolePrivilegeValidationRule `json:"rolePrivilegeValidationRules"`
+	TagValidationRules             []TagValidationRule                  `json:"tagValidationRules"`
+	ComputeResourceRules           []ComputeResourceRule                `json:"computeResourceRules"`
 }
 
 type VsphereAuth struct {
 	SecretName string `json:"secretName"`
 }
 
-type RolePrivilegeValidationRule struct {
-	Name        string   `json:"name"`
-	Description string   `json:"description"`
-	IsEnabled   bool     `json:"isEnabled"`
-	Severity    string   `json:"severity"`
-	RuleType    string   `json:"ruleType"`
-	Expressions []string `json:"expressions"`
+type ComputeResourceRule struct {
+	Name                         string                        `json:"name"`
+	ClusterName                  string                        `json:"clusterName,omitempty"`
+	Scope                        string                        `json:"scope"`
+	EntityName                   string                        `json:"entityName"`
+	NodepoolResourceRequirements []NodepoolResourceRequirement `json:"nodepoolResourceRequirements"`
 }
 
-type RegionZoneValidationRule struct {
-	RegionCategoryName string   `json:"regionCategoryName"`
-	ZoneCategoryName   string   `json:"zoneCategoryName"`
-	Datacenter         string   `json:"datacenter"`
-	Clusters           []string `json:"clusters"`
+type EntityPrivilegeValidationRule struct {
+	Name        string   `json:"name"`
+	ClusterName string   `json:"clusterName,omitempty"`
+	EntityType  string   `json:"entityType"`
+	EntityName  string   `json:"entityName"`
+	Privileges  []string `json:"privileges"`
+}
+
+type GenericRolePrivilegeValidationRule struct {
+	Name string `json:"name"`
+}
+
+type TagValidationRule struct {
+	Name        string `json:"name"`
+	ClusterName string `json:"clusterName,omitempty"`
+	EntityType  string `json:"entityType"`
+	EntityName  string `json:"entityName"`
+	Tag         string `json:"tag"`
+}
+
+type NodepoolResourceRequirement struct {
+	Name          string `json:"name"`
+	NumberOfNodes int    `json:"numberOfNodes"`
+	CPU           string `json:"cpu"`
+	Memory        string `json:"memory"`
+	DiskSpace     string `json:"diskSpace"`
 }
 
 type CloudAccountValidationRule struct {
