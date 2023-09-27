@@ -2,6 +2,7 @@ package tags
 
 import (
 	"context"
+	"errors"
 	"fmt"
 	"github.com/go-logr/logr"
 	"github.com/spectrocloud-labs/valid8or-plugin-vsphere/api/v1alpha1"
@@ -18,151 +19,117 @@ import (
 	corev1 "k8s.io/api/core/v1"
 )
 
-type RegionZoneCategoryExistsInput struct {
-	Datacenter         string
-	Cluster            []string
-	RegionCategoryName string
-	ZoneCategoryName   string
-}
+// to enable monkey patching in integration tests
+var GetCategories = getCategories
+var GetAttachedTagsOnObjects = getAttachedTagsOnObjects
 
 type TagsValidationService struct {
-	log    logr.Logger
-	driver *vsphere.VSphereCloudDriver
+	Log logr.Logger
 }
 
-func NewTagsValidationService(log logr.Logger, driver *vsphere.VSphereCloudDriver) *TagsValidationService {
+func NewTagsValidationService(log logr.Logger) *TagsValidationService {
 	return &TagsValidationService{
-		log:    log,
-		driver: driver,
+		Log: log,
 	}
 }
 
-func (s *TagsValidationService) ReconcileRegionZoneTagRules(regionZoneValidationRule v1alpha1.RegionZoneValidationRule) (*types.ValidationResult, error) {
-	tagsManager := tags.NewManager(s.driver.RestClient)
-	finder := find.NewFinder(s.driver.Client.Client, true)
+func (s *TagsValidationService) ReconcileTagRules(tagsManager *tags.Manager, finder *find.Finder, driver *vsphere.VSphereCloudDriver, tagValidationRule v1alpha1.TagValidationRule) (*types.ValidationResult, error) {
+	vr := buildValidationResult(tagValidationRule, constants.ValidationTypeTag)
 
-	vr := buildValidationResult(constants.ValidationTypeTag)
-
-	input := RegionZoneCategoryExistsInput{
-		RegionCategoryName: regionZoneValidationRule.RegionCategoryName,
-		ZoneCategoryName:   regionZoneValidationRule.ZoneCategoryName,
-		Datacenter:         regionZoneValidationRule.Datacenter,
-		Cluster:            regionZoneValidationRule.Clusters,
-	}
-
-	regionZoneCategoryExist, err := regionZoneCategoryExists(tagsManager, finder, input)
-	if err != nil {
+	valid, err := tagIsValid(tagsManager, finder, driver.Datacenter, tagValidationRule.ClusterName, tagValidationRule.EntityType, tagValidationRule.EntityName, tagValidationRule.Tag)
+	if !valid {
 		vr.State = ptr.Ptr(v8or.ValidationFailed)
 		vr.Condition.Failures = append(vr.Condition.Failures, "One or more required tags was not found")
 		vr.Condition.Message = "One or more required tags was not found"
 		vr.Condition.Status = corev1.ConditionFalse
-		return nil, err
-	}
-	if regionZoneCategoryExist != nil && *regionZoneCategoryExist {
-		s.log.V(0).Info("Region and Zone tags exist")
+		return vr, err
 	}
 
+	s.Log.V(0).Info("Entity tags exist")
 	return vr, nil
 }
 
-func buildValidationResult(validationType string) *types.ValidationResult {
+func buildValidationResult(rule v1alpha1.TagValidationRule, validationType string) *types.ValidationResult {
 	state := v8or.ValidationSucceeded
 	latestCondition := v8or.DefaultValidationCondition()
-	latestCondition.Message = "All required region/zone tags were found"
-	latestCondition.ValidationRule = fmt.Sprintf("%s-%s-%s", v8orconstants.ValidationRulePrefix, "region", "zone")
+	latestCondition.Message = "Required entity tags were found"
+	latestCondition.ValidationRule = fmt.Sprintf("%s-%s-%s-%s", v8orconstants.ValidationRulePrefix, "tag", rule.EntityType, rule.Tag)
 	latestCondition.ValidationType = validationType
 	validationResult := &v8ortypes.ValidationResult{Condition: &latestCondition, State: &state}
 
 	return validationResult
 }
 
-func regionZoneCategoryExists(tagsManager *tags.Manager, finder *find.Finder, input RegionZoneCategoryExistsInput) (*bool, error) {
-	isTrue, isFalse := true, false
-	regionCategoryID, zoneCategoryID := "", ""
+func tagIsValid(tagsManager *tags.Manager, finder *find.Finder, datacenterName, clusterName, entityType string, entityName string, tagKey string) (bool, error) {
+	categoryID := ""
+	var inventoryPath string
 
-	cats, err := tagsManager.GetCategories(context.TODO())
+	cats, err := GetCategories(tagsManager)
 	if err != nil {
-		return &isFalse, err
+		return false, err
 	}
-	var regionZoneTags []tags.Category
+	var categories []tags.Category
 	for _, category := range cats {
 		switch category.Name {
-		case input.RegionCategoryName:
-			regionCategoryID = category.ID
-			regionZoneTags = append(regionZoneTags, category)
-		case input.ZoneCategoryName:
-			zoneCategoryID = category.ID
-			regionZoneTags = append(regionZoneTags, category)
+		case tagKey:
+			categoryID = category.ID
+			categories = append(categories, category)
 		}
 	}
 
-	if len(regionZoneTags) < 2 {
-		return &isFalse, nil
+	switch entityType {
+	case "datacenter":
+		inventoryPath = fmt.Sprintf(constants.DatacenterInventoryPath, entityName)
+	case "folder":
+		inventoryPath = fmt.Sprintf(constants.FolderInventoryPath, entityName)
+	case "cluster":
+		inventoryPath = fmt.Sprintf(constants.ClusterInventoryPath, datacenterName, entityName)
+	case "host":
+		inventoryPath = fmt.Sprintf(constants.HostSystemInventoryPath, datacenterName, clusterName, entityName)
+	case "resourcepool":
+		inventoryPath = fmt.Sprintf(constants.ResourcePoolInventoryPath, datacenterName, clusterName, entityName)
+	case "vm":
+		inventoryPath = fmt.Sprintf(constants.VirtualMachineInventoryPath, entityName)
 	}
 
-	// check if datacenter has region tag
-	list, err := finder.ManagedObjectList(context.TODO(), fmt.Sprintf("/%s", input.Datacenter))
+	// check if object has tag
+	list, err := finder.ManagedObjectList(context.TODO(), inventoryPath)
 	if err != nil {
-		return nil, err
+		return false, err
 	}
 
 	// return early if no can't find the managedobject list
 	if len(list) == 0 {
-		return nil, nil
+		return false, nil
 	}
 	var refs []mo.Reference
 	refs = append(refs, list[0].Object.Reference())
-	attachedTags, err := tagsManager.GetAttachedTagsOnObjects(context.TODO(), refs)
+	attachedTags, err := GetAttachedTagsOnObjects(tagsManager, refs)
 	if err != nil {
-		return nil, err
+		return false, err
 	}
-	isDatacenterTaggedWithRegion := false
+	isEntityTagged := false
 
 	for _, attachedTag := range attachedTags {
 		for _, tagName := range attachedTag.Tags {
-			if tagName.CategoryID == regionCategoryID {
-				isDatacenterTaggedWithRegion = true
+			if tagName.CategoryID == categoryID {
+				isEntityTagged = true
 				break
 			}
 		}
 	}
 
-	// check if all compute clusters has zone tag
-	areComputeClustersTaggedWithZone := true
-	for _, cluster := range input.Cluster {
-		list, err = finder.ManagedObjectList(context.TODO(), fmt.Sprintf("/%s/host/%s", input.Datacenter, cluster))
-		if err != nil {
-			return nil, err
-		}
-		// return early if no can't find the managedobject list
-		if len(list) == 0 {
-			return nil, nil
-		}
-		refs = nil
-		refs = append(refs, list[0].Object.Reference())
-		attachedTags, err := tagsManager.GetAttachedTagsOnObjects(context.TODO(), refs)
-		if err != nil {
-			return nil, err
-		}
-		found := false
-		for _, tag := range attachedTags {
-			if found {
-				break
-			}
-			for _, tagName := range tag.Tags {
-				if tagName.CategoryID == zoneCategoryID {
-					found = true
-					break
-				}
-			}
-		}
-		areComputeClustersTaggedWithZone = areComputeClustersTaggedWithZone && found
+	if isEntityTagged {
+		return true, nil
 	}
 
-	if areComputeClustersTaggedWithZone && isDatacenterTaggedWithRegion && len(regionZoneTags) >= 2 {
-		return &isTrue, nil
-	}
-
-	return &isFalse, nil
+	return false, errors.New("entity tags don't exist")
 }
 
+func getAttachedTagsOnObjects(tagsManager *tags.Manager, refs []mo.Reference) ([]tags.AttachedTags, error) {
+	return tagsManager.GetAttachedTagsOnObjects(context.TODO(), refs)
+}
+
+func getCategories(tm *tags.Manager) ([]tags.Category, error) {
+	return tm.GetCategories(context.TODO())
+}
