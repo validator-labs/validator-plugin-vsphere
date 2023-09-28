@@ -1,8 +1,9 @@
 package integration
 
 import (
-	"github.com/onsi/ginkgo"
+	"github.com/onsi/ginkgo/v2"
 	"github.com/onsi/gomega"
+
 	"github.com/spectrocloud-labs/valid8or-plugin-vsphere/tests/integration/common"
 	"github.com/spectrocloud-labs/valid8or-plugin-vsphere/tests/integration/tags"
 	"github.com/spectrocloud-labs/valid8or-plugin-vsphere/tests/utils/test"
