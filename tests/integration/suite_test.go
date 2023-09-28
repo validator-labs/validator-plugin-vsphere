@@ -3,7 +3,7 @@ package integration
 import (
 	"testing"
 
-	"github.com/onsi/ginkgo"
+	"github.com/onsi/ginkgo/v2"
 	"github.com/onsi/gomega"
 )
 
@@ -24,8 +24,7 @@ var _ = ginkgo.BeforeSuite(func() {
 		close(done) // signifies the code is done
 	}()
 	gomega.Eventually(done, 60).Should(gomega.BeClosed())
-
-}, 60)
+})
 
 var _ = ginkgo.AfterSuite(func() {
 	ginkgo.By("tearing down the test environment")
