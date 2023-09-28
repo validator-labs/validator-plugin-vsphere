@@ -12,9 +12,9 @@ require (
 	github.com/sirupsen/logrus v1.9.3
 	github.com/spectrocloud-labs/valid8or v0.0.8
 	github.com/vmware/govmomi v0.31.0
-	k8s.io/api v0.28.1
-	k8s.io/apimachinery v0.28.1
-	k8s.io/client-go v0.28.1
+	k8s.io/api v0.28.2
+	k8s.io/apimachinery v0.28.2
+	k8s.io/client-go v0.28.2
 	sigs.k8s.io/controller-runtime v0.16.2
 )
 
