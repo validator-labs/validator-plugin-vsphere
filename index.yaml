@@ -1,0 +1,15 @@
+apiVersion: v1
+entries:
+  valid8or-plugin-vsphere:
+  - apiVersion: v2
+    appVersion: 0.0.2
+    created: "2023-10-03T13:16:38.318770694Z"
+    description: Perform various vsphere validations (Role Privileges, Region/Zone
+      Tags)
+    digest: 704a62ff78a0fa40cf4b1d66bd6a447d3f94238ea593ddf89e527a97536f5334
+    name: valid8or-plugin-vsphere
+    type: application
+    urls:
+    - https://spectrocloud-labs.github.io/valid8or-plugin-vsphere/valid8or-plugin-vsphere-0.0.2.tgz
+    version: 0.0.2
+generated: "2023-10-03T13:16:38.317420879Z"
