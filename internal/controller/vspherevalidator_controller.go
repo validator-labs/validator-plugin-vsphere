@@ -130,12 +130,6 @@ func (r *VsphereValidatorReconciler) Reconcile(ctx context.Context, req ctrl.Req
 		}
 	}
 
-	userPrivileges, err := rolePrivilegeValidationService.GetUserRolePrivilegesMapping()
-	if err != nil {
-		r.Log.V(0).Error(err, "Error fetching user privileges mapping")
-		return ctrl.Result{}, err
-	}
-
 	tagsManager := vtags.NewManager(vsphereCloudDriver.RestClient)
 	finder, _, err := vsphereCloudDriver.GetFinderWithDatacenter(ctx, vsphereCloudDriver.Datacenter)
 	if err != nil {
@@ -143,15 +137,15 @@ func (r *VsphereValidatorReconciler) Reconcile(ctx context.Context, req ctrl.Req
 	}
 
 	failed := &types.MonotonicBool{}
-
-	// computeresources validation rules
-	for _, rule := range validator.Spec.ComputeResourceRules {
-		validationResult, err := computeResourceValidationService.ReconcileComputeResourceValidationRule(rule, finder, vsphereCloudDriver)
+	// role privilege validation rules
+	for _, rule := range validator.Spec.RolePrivilegeValidationRules {
+		validationResult, err := rolePrivilegeValidationService.ReconcileRolePrivilegesRule(rule, vsphereCloudDriver, authManager)
 		if err != nil {
-			r.Log.V(0).Error(err, "failed to reconcile computeresources validation rule")
+			r.Log.V(0).Error(err, "failed to reconcile role privilege rule")
 		}
 		v8ores.SafeUpdateValidationResult(r.Client, nn, validationResult, failed, err, r.Log)
 	}
+	r.Log.V(0).Info("Validated privileges for account", "user", vsphereCloudDriver.VCenterUsername)
 
 	// entity privilege validation rules
 	for _, rule := range validator.Spec.EntityPrivilegeValidationRules {
@@ -163,15 +157,14 @@ func (r *VsphereValidatorReconciler) Reconcile(ctx context.Context, req ctrl.Req
 	}
 	r.Log.V(0).Info("Validated privileges for account", "user", vsphereCloudDriver.VCenterUsername)
 
-	// role privilege validation rules
-	for _, rule := range validator.Spec.RolePrivilegeValidationRules {
-		validationResult, err := rolePrivilegeValidationService.ReconcileRolePrivilegesRule(rule, userPrivileges)
+	// computeresources validation rules
+	for _, rule := range validator.Spec.ComputeResourceRules {
+		validationResult, err := computeResourceValidationService.ReconcileComputeResourceValidationRule(rule, finder, vsphereCloudDriver)
 		if err != nil {
-			r.Log.V(0).Error(err, "failed to reconcile role privilege rule")
+			r.Log.V(0).Error(err, "failed to reconcile computeresources validation rule")
 		}
 		v8ores.SafeUpdateValidationResult(r.Client, nn, validationResult, failed, err, r.Log)
 	}
-	r.Log.V(0).Info("Validated privileges for account", "user", vsphereCloudDriver.VCenterUsername)
 
 	// tag validation rules
 	r.Log.V(0).Info("Checking if tags are properly assigned")

@@ -81,7 +81,7 @@ func TestRolePrivilegeValidationService_ReconcileRolePrivilegesRule(t *testing.T
 	}
 
 	for _, tc := range testCases {
-		vr, err := validationService.ReconcileRolePrivilegesRule(tc.rule, userPrivilegesMap)
+		vr, err := validationService.ReconcileRolePrivilegesRule(tc.rule, userPrivilegesMap, nil, nil, nil)
 		CheckTestCase(t, vr, tc.expectedResult, err, tc.expectedErr)
 	}
 

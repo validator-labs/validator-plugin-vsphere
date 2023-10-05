@@ -41,7 +41,8 @@ type EntityPrivilegeValidationRule struct {
 }
 
 type GenericRolePrivilegeValidationRule struct {
-	Name string `json:"name"`
+	Username   string   `json:"name"`
+	Privileges []string `json:"privileges"`
 }
 
 type TagValidationRule struct {

@@ -109,8 +109,13 @@ spec:
                   properties:
                     name:
                       type: string
+                    privileges:
+                      items:
+                        type: string
+                      type: array
                   required:
                   - name
+                  - privileges
                   type: object
                 type: array
               tagValidationRules:

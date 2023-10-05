@@ -109,7 +109,7 @@ func (v *VSphereCloudDriver) GetUserPrivilegeOnEntities(ctx context.Context, aut
 			return false, err
 		}
 		moID = resourcePool.Reference()
-	case "vApp":
+	case "vapp":
 		_, vapp, err = v.GetVAppIfExists(ctx, finder, datacenter, entityName)
 		if err != nil {
 			return false, err
@@ -383,7 +383,12 @@ func (v *VSphereCloudDriver) GetFinderWithDatacenter(ctx context.Context, datace
 	return finder, dc.Name(), nil
 }
 
-func (v *VSphereCloudDriver) GetVmwareUserPrivileges(userName, datacenter string, driver *VSphereCloudDriver, authManager *object.AuthorizationManager) (map[string]bool, error) {
+func GetVmwareUserPrivileges(userPrincipal string, groupPrincipals []string, authManager *object.AuthorizationManager) (map[string]bool, error) {
+	groupPrincipalMap := make(map[string]bool)
+	for _, principal := range groupPrincipals {
+		groupPrincipalMap[principal] = true
+	}
+
 	// Get the current user's roles
 	authRoles, err := authManager.RoleList(context.TODO())
 	if err != nil {
@@ -401,7 +406,7 @@ func (v *VSphereCloudDriver) GetVmwareUserPrivileges(userName, datacenter string
 			return nil, err
 		}
 		for _, perm := range permissions {
-			if perm.Principal == userName {
+			if perm.Principal == userPrincipal || groupPrincipalMap[perm.Principal] {
 				for _, priv := range authRole.Privilege {
 					privileges[priv] = true
 				}
