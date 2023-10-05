@@ -31,9 +31,10 @@ spec:
     secretName: validator-secret
   entityPrivilegeValidationRules:
     - name: "Deploy VM to vapp test-vapp"
+      username: prakash@vsphere.local
       clusterName: "Cluster2"
-      entityName: "test-vapp"
-      entityType: "vapp"
+      entityName: "rp-cluster2-palette-advanced-projects"
+      entityType: "resourcepool"
       privileges:
       - "VirtualMachine.Config.AddExistingDisk"
       - "VirtualMachine.Config.AddNewDisk"
@@ -118,7 +119,7 @@ spec:
       entityName: "sp-prakash"
       tag: "owner"
   rolePrivilegeValidationRules:
-    - name: tmpadmin@vsphere.local
+    - username: tmpadmin@vsphere.local
       privileges:
         - Cns.Searchable
         - Datastore.Browse

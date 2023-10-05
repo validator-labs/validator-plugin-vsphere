@@ -3,6 +3,7 @@ package vsphere
 import (
 	"context"
 	"fmt"
+	ssoadmintypes "github.com/vmware/govmomi/ssoadmin/types"
 	"net/http"
 	"net/url"
 	"path"
@@ -87,7 +88,7 @@ func (v *VSphereCloudDriver) GetCurrentVmwareUser(ctx context.Context) (string, 
 	return userSession.UserName, nil
 }
 
-func (v *VSphereCloudDriver) GetUserPrivilegeOnEntities(ctx context.Context, authManager *object.AuthorizationManager, datacenter string, finder *find.Finder, entityName, entityType string, privileges []string, userName, clusterName string) (isValid bool, err error) {
+func (v *VSphereCloudDriver) ValidateUserPrivilegeOnEntities(ctx context.Context, authManager *object.AuthorizationManager, datacenter string, finder *find.Finder, entityName, entityType string, privileges []string, userName, clusterName string) (isValid bool, failures []string, err error) {
 	var folder *object.Folder
 	var cluster *object.ClusterComputeResource
 	var host *object.HostSystem
@@ -100,38 +101,39 @@ func (v *VSphereCloudDriver) GetUserPrivilegeOnEntities(ctx context.Context, aut
 	case "folder":
 		_, folder, err = v.GetFolderIfExists(ctx, finder, datacenter, entityName)
 		if err != nil {
-			return false, err
+			return false, failures, err
 		}
 		moID = folder.Reference()
 	case "resourcepool":
 		_, resourcePool, err = v.GetResourcePoolIfExists(ctx, finder, datacenter, clusterName, entityName)
 		if err != nil {
-			return false, err
+			return false, failures, err
 		}
 		moID = resourcePool.Reference()
 	case "vapp":
 		_, vapp, err = v.GetVAppIfExists(ctx, finder, datacenter, entityName)
 		if err != nil {
-			return false, err
+			return false, failures, err
 		}
 		moID = vapp.Reference()
 	case "host":
 		_, host, err = v.GetHostIfExists(ctx, finder, datacenter, clusterName, entityName)
 		if err != nil {
-			return false, err
+			return false, failures, err
 		}
 		moID = host.Reference()
 	case "cluster":
 		_, cluster, err = v.GetClusterIfExists(ctx, finder, datacenter, entityName)
 		if err != nil {
-			return false, err
+			return false, failures, err
 		}
 		moID = cluster.Reference()
 	}
 
-	privilegeResult, err := authManager.FetchUserPrivilegeOnEntities(ctx, []types.ManagedObjectReference{moID}, userName)
+	userPrincipal := getUserPrincipalFromUsername(userName)
+	privilegeResult, err := authManager.FetchUserPrivilegeOnEntities(ctx, []types.ManagedObjectReference{moID}, userPrincipal)
 	if err != nil {
-		return false, err
+		return false, failures, err
 	}
 
 	privilegesMap := make(map[string]bool)
@@ -143,11 +145,16 @@ func (v *VSphereCloudDriver) GetUserPrivilegeOnEntities(ctx context.Context, aut
 
 	for _, privilege := range privileges {
 		if _, ok := privilegesMap[privilege]; !ok {
-			return false, fmt.Errorf("user: %s does not have privilege: %s on entity type: %s with name: %s", userName, privilege, entityType, entityName)
+			err = fmt.Errorf("some entity privileges were not found for user: %s", userName)
+			failures = append(failures, fmt.Sprintf("user: %s does not have privilege: %s on entity type: %s with name: %s", userName, privilege, entityType, entityName))
 		}
 	}
 
-	return true, nil
+	if len(failures) == 0 {
+		isValid = true
+	}
+
+	return isValid, failures, nil
 }
 
 func GetOrCreateSession(
@@ -484,4 +491,13 @@ func (v *VSphereCloudDriver) getClusterComputeResources(ctx context.Context, fin
 		return nil, fmt.Errorf("failed to get compute cluster resources: %s", err.Error())
 	}
 	return ccrs, nil
+}
+
+func getUserPrincipalFromPrincipalID(id ssoadmintypes.PrincipalId) string {
+	return fmt.Sprintf("%s\\%s", strings.ToUpper(id.Domain), id.Name)
+}
+
+func getUserPrincipalFromUsername(username string) string {
+	splitStr := strings.Split(username, "@")
+	return fmt.Sprintf("%s\\%s", strings.ToUpper(splitStr[1]), splitStr[0])
 }

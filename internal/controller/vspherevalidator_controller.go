@@ -137,21 +137,22 @@ func (r *VsphereValidatorReconciler) Reconcile(ctx context.Context, req ctrl.Req
 	}
 
 	failed := &types.MonotonicBool{}
-	// role privilege validation rules
-	for _, rule := range validator.Spec.RolePrivilegeValidationRules {
-		validationResult, err := rolePrivilegeValidationService.ReconcileRolePrivilegesRule(rule, vsphereCloudDriver, authManager)
-		if err != nil {
-			r.Log.V(0).Error(err, "failed to reconcile role privilege rule")
-		}
-		v8ores.SafeUpdateValidationResult(r.Client, nn, validationResult, failed, err, r.Log)
-	}
-	r.Log.V(0).Info("Validated privileges for account", "user", vsphereCloudDriver.VCenterUsername)
 
 	// entity privilege validation rules
 	for _, rule := range validator.Spec.EntityPrivilegeValidationRules {
 		validationResult, err := rolePrivilegeValidationService.ReconcileEntityPrivilegeRule(rule, finder)
 		if err != nil {
 			r.Log.V(0).Error(err, "failed to reconcile entity privilege rule")
+		}
+		v8ores.SafeUpdateValidationResult(r.Client, nn, validationResult, failed, err, r.Log)
+	}
+	r.Log.V(0).Info("Validated privileges for account", "user", vsphereCloudDriver.VCenterUsername)
+
+	// role privilege validation rules
+	for _, rule := range validator.Spec.RolePrivilegeValidationRules {
+		validationResult, err := rolePrivilegeValidationService.ReconcileRolePrivilegesRule(rule, vsphereCloudDriver, authManager)
+		if err != nil {
+			r.Log.V(0).Error(err, "failed to reconcile role privilege rule")
 		}
 		v8ores.SafeUpdateValidationResult(r.Client, nn, validationResult, failed, err, r.Log)
 	}

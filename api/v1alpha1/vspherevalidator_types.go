@@ -34,6 +34,7 @@ type ComputeResourceRule struct {
 
 type EntityPrivilegeValidationRule struct {
 	Name        string   `json:"name"`
+	Username    string   `json:"username"`
 	ClusterName string   `json:"clusterName,omitempty"`
 	EntityType  string   `json:"entityType"`
 	EntityName  string   `json:"entityName"`
@@ -41,7 +42,7 @@ type EntityPrivilegeValidationRule struct {
 }
 
 type GenericRolePrivilegeValidationRule struct {
-	Username   string   `json:"name"`
+	Username   string   `json:"username"`
 	Privileges []string `json:"privileges"`
 }
 

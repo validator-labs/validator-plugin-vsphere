@@ -67,6 +67,7 @@ func (s *PrivilegeValidationService) ReconcileRolePrivilegesRule(rule v1alpha1.G
 		vr.State = ptr.Ptr(v8or.ValidationFailed)
 		vr.Condition.Message = "One or more required privileges was not found, or a condition was not met"
 		vr.Condition.Status = corev1.ConditionFalse
+		err = fmt.Errorf("one or more required privileges was not found for account: %s", rule.Username)
 	}
 
 	return vr, err
