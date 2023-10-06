@@ -57,7 +57,7 @@ type TagValidationRule struct {
 type NodepoolResourceRequirement struct {
 	Name          string `json:"name" yaml:"name"`
 	NumberOfNodes int    `json:"numberOfNodes" yaml:"numberOfNodes"`
-	CPU           string `json:"cpu" yaml:"CPU"`
+	CPU           string `json:"cpu" yaml:"cpu"`
 	Memory        string `json:"memory" yaml:"memory"`
 	DiskSpace     string `json:"diskSpace" yaml:"diskSpace"`
 }
