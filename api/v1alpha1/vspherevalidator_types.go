@@ -12,12 +12,12 @@ type VsphereValidatorSpec struct {
 	// INSERT ADDITIONAL SPEC FIELDS - desired state of cluster
 	// Important: Run "make" to regenerate code after modifying this file
 
-	Auth                           VsphereAuth                          `json:"auth"`
-	Datacenter                     string                               `json:"datacenter"`
-	EntityPrivilegeValidationRules []EntityPrivilegeValidationRule      `json:"entityPrivilegeValidationRules"`
-	RolePrivilegeValidationRules   []GenericRolePrivilegeValidationRule `json:"rolePrivilegeValidationRules"`
-	TagValidationRules             []TagValidationRule                  `json:"tagValidationRules"`
-	ComputeResourceRules           []ComputeResourceRule                `json:"computeResourceRules"`
+	Auth                           VsphereAuth                          `json:"auth" yaml:"auth"`
+	Datacenter                     string                               `json:"datacenter" yaml:"datacenter"`
+	EntityPrivilegeValidationRules []EntityPrivilegeValidationRule      `json:"entityPrivilegeValidationRules" yaml:"entityPrivilegeValidationRules"`
+	RolePrivilegeValidationRules   []GenericRolePrivilegeValidationRule `json:"rolePrivilegeValidationRules" yaml:"rolePrivilegeValidationRules"`
+	TagValidationRules             []TagValidationRule                  `json:"tagValidationRules" yaml:"tagValidationRules"`
+	ComputeResourceRules           []ComputeResourceRule                `json:"computeResourceRules" yaml:"computeResourceRules"`
 }
 
 type VsphereAuth struct {
@@ -25,59 +25,41 @@ type VsphereAuth struct {
 }
 
 type ComputeResourceRule struct {
-	Name                         string                        `json:"name"`
-	ClusterName                  string                        `json:"clusterName,omitempty"`
-	Scope                        string                        `json:"scope"`
-	EntityName                   string                        `json:"entityName"`
-	NodepoolResourceRequirements []NodepoolResourceRequirement `json:"nodepoolResourceRequirements"`
+	Name                         string                        `json:"name" yaml:"name"`
+	ClusterName                  string                        `json:"clusterName,omitempty" yaml:"clusterName"`
+	Scope                        string                        `json:"scope" yaml:"scope"`
+	EntityName                   string                        `json:"entityName" yaml:"entityName"`
+	NodepoolResourceRequirements []NodepoolResourceRequirement `json:"nodepoolResourceRequirements" yaml:"nodepoolResourceRequirements"`
 }
 
 type EntityPrivilegeValidationRule struct {
-	Name        string   `json:"name"`
-	Username    string   `json:"username"`
-	ClusterName string   `json:"clusterName,omitempty"`
-	EntityType  string   `json:"entityType"`
-	EntityName  string   `json:"entityName"`
-	Privileges  []string `json:"privileges"`
+	Name        string   `json:"name" yaml:"name"`
+	Username    string   `json:"username" yaml:"username"`
+	ClusterName string   `json:"clusterName,omitempty" yaml:"clusterName"`
+	EntityType  string   `json:"entityType" yaml:"entityType"`
+	EntityName  string   `json:"entityName" yaml:"entityName"`
+	Privileges  []string `json:"privileges" yaml:"privileges"`
 }
 
 type GenericRolePrivilegeValidationRule struct {
-	Username   string   `json:"username"`
-	Privileges []string `json:"privileges"`
+	Username   string   `json:"username" yaml:"username"`
+	Privileges []string `json:"privileges" yaml:"privileges"`
 }
 
 type TagValidationRule struct {
-	Name        string `json:"name"`
-	ClusterName string `json:"clusterName,omitempty"`
-	EntityType  string `json:"entityType"`
-	EntityName  string `json:"entityName"`
-	Tag         string `json:"tag"`
+	Name        string `json:"name" yaml:"name"`
+	ClusterName string `json:"clusterName,omitempty" yaml:"clusterName"`
+	EntityType  string `json:"entityType" yaml:"entityType"`
+	EntityName  string `json:"entityName" yaml:"entityName"`
+	Tag         string `json:"tag" yaml:"tag"`
 }
 
 type NodepoolResourceRequirement struct {
-	Name          string `json:"name"`
-	NumberOfNodes int    `json:"numberOfNodes"`
-	CPU           string `json:"cpu"`
-	Memory        string `json:"memory"`
-	DiskSpace     string `json:"diskSpace"`
-}
-
-type CloudAccountValidationRule struct {
-	Name        string   `json:"name"`
-	Description string   `json:"description"`
-	IsEnabled   bool     `json:"isEnabled"`
-	Severity    string   `json:"severity"`
-	RuleType    string   `json:"ruleType"`
-	Expressions []string `json:"expressions"`
-}
-
-type DiskSpaceValidationRule struct {
-	Name        string   `json:"name"`
-	Description string   `json:"description"`
-	IsEnabled   bool     `json:"isEnabled"`
-	Severity    string   `json:"severity"`
-	RuleType    string   `json:"ruleType"`
-	Expressions []string `json:"expressions"`
+	Name          string `json:"name" yaml:"name"`
+	NumberOfNodes int    `json:"numberOfNodes" yaml:"numberOfNodes"`
+	CPU           string `json:"cpu" yaml:"CPU"`
+	Memory        string `json:"memory" yaml:"memory"`
+	DiskSpace     string `json:"diskSpace" yaml:"diskSpace"`
 }
 
 // VsphereValidatorStatus defines the observed state of VsphereValidator
