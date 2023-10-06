@@ -1,8 +1,8 @@
 package privileges
 
 import (
+	"context"
 	"fmt"
-	"github.com/pkg/errors"
 	"github.com/spectrocloud-labs/valid8or-plugin-vsphere/api/v1alpha1"
 	"github.com/spectrocloud-labs/valid8or-plugin-vsphere/internal/constants"
 	"github.com/spectrocloud-labs/valid8or-plugin-vsphere/internal/vsphere"
@@ -11,53 +11,135 @@ import (
 	"github.com/spectrocloud-labs/valid8or/pkg/types"
 	"github.com/spectrocloud-labs/valid8or/pkg/util/ptr"
 	"github.com/vmware/govmomi/object"
+	"github.com/vmware/govmomi/ssoadmin"
+	"github.com/vmware/govmomi/sts"
+	"github.com/vmware/govmomi/vim25/soap"
 	corev1 "k8s.io/api/core/v1"
+	"net/url"
+	"os"
+	"strings"
 )
 
 func buildValidationResult(rule v1alpha1.GenericRolePrivilegeValidationRule, validationType string) *types.ValidationResult {
 	state := v8or.ValidationSucceeded
 	latestCondition := v8or.DefaultValidationCondition()
 	latestCondition.Message = fmt.Sprintf("All required %s permissions were found", validationType)
-	latestCondition.ValidationRule = fmt.Sprintf("%s-%s", v8orconstants.ValidationRulePrefix, rule.Name)
+	latestCondition.ValidationRule = fmt.Sprintf("%s-%s", v8orconstants.ValidationRulePrefix, rule.Username)
 	latestCondition.ValidationType = validationType
 
 	return &types.ValidationResult{Condition: &latestCondition, State: &state}
 }
 
-func (s *PrivilegeValidationService) GetUserRolePrivilegesMapping() (map[string]bool, error) {
-	privileges, err := getUserPrivileges(s.driver, s.authManager, s.datacenter, s.userName)
-	if err != nil {
-		return nil, err
-	}
-	return privileges, nil
-}
+//func (s *PrivilegeValidationService) GetUserRolePrivilegesMapping() (map[string]bool, error) {
+//	privileges, err := getUserPrivileges(s.driver, s.authManager, s.datacenter, s.userName)
+//	if err != nil {
+//		return nil, err
+//	}
+//	return privileges, nil
+//}
 
-func (s *PrivilegeValidationService) ReconcileRolePrivilegesRule(rule v1alpha1.GenericRolePrivilegeValidationRule, privileges map[string]bool) (*types.ValidationResult, error) {
+func (s *PrivilegeValidationService) ReconcileRolePrivilegesRule(rule v1alpha1.GenericRolePrivilegeValidationRule, driver *vsphere.VSphereCloudDriver, authManager *object.AuthorizationManager) (*types.ValidationResult, error) {
+	var err error
+
+	ctx, cancel := context.WithCancel(context.Background())
+	defer cancel()
 
 	vr := buildValidationResult(rule, constants.ValidationTypeRolePrivileges)
-	valid := isValidRule(rule, privileges)
-	if !valid {
-		vr.State = ptr.Ptr(v8or.ValidationFailed)
-		vr.Condition.Failures = append(vr.Condition.Failures, fmt.Sprintf("Rule: %s, was not found in the user's privileges", rule.Name))
-		vr.Condition.Message = "One or more required privileges was not found, or a condition was not met"
-		vr.Condition.Status = corev1.ConditionFalse
 
-		return vr, errors.New("Rule not valid")
-	}
-
-	return vr, nil
-}
-
-func isValidRule(rule v1alpha1.GenericRolePrivilegeValidationRule, privileges map[string]bool) bool {
-	return privileges[rule.Name]
-}
-
-func getUserPrivileges(vsphereCloudDriver *vsphere.VSphereCloudDriver, authManager *object.AuthorizationManager, datacenter, userName string) (map[string]bool, error) {
-	// Get list of roles for current user
-	userPrivileges, err := vsphereCloudDriver.GetVmwareUserPrivileges(userName, datacenter, vsphereCloudDriver, authManager)
+	userPrincipal, groupPrincipals, err := getUserAndGroupPrincipals(ctx, rule.Username, driver)
 	if err != nil {
 		return nil, err
 	}
 
-	return userPrivileges, nil
+	privileges, err := vsphere.GetVmwareUserPrivileges(userPrincipal, groupPrincipals, authManager)
+	if err != nil {
+		return nil, err
+	}
+
+	for _, privilege := range rule.Privileges {
+		valid := isValidRule(privilege, privileges)
+		if !valid {
+			vr.Condition.Failures = append(vr.Condition.Failures, fmt.Sprintf("Privilege: %s, was not found in the user's privileges", privilege))
+		}
+	}
+
+	if len(vr.Condition.Failures) > 0 {
+		vr.State = ptr.Ptr(v8or.ValidationFailed)
+		vr.Condition.Message = "One or more required privileges was not found, or a condition was not met"
+		vr.Condition.Status = corev1.ConditionFalse
+		err = fmt.Errorf("one or more required privileges was not found for account: %s", rule.Username)
+	}
+
+	return vr, err
 }
+
+func isValidRule(privilege string, privileges map[string]bool) bool {
+	return privileges[privilege]
+}
+
+func getUserAndGroupPrincipals(ctx context.Context, username string, driver *vsphere.VSphereCloudDriver) (string, []string, error) {
+	var groups []string
+	vc := driver.Client.Client
+
+	ssoClient, err := ssoadmin.NewClient(ctx, vc)
+	if err != nil {
+		return "", nil, err
+	}
+
+	token := os.Getenv("SSO_LOGIN_TOKEN")
+	header := soap.Header{
+		Security: &sts.Signer{
+			Certificate: vc.Certificate(),
+			Token:       token,
+		},
+	}
+	if token == "" {
+		tokens, cerr := sts.NewClient(ctx, vc)
+		if cerr != nil {
+			return "", nil, cerr
+		}
+
+		userInfo := url.UserPassword(driver.VCenterUsername, driver.VCenterPassword)
+		req := sts.TokenRequest{
+			Certificate: vc.Certificate(),
+			Userinfo:    userInfo,
+		}
+
+		header.Security, cerr = tokens.Issue(ctx, req)
+		if cerr != nil {
+			return "", nil, cerr
+		}
+	}
+
+	if err = ssoClient.Login(ssoClient.WithHeader(ctx, header)); err != nil {
+		return "", nil, err
+	}
+	defer ssoClient.Logout(ctx)
+
+	user, err := ssoClient.FindUser(ctx, username)
+	if err != nil {
+		return "", nil, err
+	}
+
+	parentGroups, err := ssoClient.FindParentGroups(ctx, user.Id)
+	if err != nil {
+		return "", nil, err
+	}
+	for _, group := range parentGroups {
+		groups = append(groups, fmt.Sprintf("%s\\%s", strings.ToUpper(group.Domain), group.Name))
+	}
+
+	userPrincipal := fmt.Sprintf("%s\\%s", strings.ToUpper(user.Id.Domain), user.Id.Name)
+
+	return userPrincipal, groups, nil
+}
+
+//func getUserPrivileges(vsphereCloudDriver *vsphere.VSphereCloudDriver, authManager *object.AuthorizationManager, datacenter, userName string) (map[string]bool, error) {
+//	// Get list of roles for current user
+//	userPrivileges, err := vsphereCloudDriver.GetVmwareUserPrivileges(userName, datacenter, vsphereCloudDriver, authManager)
+//	if err != nil {
+//		return nil, err
+//	}
+//
+//	return userPrivileges, nil
+//}

@@ -97,20 +97,28 @@ spec:
                       items:
                         type: string
                       type: array
+                    username:
+                      type: string
                   required:
                   - entityName
                   - entityType
                   - name
                   - privileges
+                  - username
                   type: object
                 type: array
               rolePrivilegeValidationRules:
                 items:
                   properties:
-                    name:
+                    privileges:
+                      items:
+                        type: string
+                      type: array
+                    username:
                       type: string
                   required:
-                  - name
+                  - privileges
+                  - username
                   type: object
                 type: array
               tagValidationRules:
