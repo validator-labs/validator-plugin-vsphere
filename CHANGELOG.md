@@ -1,5 +1,12 @@
 # Changelog
 
+## [0.0.6](https://github.com/spectrocloud-labs/valid8or-plugin-vsphere/compare/v0.0.5...v0.0.6) (2023-10-06)
+
+
+### Bug Fixes
+
+* yaml tag for auth secretName ([#53](https://github.com/spectrocloud-labs/valid8or-plugin-vsphere/issues/53)) ([cec752f](https://github.com/spectrocloud-labs/valid8or-plugin-vsphere/commit/cec752fa55f23748c5943a32d065142a4f41fabf))
+
 ## [0.0.5](https://github.com/spectrocloud-labs/valid8or-plugin-vsphere/compare/v0.0.4...v0.0.5) (2023-10-06)
 
 
