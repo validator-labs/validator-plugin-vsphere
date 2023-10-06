@@ -1,5 +1,17 @@
 # Changelog
 
+## [0.0.4](https://github.com/spectrocloud-labs/valid8or-plugin-vsphere/compare/v0.0.3...v0.0.4) (2023-10-06)
+
+
+### Bug Fixes
+
+* fix generated code and temporarily disable tests ([#46](https://github.com/spectrocloud-labs/valid8or-plugin-vsphere/issues/46)) ([56cf9a7](https://github.com/spectrocloud-labs/valid8or-plugin-vsphere/commit/56cf9a715086f30fd952d98c449cd8df31dae6c0))
+
+
+### Other
+
+* Disable roleprivilege tests temporarily ([#48](https://github.com/spectrocloud-labs/valid8or-plugin-vsphere/issues/48)) ([3d4d736](https://github.com/spectrocloud-labs/valid8or-plugin-vsphere/commit/3d4d73622a6c0ab46b7cd288ed76a2558ad21bf9))
+
 ## [0.0.3](https://github.com/spectrocloud-labs/valid8or-plugin-vsphere/compare/v0.0.2...v0.0.3) (2023-10-06)
 
 
