@@ -17,7 +17,6 @@ import (
 func TestRolePrivilegeValidationService_ReconcileRolePrivilegesRule(t *testing.T) {
 	var log logr.Logger
 	userPrivilegesMap := make(map[string]bool)
-
 	userName := "admin@vsphere.local"
 	vcSim := vcsim.NewVCSim(userName)
 
@@ -49,7 +48,8 @@ func TestRolePrivilegeValidationService_ReconcileRolePrivilegesRule(t *testing.T
 		{
 			name: "All privileges available",
 			rule: v1alpha1.GenericRolePrivilegeValidationRule{
-				Name: "Cns.Searchable",
+				Username:   userName,
+				Privileges: []string{"Cns.Searchable"},
 			},
 			expectedResult: types.ValidationResult{Condition: &v8or.ValidationCondition{
 				ValidationType: "vsphere-role-privileges",
@@ -65,7 +65,8 @@ func TestRolePrivilegeValidationService_ReconcileRolePrivilegesRule(t *testing.T
 		{
 			name: "InventoryService.Tagging.CreateTag not available",
 			rule: v1alpha1.GenericRolePrivilegeValidationRule{
-				Name: "InventoryService.Tagging.CreateTag",
+				Username:   "tempuser@vsphere.local",
+				Privileges: []string{"InventoryService.Tagging.CreateTag"},
 			},
 			expectedResult: types.ValidationResult{Condition: &v8or.ValidationCondition{
 				ValidationType: "vsphere-role-privileges",
@@ -81,7 +82,7 @@ func TestRolePrivilegeValidationService_ReconcileRolePrivilegesRule(t *testing.T
 	}
 
 	for _, tc := range testCases {
-		vr, err := validationService.ReconcileRolePrivilegesRule(tc.rule, userPrivilegesMap, nil, nil, nil)
+		vr, err := validationService.ReconcileRolePrivilegesRule(tc.rule, vcSim.Driver, authManager)
 		CheckTestCase(t, vr, tc.expectedResult, err, tc.expectedErr)
 	}
 
