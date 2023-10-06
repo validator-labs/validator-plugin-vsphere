@@ -21,7 +21,7 @@ type VsphereValidatorSpec struct {
 }
 
 type VsphereAuth struct {
-	SecretName string `json:"secretName"`
+	SecretName string `json:"secretName" yaml:"secretName"`
 }
 
 type ComputeResourceRule struct {
