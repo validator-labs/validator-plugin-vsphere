@@ -1,5 +1,17 @@
 # Changelog
 
+## [0.0.3](https://github.com/spectrocloud-labs/valid8or-plugin-vsphere/compare/v0.0.2...v0.0.3) (2023-10-06)
+
+
+### Features
+
+* Add support to validate arbitrary user's role and entity privileges instead of the one specified under auth secret ([#41](https://github.com/spectrocloud-labs/valid8or-plugin-vsphere/issues/41)) ([033f665](https://github.com/spectrocloud-labs/valid8or-plugin-vsphere/commit/033f665794dfadbd4d1473c7fdaed1242d7d0669))
+
+
+### Other
+
+* Add yaml tags to api types ([#44](https://github.com/spectrocloud-labs/valid8or-plugin-vsphere/issues/44)) ([1578a1f](https://github.com/spectrocloud-labs/valid8or-plugin-vsphere/commit/1578a1f43992f7fa25ce0316431dc39c5e18d5ad))
+
 ## [0.0.2](https://github.com/spectrocloud-labs/valid8or-plugin-vsphere/compare/v0.0.1...v0.0.2) (2023-10-02)
 
 
