@@ -1,5 +1,17 @@
 # Changelog
 
+## [0.0.4](https://github.com/spectrocloud-labs/valid8or-plugin-vsphere/compare/v0.0.4...v0.0.4) (2023-10-06)
+
+
+### Bug Fixes
+
+* fix yaml tag for nodepool cpu ([e21d8dc](https://github.com/spectrocloud-labs/valid8or-plugin-vsphere/commit/e21d8dcf04098d428732b348a5bf22f27092330e))
+
+
+### Other
+
+* release 0.0.4 ([#50](https://github.com/spectrocloud-labs/valid8or-plugin-vsphere/issues/50)) ([c419c9d](https://github.com/spectrocloud-labs/valid8or-plugin-vsphere/commit/c419c9d4e9298ee8127ad884c2d70d00aa3b5b87))
+
 ## [0.0.4](https://github.com/spectrocloud-labs/valid8or-plugin-vsphere/compare/v0.0.3...v0.0.4) (2023-10-06)
 
 
