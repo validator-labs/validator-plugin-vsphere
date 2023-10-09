@@ -1,5 +1,12 @@
 # Changelog
 
+## [0.0.7](https://github.com/spectrocloud-labs/valid8or-plugin-vsphere/compare/v0.0.6...v0.0.7) (2023-10-09)
+
+
+### Bug Fixes
+
+* update charts and add proper templating for auth secret ([#55](https://github.com/spectrocloud-labs/valid8or-plugin-vsphere/issues/55)) ([3ba9c4b](https://github.com/spectrocloud-labs/valid8or-plugin-vsphere/commit/3ba9c4b2e4b9a1a00e659c81da4185f837b814fc))
+
 ## [0.0.6](https://github.com/spectrocloud-labs/valid8or-plugin-vsphere/compare/v0.0.5...v0.0.6) (2023-10-06)
 
 
