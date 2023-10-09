@@ -1,5 +1,12 @@
 # Changelog
 
+## [0.0.8](https://github.com/spectrocloud-labs/valid8or-plugin-vsphere/compare/v0.0.7...v0.0.8) (2023-10-09)
+
+
+### Bug Fixes
+
+* release please comments in chart.yaml and values.yaml ([#58](https://github.com/spectrocloud-labs/valid8or-plugin-vsphere/issues/58)) ([6b0ad05](https://github.com/spectrocloud-labs/valid8or-plugin-vsphere/commit/6b0ad0550b6753721030ddc6a13ce119fa9ed2c3))
+
 ## [0.0.7](https://github.com/spectrocloud-labs/valid8or-plugin-vsphere/compare/v0.0.6...v0.0.7) (2023-10-09)
 
 
