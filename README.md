@@ -1,8 +1,17 @@
 # valid8or-plugin-vsphere
-// TODO(user): Add simple overview of use/purpose
+The vSphere [valid8or](https://github.com/spectrocloud-labs/valid8or) plugin ensures that your vSphere environment matches a user-configurable expected state.
 
 ## Description
-// TODO(user): An in-depth paragraph about your project and overview of use
+The vSphere valid8or plugin reconciles `VsphereValidator` custom resources to perform the following validations against your vSphere environment:
+
+1. Compare the privileges associated with a user against an expected privileges set
+2. Compare the privileges associated with a user against an expected privileges set on a particular entity(cluster, resourcepool, folder, vapp, host)
+3. Check if enough compute resources are available on a host, resourcepool or cluster against a resource request
+4. Compare the tags associated with a datacenter, cluster, host, vm, resourcepool or vm against an expected tag set
+
+Each `VsphereValidator` CR is (re)-processed every two minutes to continuously ensure that your vSphere environment matches the expected state.
+
+See the [samples](https://github.com/spectrocloud-labs/valid8or-plugin-vsphere/tree/main/config/samples) directory for example `VsphereValidator` configurations.
 
 ## Getting Started
 You’ll need a Kubernetes cluster to run against. You can use [KIND](https://sigs.k8s.io/kind) to get a local cluster for testing, or run against a remote cluster.
