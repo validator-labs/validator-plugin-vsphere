@@ -145,8 +145,8 @@ func (r *VsphereValidatorReconciler) Reconcile(ctx context.Context, req ctrl.Req
 			r.Log.V(0).Error(err, "failed to reconcile entity privilege rule")
 		}
 		v8ores.SafeUpdateValidationResult(r.Client, nn, validationResult, failed, err, r.Log)
+		r.Log.V(0).Info("Validated privileges for account", "user", rule.Username)
 	}
-	r.Log.V(0).Info("Validated privileges for account", "user", vsphereCloudDriver.VCenterUsername)
 
 	// role privilege validation rules
 	for _, rule := range validator.Spec.RolePrivilegeValidationRules {
@@ -155,8 +155,8 @@ func (r *VsphereValidatorReconciler) Reconcile(ctx context.Context, req ctrl.Req
 			r.Log.V(0).Error(err, "failed to reconcile role privilege rule")
 		}
 		v8ores.SafeUpdateValidationResult(r.Client, nn, validationResult, failed, err, r.Log)
+		r.Log.V(0).Info("Validated privileges for account", "user", rule.Username)
 	}
-	r.Log.V(0).Info("Validated privileges for account", "user", vsphereCloudDriver.VCenterUsername)
 
 	// computeresources validation rules
 	for _, rule := range validator.Spec.ComputeResourceRules {
@@ -165,6 +165,7 @@ func (r *VsphereValidatorReconciler) Reconcile(ctx context.Context, req ctrl.Req
 			r.Log.V(0).Error(err, "failed to reconcile computeresources validation rule")
 		}
 		v8ores.SafeUpdateValidationResult(r.Client, nn, validationResult, failed, err, r.Log)
+		r.Log.V(0).Info("Validated compute resources", "scope", rule.Scope, "entity name", rule.EntityName)
 	}
 
 	// tag validation rules
@@ -175,8 +176,8 @@ func (r *VsphereValidatorReconciler) Reconcile(ctx context.Context, req ctrl.Req
 			r.Log.V(0).Error(err, "failed to reconcile role privilege rule")
 		}
 		v8ores.SafeUpdateValidationResult(r.Client, nn, validationResult, failed, err, r.Log)
+		r.Log.V(0).Info("Validated tags", "entity type", rule.EntityType, "entity name", rule.EntityName, "tag", rule.Tag)
 	}
-	r.Log.V(0).Info("Validated tags for account", "user", vsphereCloudDriver.VCenterUsername)
 
 	// requeue after two minutes for re-validation
 	r.Log.V(0).Info("Requeuing for re-validation in two minutes.", "name", req.Name, "namespace", req.Namespace)
