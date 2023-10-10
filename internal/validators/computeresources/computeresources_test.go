@@ -20,7 +20,7 @@ import (
 func TestComputeResourcesValidationService_ReconcileComputeResourceValidationRule(t *testing.T) {
 	var log logr.Logger
 
-	userName := "admin@vsphere.local"
+	userName := "admin3@vsphere.local"
 	vcSim := vcsim.NewVCSim(userName)
 
 	vcSim.Start()
