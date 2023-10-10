@@ -2,16 +2,19 @@ package privileges
 
 import (
 	"context"
+	"fmt"
+	"testing"
+
 	"github.com/go-logr/logr"
+	"github.com/vmware/govmomi/find"
+	"github.com/vmware/govmomi/object"
+	corev1 "k8s.io/api/core/v1"
+
 	"github.com/spectrocloud-labs/valid8or-plugin-vsphere/api/v1alpha1"
 	"github.com/spectrocloud-labs/valid8or-plugin-vsphere/internal/vcsim"
 	v8or "github.com/spectrocloud-labs/valid8or/api/v1alpha1"
 	"github.com/spectrocloud-labs/valid8or/pkg/types"
 	"github.com/spectrocloud-labs/valid8or/pkg/util/ptr"
-	"github.com/vmware/govmomi/find"
-	"github.com/vmware/govmomi/object"
-	corev1 "k8s.io/api/core/v1"
-	"testing"
 )
 
 func TestRolePrivilegeValidationService_ReconcileEntityPrivilegeRule(t *testing.T) {
@@ -50,6 +53,7 @@ func TestRolePrivilegeValidationService_ReconcileEntityPrivilegeRule(t *testing.
 			name: "All privileges available",
 			rule: v1alpha1.EntityPrivilegeValidationRule{
 				Name:        "VirtualMachine.Config.AddExistingDisk",
+				Username:    userName,
 				ClusterName: "DC0_C0",
 				EntityType:  "cluster",
 				EntityName:  "DC0_C0",
@@ -60,7 +64,7 @@ func TestRolePrivilegeValidationService_ReconcileEntityPrivilegeRule(t *testing.
 			expectedResult: types.ValidationResult{Condition: &v8or.ValidationCondition{
 				ValidationType: "vsphere-entity-privileges",
 				ValidationRule: "validation-cluster-DC0_C0",
-				Message:        "All required vsphere-entity-privileges permissions were found",
+				Message:        fmt.Sprintf("All required vsphere-entity-privileges permissions were found for account: %s", userName),
 				Details:        []string{},
 				Failures:       nil,
 				Status:         corev1.ConditionTrue,
@@ -72,6 +76,7 @@ func TestRolePrivilegeValidationService_ReconcileEntityPrivilegeRule(t *testing.
 			name: "Certain privilege not available",
 			rule: v1alpha1.EntityPrivilegeValidationRule{
 				Name:        "VirtualMachine.Config.AddExistingDisk",
+				Username:    userName,
 				ClusterName: "DC0_C0",
 				EntityType:  "cluster",
 				EntityName:  "DC0_C0",
@@ -84,7 +89,7 @@ func TestRolePrivilegeValidationService_ReconcileEntityPrivilegeRule(t *testing.
 				ValidationRule: "validation-cluster-DC0_C0",
 				Message:        "One or more required privileges was not found, or a condition was not met",
 				Details:        []string{},
-				Failures:       []string{"Rule: VirtualMachine.Config.AddExistingDisk, failed as required privileges were not found on enity: DC0_C0 of type: cluster"},
+				Failures:       []string{"user: admin2@vsphere.local does not have privilege: VirtualMachine.Config.DestroyExistingDisk on entity type: cluster with name: DC0_C0"},
 				Status:         corev1.ConditionFalse,
 			},
 				State: ptr.Ptr(v8or.ValidationFailed),

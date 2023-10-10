@@ -30,7 +30,8 @@ spec:
   auth:
     secretName: validator-secret
   entityPrivilegeValidationRules:
-    - name: "Deploy VM to folder sp-prakash"
+    - name: "Deploy VM to vapp test-vapp"
+      username: prakash@vsphere.local
       clusterName: "Cluster2"
       entityName: "rp-cluster2-palette-advanced-projects"
       entityType: "resourcepool"
@@ -118,11 +119,13 @@ spec:
       entityName: "sp-prakash"
       tag: "owner"
   rolePrivilegeValidationRules:
-    - name: Cns.Searchable
-    - name: Datastore.Browse
-    - name: InventoryService.Tagging.CreateTag
-    - name: InventoryService.Tagging.EditTag
-    - name: Network.Assign
-    - name: Sessions.ValidateSession
-    - name: StorageProfile.View
-    - name: StorageViews.View
+    - username: tmpadmin@vsphere.local
+      privileges:
+        - Cns.Searchable
+        - Datastore.Browse
+        - InventoryService.Tagging.CreateTag
+        - InventoryService.Tagging.EditTag
+        - Network.Assign
+        - Sessions.ValidateSession
+        - StorageProfile.View
+        - StorageViews.View

@@ -1,5 +1,63 @@
 # Changelog
 
+## [0.0.8](https://github.com/spectrocloud-labs/valid8or-plugin-vsphere/compare/v0.0.7...v0.0.8) (2023-10-09)
+
+
+### Bug Fixes
+
+* release please comments in chart.yaml and values.yaml ([#58](https://github.com/spectrocloud-labs/valid8or-plugin-vsphere/issues/58)) ([6b0ad05](https://github.com/spectrocloud-labs/valid8or-plugin-vsphere/commit/6b0ad0550b6753721030ddc6a13ce119fa9ed2c3))
+
+## [0.0.7](https://github.com/spectrocloud-labs/valid8or-plugin-vsphere/compare/v0.0.6...v0.0.7) (2023-10-09)
+
+
+### Bug Fixes
+
+* update charts and add proper templating for auth secret ([#55](https://github.com/spectrocloud-labs/valid8or-plugin-vsphere/issues/55)) ([3ba9c4b](https://github.com/spectrocloud-labs/valid8or-plugin-vsphere/commit/3ba9c4b2e4b9a1a00e659c81da4185f837b814fc))
+
+## [0.0.6](https://github.com/spectrocloud-labs/valid8or-plugin-vsphere/compare/v0.0.5...v0.0.6) (2023-10-06)
+
+
+### Bug Fixes
+
+* yaml tag for auth secretName ([#53](https://github.com/spectrocloud-labs/valid8or-plugin-vsphere/issues/53)) ([cec752f](https://github.com/spectrocloud-labs/valid8or-plugin-vsphere/commit/cec752fa55f23748c5943a32d065142a4f41fabf))
+
+## [0.0.5](https://github.com/spectrocloud-labs/valid8or-plugin-vsphere/compare/v0.0.4...v0.0.5) (2023-10-06)
+
+
+### Bug Fixes
+
+* fix yaml tag for nodepool cpu ([e21d8dc](https://github.com/spectrocloud-labs/valid8or-plugin-vsphere/commit/e21d8dcf04098d428732b348a5bf22f27092330e))
+
+
+### Other
+
+* release 0.0.4 ([#50](https://github.com/spectrocloud-labs/valid8or-plugin-vsphere/issues/50)) ([c419c9d](https://github.com/spectrocloud-labs/valid8or-plugin-vsphere/commit/c419c9d4e9298ee8127ad884c2d70d00aa3b5b87))
+* release 0.0.5 ([#51](https://github.com/spectrocloud-labs/valid8or-plugin-vsphere/issues/51)) ([04508a8](https://github.com/spectrocloud-labs/valid8or-plugin-vsphere/commit/04508a88d66c6ea42aaa9162fc9e5c939dba7cf2))
+
+## [0.0.4](https://github.com/spectrocloud-labs/valid8or-plugin-vsphere/compare/v0.0.3...v0.0.4) (2023-10-06)
+
+
+### Bug Fixes
+
+* fix generated code and temporarily disable tests ([#46](https://github.com/spectrocloud-labs/valid8or-plugin-vsphere/issues/46)) ([56cf9a7](https://github.com/spectrocloud-labs/valid8or-plugin-vsphere/commit/56cf9a715086f30fd952d98c449cd8df31dae6c0))
+
+
+### Other
+
+* Disable roleprivilege tests temporarily ([#48](https://github.com/spectrocloud-labs/valid8or-plugin-vsphere/issues/48)) ([3d4d736](https://github.com/spectrocloud-labs/valid8or-plugin-vsphere/commit/3d4d73622a6c0ab46b7cd288ed76a2558ad21bf9))
+
+## [0.0.3](https://github.com/spectrocloud-labs/valid8or-plugin-vsphere/compare/v0.0.2...v0.0.3) (2023-10-06)
+
+
+### Features
+
+* Add support to validate arbitrary user's role and entity privileges instead of the one specified under auth secret ([#41](https://github.com/spectrocloud-labs/valid8or-plugin-vsphere/issues/41)) ([033f665](https://github.com/spectrocloud-labs/valid8or-plugin-vsphere/commit/033f665794dfadbd4d1473c7fdaed1242d7d0669))
+
+
+### Other
+
+* Add yaml tags to api types ([#44](https://github.com/spectrocloud-labs/valid8or-plugin-vsphere/issues/44)) ([1578a1f](https://github.com/spectrocloud-labs/valid8or-plugin-vsphere/commit/1578a1f43992f7fa25ce0316431dc39c5e18d5ad))
+
 ## [0.0.2](https://github.com/spectrocloud-labs/valid8or-plugin-vsphere/compare/v0.0.1...v0.0.2) (2023-10-02)
 
 
