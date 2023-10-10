@@ -3,6 +3,16 @@ package privileges
 import (
 	"context"
 	"fmt"
+	"net/url"
+	"os"
+	"strings"
+
+	"github.com/vmware/govmomi/object"
+	"github.com/vmware/govmomi/ssoadmin"
+	"github.com/vmware/govmomi/sts"
+	"github.com/vmware/govmomi/vim25/soap"
+	corev1 "k8s.io/api/core/v1"
+
 	"github.com/spectrocloud-labs/valid8or-plugin-vsphere/api/v1alpha1"
 	"github.com/spectrocloud-labs/valid8or-plugin-vsphere/internal/constants"
 	"github.com/spectrocloud-labs/valid8or-plugin-vsphere/internal/vsphere"
@@ -10,15 +20,9 @@ import (
 	v8orconstants "github.com/spectrocloud-labs/valid8or/pkg/constants"
 	"github.com/spectrocloud-labs/valid8or/pkg/types"
 	"github.com/spectrocloud-labs/valid8or/pkg/util/ptr"
-	"github.com/vmware/govmomi/object"
-	"github.com/vmware/govmomi/ssoadmin"
-	"github.com/vmware/govmomi/sts"
-	"github.com/vmware/govmomi/vim25/soap"
-	corev1 "k8s.io/api/core/v1"
-	"net/url"
-	"os"
-	"strings"
 )
+
+var GetUserAndGroupPrincipals = getUserAndGroupPrincipals
 
 func buildValidationResult(rule v1alpha1.GenericRolePrivilegeValidationRule, validationType string) *types.ValidationResult {
 	state := v8or.ValidationSucceeded
@@ -30,14 +34,6 @@ func buildValidationResult(rule v1alpha1.GenericRolePrivilegeValidationRule, val
 	return &types.ValidationResult{Condition: &latestCondition, State: &state}
 }
 
-//func (s *PrivilegeValidationService) GetUserRolePrivilegesMapping() (map[string]bool, error) {
-//	privileges, err := getUserPrivileges(s.driver, s.authManager, s.datacenter, s.userName)
-//	if err != nil {
-//		return nil, err
-//	}
-//	return privileges, nil
-//}
-
 func (s *PrivilegeValidationService) ReconcileRolePrivilegesRule(rule v1alpha1.GenericRolePrivilegeValidationRule, driver *vsphere.VSphereCloudDriver, authManager *object.AuthorizationManager) (*types.ValidationResult, error) {
 	var err error
 
@@ -46,7 +42,7 @@ func (s *PrivilegeValidationService) ReconcileRolePrivilegesRule(rule v1alpha1.G
 
 	vr := buildValidationResult(rule, constants.ValidationTypeRolePrivileges)
 
-	userPrincipal, groupPrincipals, err := getUserAndGroupPrincipals(ctx, rule.Username, driver)
+	userPrincipal, groupPrincipals, err := GetUserAndGroupPrincipals(ctx, rule.Username, driver)
 	if err != nil {
 		return nil, err
 	}
@@ -133,13 +129,3 @@ func getUserAndGroupPrincipals(ctx context.Context, username string, driver *vsp
 
 	return userPrincipal, groups, nil
 }
-
-//func getUserPrivileges(vsphereCloudDriver *vsphere.VSphereCloudDriver, authManager *object.AuthorizationManager, datacenter, userName string) (map[string]bool, error) {
-//	// Get list of roles for current user
-//	userPrivileges, err := vsphereCloudDriver.GetVmwareUserPrivileges(userName, datacenter, vsphereCloudDriver, authManager)
-//	if err != nil {
-//		return nil, err
-//	}
-//
-//	return userPrivileges, nil
-//}
