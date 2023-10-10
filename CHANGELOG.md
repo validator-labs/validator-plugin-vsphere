@@ -1,5 +1,19 @@
 # Changelog
 
+## [0.0.9](https://github.com/spectrocloud-labs/valid8or-plugin-vsphere/compare/v0.0.8...v0.0.9) (2023-10-10)
+
+
+### Bug Fixes
+
+* **deps:** update module github.com/onsi/ginkgo/v2 to v2.13.0 ([#61](https://github.com/spectrocloud-labs/valid8or-plugin-vsphere/issues/61)) ([f927c76](https://github.com/spectrocloud-labs/valid8or-plugin-vsphere/commit/f927c7660e8238a51f48abacf845e63180c3c2cb))
+* **deps:** update module github.com/spectrocloud-labs/valid8or to v0.0.9 ([#64](https://github.com/spectrocloud-labs/valid8or-plugin-vsphere/issues/64)) ([fdb3027](https://github.com/spectrocloud-labs/valid8or-plugin-vsphere/commit/fdb30270d936f4cfa29d4bfaecd2d41e1356910c))
+
+
+### Other
+
+* better log messages in controller ([#60](https://github.com/spectrocloud-labs/valid8or-plugin-vsphere/issues/60)) ([2e64ce3](https://github.com/spectrocloud-labs/valid8or-plugin-vsphere/commit/2e64ce3dd1e3fd74e6e89bfc127ad72741b5e4a3))
+* **deps:** update golang:1.21 docker digest to e9ebfe9 ([#42](https://github.com/spectrocloud-labs/valid8or-plugin-vsphere/issues/42)) ([204b045](https://github.com/spectrocloud-labs/valid8or-plugin-vsphere/commit/204b045a018fb93359bbbf099b3df7acc26db785))
+
 ## [0.0.8](https://github.com/spectrocloud-labs/valid8or-plugin-vsphere/compare/v0.0.7...v0.0.8) (2023-10-09)
 
 
