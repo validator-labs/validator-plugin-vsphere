@@ -1,5 +1,20 @@
 # Changelog
 
+## [0.0.10](https://github.com/spectrocloud-labs/valid8or-plugin-vsphere/compare/v0.0.9...v0.0.10) (2023-10-16)
+
+
+### Bug Fixes
+
+* Fix dockerfile for refactor of vsphere from internal to pkg ([#70](https://github.com/spectrocloud-labs/valid8or-plugin-vsphere/issues/70)) ([a08e02e](https://github.com/spectrocloud-labs/valid8or-plugin-vsphere/commit/a08e02eddfc428e47cd271cdd4b06408b3aff73c))
+* move vsphere libs to pkg/ so they can be used by other projects ([#69](https://github.com/spectrocloud-labs/valid8or-plugin-vsphere/issues/69)) ([1bd8012](https://github.com/spectrocloud-labs/valid8or-plugin-vsphere/commit/1bd801235804e5100291b69cb7807d1b4b066c84))
+
+
+### Other
+
+* **deps:** update golang:1.21 docker digest to 02d7116 ([#67](https://github.com/spectrocloud-labs/valid8or-plugin-vsphere/issues/67)) ([d0a82c6](https://github.com/spectrocloud-labs/valid8or-plugin-vsphere/commit/d0a82c6d55c56b8a6b2bf04e01a78fe4d04cbe38))
+* **deps:** update golang:1.21 docker digest to 24a0937 ([#68](https://github.com/spectrocloud-labs/valid8or-plugin-vsphere/issues/68)) ([5bd2734](https://github.com/spectrocloud-labs/valid8or-plugin-vsphere/commit/5bd27348f44f56c6daaebcc9ed7b11aed5374708))
+* **deps:** update golang:1.21 docker digest to 4d5cf6c ([#65](https://github.com/spectrocloud-labs/valid8or-plugin-vsphere/issues/65)) ([0dacc3b](https://github.com/spectrocloud-labs/valid8or-plugin-vsphere/commit/0dacc3bf964b3e408c6a4a3ed4a989ad7442555e))
+
 ## [0.0.9](https://github.com/spectrocloud-labs/valid8or-plugin-vsphere/compare/v0.0.8...v0.0.9) (2023-10-10)
 
 
