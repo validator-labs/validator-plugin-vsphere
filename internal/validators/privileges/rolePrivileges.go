@@ -3,6 +3,7 @@ package privileges
 import (
 	"context"
 	"fmt"
+	"github.com/spectrocloud-labs/valid8or-plugin-vsphere/pkg/vsphere"
 	"net/url"
 	"os"
 	"strings"
@@ -15,7 +16,6 @@ import (
 
 	"github.com/spectrocloud-labs/valid8or-plugin-vsphere/api/v1alpha1"
 	"github.com/spectrocloud-labs/valid8or-plugin-vsphere/internal/constants"
-	"github.com/spectrocloud-labs/valid8or-plugin-vsphere/internal/vsphere"
 	v8or "github.com/spectrocloud-labs/valid8or/api/v1alpha1"
 	v8orconstants "github.com/spectrocloud-labs/valid8or/pkg/constants"
 	"github.com/spectrocloud-labs/valid8or/pkg/types"

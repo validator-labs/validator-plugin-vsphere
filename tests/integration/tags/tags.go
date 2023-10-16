@@ -6,7 +6,7 @@ import (
 	"github.com/spectrocloud-labs/valid8or-plugin-vsphere/api/v1alpha1"
 	tags "github.com/spectrocloud-labs/valid8or-plugin-vsphere/internal/validators/tags"
 	"github.com/spectrocloud-labs/valid8or-plugin-vsphere/internal/vcsim"
-	"github.com/spectrocloud-labs/valid8or-plugin-vsphere/internal/vsphere"
+	"github.com/spectrocloud-labs/valid8or-plugin-vsphere/pkg/vsphere"
 	"github.com/spectrocloud-labs/valid8or-plugin-vsphere/tests/utils/test"
 	"github.com/spectrocloud-labs/valid8or/pkg/types"
 	"github.com/vmware/govmomi/find"

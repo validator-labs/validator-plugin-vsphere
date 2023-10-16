@@ -7,7 +7,7 @@ import (
 	"github.com/go-logr/logr"
 	"github.com/spectrocloud-labs/valid8or-plugin-vsphere/api/v1alpha1"
 	"github.com/spectrocloud-labs/valid8or-plugin-vsphere/internal/constants"
-	"github.com/spectrocloud-labs/valid8or-plugin-vsphere/internal/vsphere"
+	"github.com/spectrocloud-labs/valid8or-plugin-vsphere/pkg/vsphere"
 	v8or "github.com/spectrocloud-labs/valid8or/api/v1alpha1"
 	v8orconstants "github.com/spectrocloud-labs/valid8or/pkg/constants"
 	"github.com/spectrocloud-labs/valid8or/pkg/types"

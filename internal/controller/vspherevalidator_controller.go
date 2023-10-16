@@ -24,7 +24,7 @@ import (
 	"github.com/spectrocloud-labs/valid8or-plugin-vsphere/internal/validators/computeresources"
 	"github.com/spectrocloud-labs/valid8or-plugin-vsphere/internal/validators/privileges"
 	"github.com/spectrocloud-labs/valid8or-plugin-vsphere/internal/validators/tags"
-	"github.com/spectrocloud-labs/valid8or-plugin-vsphere/internal/vsphere"
+	"github.com/spectrocloud-labs/valid8or-plugin-vsphere/pkg/vsphere"
 	v8or "github.com/spectrocloud-labs/valid8or/api/v1alpha1"
 	"github.com/spectrocloud-labs/valid8or/pkg/types"
 	v8ores "github.com/spectrocloud-labs/valid8or/pkg/validationresult"
