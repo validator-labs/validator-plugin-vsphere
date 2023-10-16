@@ -4,7 +4,7 @@ import (
 	"context"
 	"crypto/tls"
 	"fmt"
-	"github.com/spectrocloud-labs/valid8or-plugin-vsphere/internal/vsphere"
+	"github.com/spectrocloud-labs/valid8or-plugin-vsphere/pkg/vsphere"
 	"log"
 	"net/url"
 	"os"

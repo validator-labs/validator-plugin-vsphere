@@ -3,6 +3,7 @@ package privileges
 import (
 	"context"
 	"fmt"
+	"github.com/spectrocloud-labs/valid8or-plugin-vsphere/pkg/vsphere"
 	"reflect"
 	"testing"
 
@@ -12,7 +13,6 @@ import (
 
 	"github.com/spectrocloud-labs/valid8or-plugin-vsphere/api/v1alpha1"
 	"github.com/spectrocloud-labs/valid8or-plugin-vsphere/internal/vcsim"
-	"github.com/spectrocloud-labs/valid8or-plugin-vsphere/internal/vsphere"
 	v8or "github.com/spectrocloud-labs/valid8or/api/v1alpha1"
 	"github.com/spectrocloud-labs/valid8or/pkg/types"
 	"github.com/spectrocloud-labs/valid8or/pkg/util/ptr"
