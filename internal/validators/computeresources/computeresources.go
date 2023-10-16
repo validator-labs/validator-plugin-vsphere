@@ -143,7 +143,11 @@ func (c *ComputeResourcesValidationService) ReconcileComputeResourceValidationRu
 		var cluster mo.ClusterComputeResource
 		var datastores []mo.Datastore
 
-		resourcePool, virtualMachines, err := GetResourcePoolAndVMs(ctx, fmt.Sprintf(constants.ResourcePoolInventoryPath, driver.Datacenter, rule.ClusterName, rule.EntityName), finder)
+		inventoryPath := fmt.Sprintf(constants.ResourcePoolInventoryPath, driver.Datacenter, rule.ClusterName, rule.EntityName)
+		if rule.EntityName == constants.ClusterDefaultResourcePoolName {
+			inventoryPath = fmt.Sprintf("/%s/host/%s/%s", driver.Datacenter, rule.ClusterName, rule.EntityName)
+		}
+		resourcePool, virtualMachines, err := GetResourcePoolAndVMs(ctx, inventoryPath, finder)
 		res.CPU.Capacity += *resourcePool.Config.CpuAllocation.Limit
 		res.Memory.Capacity += *resourcePool.Config.MemoryAllocation.Limit << 20
 

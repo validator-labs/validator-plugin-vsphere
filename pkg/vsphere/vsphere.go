@@ -94,6 +94,7 @@ func (v *VSphereCloudDriver) ValidateUserPrivilegeOnEntities(ctx context.Context
 	var host *object.HostSystem
 	var vapp *object.VirtualApp
 	var resourcePool *object.ResourcePool
+	var vm *object.VirtualMachine
 
 	var moID types.ManagedObjectReference
 
@@ -116,6 +117,12 @@ func (v *VSphereCloudDriver) ValidateUserPrivilegeOnEntities(ctx context.Context
 			return false, failures, err
 		}
 		moID = vapp.Reference()
+	case "vm":
+		_, vm, err = v.GetVMIfExists(ctx, finder, datacenter, clusterName, entityName)
+		if err != nil {
+			return false, failures, err
+		}
+		moID = vm.Reference()
 	case "host":
 		_, host, err = v.GetHostIfExists(ctx, finder, datacenter, clusterName, entityName)
 		if err != nil {

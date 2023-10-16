@@ -88,6 +88,9 @@ func tagIsValid(tagsManager *tags.Manager, finder *find.Finder, datacenterName, 
 		inventoryPath = fmt.Sprintf(constants.HostSystemInventoryPath, datacenterName, clusterName, entityName)
 	case "resourcepool":
 		inventoryPath = fmt.Sprintf(constants.ResourcePoolInventoryPath, datacenterName, clusterName, entityName)
+		if entityName == constants.ClusterDefaultResourcePoolName {
+			inventoryPath = fmt.Sprintf("/%s/host/%s/%s", datacenterName, clusterName, entityName)
+		}
 	case "vm":
 		inventoryPath = fmt.Sprintf(constants.VirtualMachineInventoryPath, entityName)
 	}
