@@ -326,10 +326,10 @@ func sanitizeStrUnits(resource string, resourceType string) string {
 }
 
 func getTotalQuantity(quantity string, numberOfNodes int) resource.Quantity {
-	var totalCPU resource.Quantity
+	var totalQuantity resource.Quantity
 
 	for i := 0; i < numberOfNodes; i++ {
-		totalCPU.Add(resource.MustParse(quantity))
+		totalQuantity.Add(resource.MustParse(quantity))
 	}
-	return totalCPU
+	return totalQuantity
 }

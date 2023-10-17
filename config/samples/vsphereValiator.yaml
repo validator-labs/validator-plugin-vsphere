@@ -19,12 +19,12 @@ spec:
       nodepoolResourceRequirements:
         - name: master-pool
           numberOfNodes: 3
-          cpu: "9GHz"
+          cpu: "9.5GHz"
           memory: 16Gi
           diskSpace: 80Gi
         - name: worker-pool
           numberOfNodes: 2
-          cpu: "10GHz"
+          cpu: "10.5GHz"
           memory: 32Gi
           diskSpace: 100Gi
   auth:
