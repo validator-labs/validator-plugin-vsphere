@@ -32,7 +32,7 @@ spec:
   entityPrivilegeValidationRules:
     - name: "Deploy VM to vapp test-vapp"
       username: prakash@vsphere.local
-      clusterName: "Cluster2"
+#      clusterName: "Cluster2"
       entityName: "ubuntu-test-mig"
       entityType: "vm"
       privileges:

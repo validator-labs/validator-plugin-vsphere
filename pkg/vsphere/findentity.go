@@ -27,6 +27,10 @@ func (v *VSphereCloudDriver) GetClusterIfExists(ctx context.Context, finder *fin
 
 func (v *VSphereCloudDriver) GetHostIfExists(ctx context.Context, finder *find.Finder, datacenter, clusterName, hostName string) (bool, *object.HostSystem, error) {
 	path := fmt.Sprintf("/%s/host/%s/%s", datacenter, clusterName, hostName)
+	// Handle datacenter level hosts
+	if clusterName == "" {
+		path = fmt.Sprintf("/%s/host/%s", datacenter, hostName)
+	}
 	host, err := finder.HostSystem(ctx, path)
 	if err != nil {
 		return false, nil, err
@@ -56,11 +60,11 @@ func (v *VSphereCloudDriver) GetVAppIfExists(ctx context.Context, finder *find.F
 }
 
 func (v *VSphereCloudDriver) GetVMIfExists(ctx context.Context, finder *find.Finder, datacenter, cluster, vmName string) (bool, *object.VirtualMachine, error) {
-	vapp, err := finder.VirtualMachine(ctx, vmName)
+	vm, err := finder.VirtualMachine(ctx, vmName)
 	if err != nil {
 		return false, nil, err
 	}
-	return true, vapp, nil
+	return true, vm, nil
 }
 
 func (v *VSphereCloudDriver) GetDatacenterIfExists(ctx context.Context, finder *find.Finder, datacenter string) (bool, *object.Datacenter, error) {
