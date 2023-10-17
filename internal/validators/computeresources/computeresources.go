@@ -143,7 +143,11 @@ func (c *ComputeResourcesValidationService) ReconcileComputeResourceValidationRu
 		var cluster mo.ClusterComputeResource
 		var datastores []mo.Datastore
 
-		resourcePool, virtualMachines, err := GetResourcePoolAndVMs(ctx, fmt.Sprintf(constants.ResourcePoolInventoryPath, driver.Datacenter, rule.ClusterName, rule.EntityName), finder)
+		inventoryPath := fmt.Sprintf(constants.ResourcePoolInventoryPath, driver.Datacenter, rule.ClusterName, rule.EntityName)
+		if rule.EntityName == constants.ClusterDefaultResourcePoolName {
+			inventoryPath = fmt.Sprintf("/%s/host/%s/%s", driver.Datacenter, rule.ClusterName, rule.EntityName)
+		}
+		resourcePool, virtualMachines, err := GetResourcePoolAndVMs(ctx, inventoryPath, finder)
 		res.CPU.Capacity += *resourcePool.Config.CpuAllocation.Limit
 		res.Memory.Capacity += *resourcePool.Config.MemoryAllocation.Limit << 20
 
@@ -322,10 +326,10 @@ func sanitizeStrUnits(resource string, resourceType string) string {
 }
 
 func getTotalQuantity(quantity string, numberOfNodes int) resource.Quantity {
-	var totalCPU resource.Quantity
+	var totalQuantity resource.Quantity
 
 	for i := 0; i < numberOfNodes; i++ {
-		totalCPU.Add(resource.MustParse(quantity))
+		totalQuantity.Add(resource.MustParse(quantity))
 	}
-	return totalCPU
+	return totalQuantity
 }

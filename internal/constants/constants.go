@@ -13,5 +13,6 @@ const (
 	VirtualMachineInventoryPath = "%s"
 	FolderInventoryPath         = "%s"
 	ResourcePoolInventoryPath   = "/%s/host/%s/Resources/%s"
-	VAppInventoryPath           = ""
+
+	ClusterDefaultResourcePoolName = "Resources"
 )

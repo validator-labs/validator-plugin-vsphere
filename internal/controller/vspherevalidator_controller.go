@@ -137,7 +137,7 @@ func (r *VsphereValidatorReconciler) Reconcile(ctx context.Context, req ctrl.Req
 	}
 
 	failed := &types.MonotonicBool{}
-
+	
 	// entity privilege validation rules
 	for _, rule := range validator.Spec.EntityPrivilegeValidationRules {
 		validationResult, err := rolePrivilegeValidationService.ReconcileEntityPrivilegeRule(rule, finder)
@@ -158,16 +158,6 @@ func (r *VsphereValidatorReconciler) Reconcile(ctx context.Context, req ctrl.Req
 		r.Log.V(0).Info("Validated privileges for account", "user", rule.Username)
 	}
 
-	// computeresources validation rules
-	for _, rule := range validator.Spec.ComputeResourceRules {
-		validationResult, err := computeResourceValidationService.ReconcileComputeResourceValidationRule(rule, finder, vsphereCloudDriver)
-		if err != nil {
-			r.Log.V(0).Error(err, "failed to reconcile computeresources validation rule")
-		}
-		v8ores.SafeUpdateValidationResult(r.Client, nn, validationResult, failed, err, r.Log)
-		r.Log.V(0).Info("Validated compute resources", "scope", rule.Scope, "entity name", rule.EntityName)
-	}
-
 	// tag validation rules
 	r.Log.V(0).Info("Checking if tags are properly assigned")
 	for _, rule := range validator.Spec.TagValidationRules {
@@ -177,6 +167,16 @@ func (r *VsphereValidatorReconciler) Reconcile(ctx context.Context, req ctrl.Req
 		}
 		v8ores.SafeUpdateValidationResult(r.Client, nn, validationResult, failed, err, r.Log)
 		r.Log.V(0).Info("Validated tags", "entity type", rule.EntityType, "entity name", rule.EntityName, "tag", rule.Tag)
+	}
+
+	// computeresources validation rules
+	for _, rule := range validator.Spec.ComputeResourceRules {
+		validationResult, err := computeResourceValidationService.ReconcileComputeResourceValidationRule(rule, finder, vsphereCloudDriver)
+		if err != nil {
+			r.Log.V(0).Error(err, "failed to reconcile computeresources validation rule")
+		}
+		v8ores.SafeUpdateValidationResult(r.Client, nn, validationResult, failed, err, r.Log)
+		r.Log.V(0).Info("Validated compute resources", "scope", rule.Scope, "entity name", rule.EntityName)
 	}
 
 	// requeue after two minutes for re-validation
