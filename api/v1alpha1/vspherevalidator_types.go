@@ -14,16 +14,22 @@ type VsphereValidatorSpec struct {
 
 	Auth                           VsphereAuth                          `json:"auth" yaml:"auth"`
 	Datacenter                     string                               `json:"datacenter" yaml:"datacenter"`
-	EntityPrivilegeValidationRules []EntityPrivilegeValidationRule      `json:"entityPrivilegeValidationRules" yaml:"entityPrivilegeValidationRules"`
-	RolePrivilegeValidationRules   []GenericRolePrivilegeValidationRule `json:"rolePrivilegeValidationRules" yaml:"rolePrivilegeValidationRules"`
-	TagValidationRules             []TagValidationRule                  `json:"tagValidationRules" yaml:"tagValidationRules"`
-	ComputeResourceRules           []ComputeResourceRule                `json:"computeResourceRules" yaml:"computeResourceRules"`
+	EntityPrivilegeValidationRules []EntityPrivilegeValidationRule      `json:"entityPrivilegeValidationRules,omitempty" yaml:"entityPrivilegeValidationRules,omitempty"`
+	RolePrivilegeValidationRules   []GenericRolePrivilegeValidationRule `json:"rolePrivilegeValidationRules,omitempty" yaml:"rolePrivilegeValidationRules,omitempty"`
+	TagValidationRules             []TagValidationRule                  `json:"tagValidationRules,omitempty" yaml:"tagValidationRules,omitempty"`
+	ComputeResourceRules           []ComputeResourceRule                `json:"computeResourceRules,omitempty" yaml:"computeResourceRules,omitempty"`
+	NTPValidationRules             []NTPValidationRule                  `json:"ntpValidationRules,omitempty" yaml:"ntpValidationRules,omitempty"`
 }
 
 type VsphereAuth struct {
 	SecretName string `json:"secretName" yaml:"secretName"`
 }
 
+type NTPValidationRule struct {
+	Name        string   `json:"name" yaml:"name"`
+	ClusterName string   `json:"clusterName,omitempty" yaml:"clusterName,omitempty"`
+	Hosts       []string `json:"hosts" yaml:"hosts"`
+}
 type ComputeResourceRule struct {
 	Name                         string                        `json:"name" yaml:"name"`
 	ClusterName                  string                        `json:"clusterName,omitempty" yaml:"clusterName"`

@@ -1,0 +1,22 @@
+apiVersion: validation.spectrocloud.labs/v1alpha1
+kind: VsphereValidator
+metadata:
+  labels:
+    app.kubernetes.io/name: vspherevalidator
+    app.kubernetes.io/instance: vspherevalidator-sample
+    app.kubernetes.io/part-of: valid8or-plugin-vsphere
+    app.kubernetes.io/managed-by: kustomize
+    app.kubernetes.io/created-by: valid8or-plugin-vsphere
+  name: vspherevalidator
+  namespace: valid8or
+spec:
+  datacenter: "Datacenter"
+  ntpValidationRules:
+    - name: "validate ntp on hosts"
+      clusterName: Cluster2
+      hosts:
+        - 10.10.20.110
+        - 10.10.20.111
+        - 10.10.20.112
+  auth:
+    secretName: validator-secret

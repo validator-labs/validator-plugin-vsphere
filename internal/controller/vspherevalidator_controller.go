@@ -108,6 +108,7 @@ func (r *VsphereValidatorReconciler) Reconcile(ctx context.Context, req ctrl.Req
 	rolePrivilegeValidationService := privileges.NewPrivilegeValidationService(r.Log, vsphereCloudDriver, validator.Spec.Datacenter, authManager, userName)
 	tagValidationService := tags.NewTagsValidationService(r.Log)
 	computeResourceValidationService := computeresources.NewComputeResourcesValidationService(r.Log, vsphereCloudDriver)
+	ntpValidationService := ntp.NewNTPValidationService(r.Log, vsphereCloudDriver, validator.Spec.Datacenter)
 
 	// Get the active validator's validation result
 	vr := &v8or.ValidationResult{}
@@ -137,6 +138,16 @@ func (r *VsphereValidatorReconciler) Reconcile(ctx context.Context, req ctrl.Req
 	}
 
 	failed := &types.MonotonicBool{}
+
+	// ntpvalidation rules
+	for _, rule := range validator.Spec.NTPValidationRules {
+		validationResult, err := ntpValidationService.ReconcileNTPRule(rule, finder)
+		if err != nil {
+			r.Log.V(0).Error(err, "failed to reconcile entity privilege rule")
+		}
+		v8ores.SafeUpdateValidationResult(r.Client, nn, validationResult, failed, err, r.Log)
+		r.Log.V(0).Info("Validated ntp rules")
+	}
 
 	// entity privilege validation rules
 	for _, rule := range validator.Spec.EntityPrivilegeValidationRules {

@@ -3,6 +3,7 @@ package vsphere
 import (
 	"context"
 	"fmt"
+	"github.com/vmware/govmomi/govc/host/service"
 	ssoadmintypes "github.com/vmware/govmomi/ssoadmin/types"
 	"net/http"
 	"net/url"
@@ -498,6 +499,132 @@ func (v *VSphereCloudDriver) getClusterComputeResources(ctx context.Context, fin
 		return nil, fmt.Errorf("failed to get compute cluster resources: %s", err.Error())
 	}
 	return ccrs, nil
+}
+
+type hostDateInfo struct {
+	hostName   string
+	ntpServers []string
+	types.HostDateTimeInfo
+	Service       *types.HostService
+	Current       *time.Time
+	clientStatus  string
+	serviceStatus string
+}
+
+func (info *hostDateInfo) servers() []string {
+	return info.NtpConfig.Server
+}
+
+func (v *VSphereCloudDriver) ValidateHostNTPSettings(ctx context.Context, driver *VSphereCloudDriver, finder *find.Finder, datacenter string, clusterName string, hosts []string) (isvalid bool, failures []string, err error) {
+	var hostsDateInfo []hostDateInfo
+
+	for _, host := range hosts {
+		_, hostObj, err := v.GetHostIfExists(ctx, finder, datacenter, clusterName, host)
+		if err != nil {
+			return false, nil, err
+		}
+
+		s, err := hostObj.ConfigManager().DateTimeSystem(ctx)
+		if err != nil {
+			return false, nil, err
+		}
+
+		var hs mo.HostDateTimeSystem
+		if err = s.Properties(ctx, s.Reference(), nil, &hs); err != nil {
+			return false, nil, err
+		}
+
+		ss, err := hostObj.ConfigManager().ServiceSystem(ctx)
+		if err != nil {
+			return false, nil, err
+		}
+
+		services, err := ss.Service(ctx)
+		if err != nil {
+			return false, nil, err
+		}
+
+		res := &hostDateInfo{HostDateTimeInfo: hs.DateTimeInfo}
+
+		for i, service := range services {
+			if service.Key == "ntpd" {
+				res.Service = &services[i]
+				break
+			}
+		}
+
+		res.Current, err = s.Query(ctx)
+		if err != nil {
+			return false, nil, err
+		}
+
+		res.clientStatus = service.Policy(*res.Service)
+		res.serviceStatus = service.Status(*res.Service)
+		res.hostName = host
+		res.ntpServers = res.servers()
+
+		hostsDateInfo = append(hostsDateInfo, *res)
+	}
+
+	for _, dateInfo := range hostsDateInfo {
+		if dateInfo.clientStatus != "Enabled" {
+			failureMsg := fmt.Sprintf("NTP client status is disabled or unknown for host: %s", dateInfo.hostName)
+			failures = append(failures, failureMsg)
+		}
+
+		if dateInfo.serviceStatus != "Running" {
+			failureMsg := fmt.Sprintf("NTP service status is Stopped or unknown for host: %s", dateInfo.hostName)
+			failures = append(failures, failureMsg)
+		}
+	}
+
+	err = checkHostsNTPConf(hostsDateInfo)
+	if err != nil {
+		failures = append(failures, fmt.Sprintf("%s", err.Error()))
+	}
+
+	if len(failures) > 0 {
+		return false, failures, err
+	}
+
+	return true, failures, nil
+}
+
+func checkHostsNTPConf(hostsDateInfo []hostDateInfo) error {
+	var intersectionList []string
+	intersectionList = nil
+	for i := range hostsDateInfo {
+		if i >= (len(hostsDateInfo) - 1) {
+			break
+		}
+		if intersectionList == nil {
+			intersectionList = intersection(hostsDateInfo[i].ntpServers, hostsDateInfo[i+1].ntpServers)
+		} else {
+			intersectionList = intersection(intersectionList, hostsDateInfo[i+1].ntpServers)
+		}
+
+		if intersectionList == nil {
+			return fmt.Errorf("some of the hosts has differently configured NTP servers: %s and %s", hostsDateInfo[i].hostName, hostsDateInfo[i+1].hostName)
+		}
+	}
+
+	return nil
+}
+
+func intersection(listA []string, listB []string) []string {
+	var intersect []string
+	for _, element1 := range listA {
+		for _, element2 := range listB {
+			if element1 == element2 {
+				intersect = append(intersect, element1)
+			}
+		}
+	}
+
+	if len(intersect) == 0 {
+		return nil
+	}
+	return intersect
 }
 
 func getUserPrincipalFromPrincipalID(id ssoadmintypes.PrincipalId) string {
