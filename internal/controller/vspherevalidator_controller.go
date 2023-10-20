@@ -20,20 +20,20 @@ import (
 	"context"
 	"fmt"
 	"github.com/go-logr/logr"
-	"github.com/spectrocloud-labs/valid8or-plugin-vsphere/internal/constants"
-	"github.com/spectrocloud-labs/valid8or-plugin-vsphere/internal/validators/computeresources"
-	"github.com/spectrocloud-labs/valid8or-plugin-vsphere/internal/validators/privileges"
-	"github.com/spectrocloud-labs/valid8or-plugin-vsphere/internal/validators/tags"
-	"github.com/spectrocloud-labs/valid8or-plugin-vsphere/pkg/vsphere"
-	v8or "github.com/spectrocloud-labs/valid8or/api/v1alpha1"
-	"github.com/spectrocloud-labs/valid8or/pkg/types"
-	v8ores "github.com/spectrocloud-labs/valid8or/pkg/validationresult"
+	"github.com/spectrocloud-labs/validator-plugin-vsphere/internal/constants"
+	"github.com/spectrocloud-labs/validator-plugin-vsphere/internal/validators/computeresources"
+	"github.com/spectrocloud-labs/validator-plugin-vsphere/internal/validators/privileges"
+	"github.com/spectrocloud-labs/validator-plugin-vsphere/internal/validators/tags"
+	"github.com/spectrocloud-labs/validator-plugin-vsphere/pkg/vsphere"
+	v8or "github.com/spectrocloud-labs/validator/api/v1alpha1"
+	"github.com/spectrocloud-labs/validator/pkg/types"
+	v8ores "github.com/spectrocloud-labs/validator/pkg/validationresult"
 	"github.com/vmware/govmomi/object"
 	"sigs.k8s.io/controller-runtime/pkg/reconcile"
 	"strconv"
 	"time"
 
-	"github.com/spectrocloud-labs/valid8or-plugin-vsphere/api/v1alpha1"
+	"github.com/spectrocloud-labs/validator-plugin-vsphere/api/v1alpha1"
 	vtags "github.com/vmware/govmomi/vapi/tags"
 	corev1 "k8s.io/api/core/v1"
 	apierrs "k8s.io/apimachinery/pkg/api/errors"
@@ -112,7 +112,7 @@ func (r *VsphereValidatorReconciler) Reconcile(ctx context.Context, req ctrl.Req
 	// Get the active validator's validation result
 	vr := &v8or.ValidationResult{}
 	nn := ktypes.NamespacedName{
-		Name:      fmt.Sprintf("valid8or-plugin-vsphere-%s", validator.Name),
+		Name:      fmt.Sprintf("validator-plugin-vsphere-%s", validator.Name),
 		Namespace: req.Namespace,
 	}
 	if err := r.Get(ctx, nn, vr); err == nil {
@@ -137,7 +137,7 @@ func (r *VsphereValidatorReconciler) Reconcile(ctx context.Context, req ctrl.Req
 	}
 
 	failed := &types.MonotonicBool{}
-	
+
 	// entity privilege validation rules
 	for _, rule := range validator.Spec.EntityPrivilegeValidationRules {
 		validationResult, err := rolePrivilegeValidationService.ReconcileEntityPrivilegeRule(rule, finder)

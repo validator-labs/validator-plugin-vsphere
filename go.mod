@@ -1,4 +1,4 @@
-module github.com/spectrocloud-labs/valid8or-plugin-vsphere
+module github.com/spectrocloud-labs/validator-plugin-vsphere
 
 go 1.20
 
@@ -9,7 +9,7 @@ require (
 	github.com/onsi/gomega v1.28.0
 	github.com/pkg/errors v0.9.1
 	github.com/sirupsen/logrus v1.9.3
-	github.com/spectrocloud-labs/valid8or v0.0.9
+	github.com/spectrocloud-labs/validator v0.0.10
 	github.com/vmware/govmomi v0.32.0
 	k8s.io/api v0.28.3
 	k8s.io/apimachinery v0.28.3

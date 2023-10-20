@@ -1,7 +1,7 @@
 package test
 
 import (
-	"github.com/spectrocloud-labs/valid8or-plugin-vsphere/tests/utils/ds"
+	"github.com/spectrocloud-labs/validator-plugin-vsphere/tests/utils/ds"
 )
 
 type TestContext struct {

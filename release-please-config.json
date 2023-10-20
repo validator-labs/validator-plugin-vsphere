@@ -8,9 +8,9 @@
       "bump-patch-for-minor-pre-major": true,
       "draft": false,
       "extra-files": [
-        "chart/valid8or-plugin-vsphere/Chart.yaml",
-        "chart/valid8or-plugin-vsphere/values.yaml",
-        "chart/valid8or-plugin-vsphere/README.md"
+        "chart/validator-plugin-vsphere/Chart.yaml",
+        "chart/validator-plugin-vsphere/values.yaml",
+        "chart/validator-plugin-vsphere/README.md"
       ],
       "changelog-sections": [
         {

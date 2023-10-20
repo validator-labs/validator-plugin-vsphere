@@ -1,13 +1,13 @@
 
-Valid8or-plugin-vsphere
+Validator-plugin-vsphere
 ===========
 
-valid8or-plugin-vsphere performs a variety of validations against your vsphere account
+validator-plugin-vsphere performs a variety of validations against your vsphere account
 
 
 ## Configuration
 
-The following table lists the configurable parameters of the Valid8or-plugin-vsphere chart and their default values.
+The following table lists the configurable parameters of the Validator-plugin-vsphere chart and their default values.
 
 | Parameter                | Description             | Default        |
 | ------------------------ | ----------------------- | -------------- |
@@ -23,7 +23,7 @@ The following table lists the configurable parameters of the Valid8or-plugin-vsp
 | `controllerManager.manager.args` |  | `["--health-probe-bind-address=:8081", "--metrics-bind-address=127.0.0.1:8080", "--leader-elect"]` |
 | `controllerManager.manager.containerSecurityContext.allowPrivilegeEscalation` |  | `false` |
 | `controllerManager.manager.containerSecurityContext.capabilities.drop` |  | `["ALL"]` |
-| `controllerManager.manager.image.repository` |  | `"quay.io/spectrocloud-labs/valid8or-plugin-vsphere"` |
+| `controllerManager.manager.image.repository` |  | `"quay.io/spectrocloud-labs/validator-plugin-vsphere"` |
 | `controllerManager.manager.image.tag` | x-release-please-version | `"v0.0.10"` |
 | `controllerManager.manager.resources.limits.cpu` |  | `"500m"` |
 | `controllerManager.manager.resources.limits.memory` |  | `"128Mi"` |

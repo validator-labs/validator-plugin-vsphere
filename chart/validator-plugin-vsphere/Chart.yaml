@@ -1,5 +1,5 @@
 apiVersion: v2
-name: valid8or-plugin-vsphere
+name: validator-plugin-vsphere
 description: Perform various vsphere validations (Role Privileges, Region/Zone Tags)
 type: application
 version: 0.0.10  # x-release-please-version
