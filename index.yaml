@@ -100,4 +100,16 @@ entries:
     urls:
     - https://spectrocloud-labs.github.io/valid8or-plugin-vsphere/valid8or-plugin-vsphere-0.0.2.tgz
     version: 0.0.2
-generated: "2023-10-16T14:27:54.711395608Z"
+  validator-plugin-vsphere:
+  - apiVersion: v2
+    appVersion: 0.0.11
+    created: "2023-10-20T16:57:37.452750654Z"
+    description: Perform various vsphere validations (Role Privileges, Region/Zone
+      Tags)
+    digest: 83dafccfcc85fb97564ee03cdc23765f71814c567ea83117ee021803757e1788
+    name: validator-plugin-vsphere
+    type: application
+    urls:
+    - https://spectrocloud-labs.github.io/valid8or-plugin-vsphere/validator-plugin-vsphere-0.0.11.tgz
+    version: 0.0.11
+generated: "2023-10-20T16:57:37.446133735Z"
