@@ -1,0 +1,6 @@
+apiVersion: v2
+name: validator-plugin-vsphere
+description: Perform various vsphere validations (Role Privileges, Region/Zone Tags)
+type: application
+version: 0.0.11  # x-release-please-version
+appVersion: "0.0.11"  # x-release-please-version

@@ -12,47 +12,54 @@ type VsphereValidatorSpec struct {
 	// INSERT ADDITIONAL SPEC FIELDS - desired state of cluster
 	// Important: Run "make" to regenerate code after modifying this file
 
-	Auth                         VsphereAuth                   `json:"auth"`
-	RolePrivilegeValidationRules []RolePrivilegeValidationRule `json:"rules"`
-	RegionZoneValidationRule     RegionZoneValidationRule      `json:"regionZoneValidationRule"`
+	Auth                           VsphereAuth                          `json:"auth" yaml:"auth"`
+	Datacenter                     string                               `json:"datacenter" yaml:"datacenter"`
+	EntityPrivilegeValidationRules []EntityPrivilegeValidationRule      `json:"entityPrivilegeValidationRules" yaml:"entityPrivilegeValidationRules"`
+	RolePrivilegeValidationRules   []GenericRolePrivilegeValidationRule `json:"rolePrivilegeValidationRules" yaml:"rolePrivilegeValidationRules"`
+	TagValidationRules             []TagValidationRule                  `json:"tagValidationRules" yaml:"tagValidationRules"`
+	ComputeResourceRules           []ComputeResourceRule                `json:"computeResourceRules" yaml:"computeResourceRules"`
 }
 
 type VsphereAuth struct {
-	SecretName string `json:"secretName"`
+	SecretName string `json:"secretName" yaml:"secretName"`
 }
 
-type RolePrivilegeValidationRule struct {
-	Name        string   `json:"name"`
-	Description string   `json:"description"`
-	IsEnabled   bool     `json:"isEnabled"`
-	Severity    string   `json:"severity"`
-	RuleType    string   `json:"ruleType"`
-	Expressions []string `json:"expressions"`
+type ComputeResourceRule struct {
+	Name                         string                        `json:"name" yaml:"name"`
+	ClusterName                  string                        `json:"clusterName,omitempty" yaml:"clusterName"`
+	Scope                        string                        `json:"scope" yaml:"scope"`
+	EntityName                   string                        `json:"entityName" yaml:"entityName"`
+	NodepoolResourceRequirements []NodepoolResourceRequirement `json:"nodepoolResourceRequirements" yaml:"nodepoolResourceRequirements"`
 }
 
-type RegionZoneValidationRule struct {
-	RegionCategoryName string   `json:"regionCategoryName"`
-	ZoneCategoryName   string   `json:"zoneCategoryName"`
-	Datacenter         string   `json:"datacenter"`
-	Clusters           []string `json:"clusters"`
+type EntityPrivilegeValidationRule struct {
+	Name        string   `json:"name" yaml:"name"`
+	Username    string   `json:"username" yaml:"username"`
+	ClusterName string   `json:"clusterName,omitempty" yaml:"clusterName"`
+	EntityType  string   `json:"entityType" yaml:"entityType"`
+	EntityName  string   `json:"entityName" yaml:"entityName"`
+	Privileges  []string `json:"privileges" yaml:"privileges"`
 }
 
-type CloudAccountValidationRule struct {
-	Name        string   `json:"name"`
-	Description string   `json:"description"`
-	IsEnabled   bool     `json:"isEnabled"`
-	Severity    string   `json:"severity"`
-	RuleType    string   `json:"ruleType"`
-	Expressions []string `json:"expressions"`
+type GenericRolePrivilegeValidationRule struct {
+	Username   string   `json:"username" yaml:"username"`
+	Privileges []string `json:"privileges" yaml:"privileges"`
 }
 
-type DiskSpaceValidationRule struct {
-	Name        string   `json:"name"`
-	Description string   `json:"description"`
-	IsEnabled   bool     `json:"isEnabled"`
-	Severity    string   `json:"severity"`
-	RuleType    string   `json:"ruleType"`
-	Expressions []string `json:"expressions"`
+type TagValidationRule struct {
+	Name        string `json:"name" yaml:"name"`
+	ClusterName string `json:"clusterName,omitempty" yaml:"clusterName"`
+	EntityType  string `json:"entityType" yaml:"entityType"`
+	EntityName  string `json:"entityName" yaml:"entityName"`
+	Tag         string `json:"tag" yaml:"tag"`
+}
+
+type NodepoolResourceRequirement struct {
+	Name          string `json:"name" yaml:"name"`
+	NumberOfNodes int    `json:"numberOfNodes" yaml:"numberOfNodes"`
+	CPU           string `json:"cpu" yaml:"cpu"`
+	Memory        string `json:"memory" yaml:"memory"`
+	DiskSpace     string `json:"diskSpace" yaml:"diskSpace"`
 }
 
 // VsphereValidatorStatus defines the observed state of VsphereValidator

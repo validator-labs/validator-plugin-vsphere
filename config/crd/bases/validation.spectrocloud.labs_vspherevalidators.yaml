@@ -41,54 +41,113 @@ spec:
                 required:
                 - secretName
                 type: object
-              regionZoneValidationRule:
-                properties:
-                  clusters:
-                    items:
-                      type: string
-                    type: array
-                  datacenter:
-                    type: string
-                  regionCategoryName:
-                    type: string
-                  zoneCategoryName:
-                    type: string
-                required:
-                - clusters
-                - datacenter
-                - regionCategoryName
-                - zoneCategoryName
-                type: object
-              rules:
+              computeResourceRules:
                 items:
                   properties:
-                    description:
+                    clusterName:
                       type: string
-                    expressions:
+                    entityName:
+                      type: string
+                    name:
+                      type: string
+                    nodepoolResourceRequirements:
+                      items:
+                        properties:
+                          cpu:
+                            type: string
+                          diskSpace:
+                            type: string
+                          memory:
+                            type: string
+                          name:
+                            type: string
+                          numberOfNodes:
+                            type: integer
+                        required:
+                        - cpu
+                        - diskSpace
+                        - memory
+                        - name
+                        - numberOfNodes
+                        type: object
+                      type: array
+                    scope:
+                      type: string
+                  required:
+                  - entityName
+                  - name
+                  - nodepoolResourceRequirements
+                  - scope
+                  type: object
+                type: array
+              datacenter:
+                type: string
+              entityPrivilegeValidationRules:
+                items:
+                  properties:
+                    clusterName:
+                      type: string
+                    entityName:
+                      type: string
+                    entityType:
+                      type: string
+                    name:
+                      type: string
+                    privileges:
                       items:
                         type: string
                       type: array
-                    isEnabled:
-                      type: boolean
-                    name:
-                      type: string
-                    ruleType:
-                      type: string
-                    severity:
+                    username:
                       type: string
                   required:
-                  - description
-                  - expressions
-                  - isEnabled
+                  - entityName
+                  - entityType
                   - name
-                  - ruleType
-                  - severity
+                  - privileges
+                  - username
+                  type: object
+                type: array
+              rolePrivilegeValidationRules:
+                items:
+                  properties:
+                    privileges:
+                      items:
+                        type: string
+                      type: array
+                    username:
+                      type: string
+                  required:
+                  - privileges
+                  - username
+                  type: object
+                type: array
+              tagValidationRules:
+                items:
+                  properties:
+                    clusterName:
+                      type: string
+                    entityName:
+                      type: string
+                    entityType:
+                      type: string
+                    name:
+                      type: string
+                    tag:
+                      type: string
+                  required:
+                  - entityName
+                  - entityType
+                  - name
+                  - tag
                   type: object
                 type: array
             required:
             - auth
-            - regionZoneValidationRule
-            - rules
+            - computeResourceRules
+            - datacenter
+            - entityPrivilegeValidationRules
+            - rolePrivilegeValidationRules
+            - tagValidationRules
             type: object
           status:
             description: VsphereValidatorStatus defines the observed state of VsphereValidator

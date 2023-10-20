@@ -31,8 +31,9 @@ import (
 	"sigs.k8s.io/controller-runtime/pkg/healthz"
 	"sigs.k8s.io/controller-runtime/pkg/log/zap"
 
-	validationv1alpha1 "github.com/spectrocloud-labs/valid8or-plugin-vsphere/api/v1alpha1"
-	"github.com/spectrocloud-labs/valid8or-plugin-vsphere/internal/controller"
+	validationv1alpha1 "github.com/spectrocloud-labs/validator-plugin-vsphere/api/v1alpha1"
+	"github.com/spectrocloud-labs/validator-plugin-vsphere/internal/controller"
+	validatorv1alpha1 "github.com/spectrocloud-labs/validator/api/v1alpha1"
 	//+kubebuilder:scaffold:imports
 )
 
@@ -43,7 +44,7 @@ var (
 
 func init() {
 	utilruntime.Must(clientgoscheme.AddToScheme(scheme))
-
+	utilruntime.Must(validatorv1alpha1.AddToScheme(scheme))
 	utilruntime.Must(validationv1alpha1.AddToScheme(scheme))
 	//+kubebuilder:scaffold:scheme
 }
@@ -67,8 +68,6 @@ func main() {
 
 	mgr, err := ctrl.NewManager(ctrl.GetConfigOrDie(), ctrl.Options{
 		Scheme:                 scheme,
-		MetricsBindAddress:     metricsAddr,
-		Port:                   9443,
 		HealthProbeBindAddress: probeAddr,
 		LeaderElection:         enableLeaderElection,
 		LeaderElectionID:       "e2819fd0.spectrocloud.labs",
@@ -91,6 +90,7 @@ func main() {
 
 	if err = (&controller.VsphereValidatorReconciler{
 		Client: mgr.GetClient(),
+		Log:    ctrl.Log.WithName("controllers").WithName("VsphereValidator"),
 		Scheme: mgr.GetScheme(),
 	}).SetupWithManager(mgr); err != nil {
 		setupLog.Error(err, "unable to create controller", "controller", "VsphereValidator")

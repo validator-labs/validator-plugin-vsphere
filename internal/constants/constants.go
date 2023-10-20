@@ -1,14 +1,18 @@
 package constants
 
 const (
-	PluginCode string = "AWS"
+	PluginCode                     string = "VSPHERE"
+	ValidationTypeRolePrivileges   string = "vsphere-role-privileges"
+	ValidationTypeEntityPrivileges string = "vsphere-entity-privileges"
+	ValidationTypeTag              string = "vsphere-tags"
+	ValidationTypeComputeResources string = "vsphere-compute-resources"
 
-	ValidationTypeIAMRolePolicy  string = "aws-iam-role-policy"
-	ValidationTypeIAMUserPolicy  string = "aws-iam-user-policy"
-	ValidationTypeIAMGroupPolicy string = "aws-iam-group-policy"
-	ValidationTypeRolePrivileges string = "aws-iam-policy"
-	ValidationTypeServiceQuota   string = "aws-service-quota"
-	ValidationTypeTag            string = "aws-tag"
+	DatacenterInventoryPath     = "%s"
+	ClusterInventoryPath        = "/%s/host/%s"
+	HostSystemInventoryPath     = "/%s/host/%s/%s"
+	VirtualMachineInventoryPath = "%s"
+	FolderInventoryPath         = "%s"
+	ResourcePoolInventoryPath   = "/%s/host/%s/Resources/%s"
 
-	IAMWildcard string = "*"
+	ClusterDefaultResourcePoolName = "Resources"
 )

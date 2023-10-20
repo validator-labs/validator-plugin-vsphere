@@ -20,25 +20,27 @@ import (
 	"context"
 	"fmt"
 	"github.com/go-logr/logr"
-	"github.com/spectrocloud-labs/valid8or-plugin-vsphere/internal/constants"
-	"github.com/spectrocloud-labs/valid8or-plugin-vsphere/internal/validators/roleprivilege"
-	"github.com/spectrocloud-labs/valid8or-plugin-vsphere/internal/validators/tags"
-	"github.com/spectrocloud-labs/valid8or-plugin-vsphere/internal/vsphere"
-	v8or "github.com/spectrocloud-labs/valid8or/api/v1alpha1"
-	v8ores "github.com/spectrocloud-labs/valid8or/pkg/validationresult"
+	"github.com/spectrocloud-labs/validator-plugin-vsphere/internal/constants"
+	"github.com/spectrocloud-labs/validator-plugin-vsphere/internal/validators/computeresources"
+	"github.com/spectrocloud-labs/validator-plugin-vsphere/internal/validators/privileges"
+	"github.com/spectrocloud-labs/validator-plugin-vsphere/internal/validators/tags"
+	"github.com/spectrocloud-labs/validator-plugin-vsphere/pkg/vsphere"
+	v8or "github.com/spectrocloud-labs/validator/api/v1alpha1"
+	"github.com/spectrocloud-labs/validator/pkg/types"
+	v8ores "github.com/spectrocloud-labs/validator/pkg/validationresult"
+	"github.com/vmware/govmomi/object"
 	"sigs.k8s.io/controller-runtime/pkg/reconcile"
 	"strconv"
 	"time"
 
-	"k8s.io/apimachinery/pkg/runtime"
-	ctrl "sigs.k8s.io/controller-runtime"
-	"sigs.k8s.io/controller-runtime/pkg/client"
-	"sigs.k8s.io/controller-runtime/pkg/log"
-
-	v1alpha1 "github.com/spectrocloud-labs/valid8or-plugin-vsphere/api/v1alpha1"
+	"github.com/spectrocloud-labs/validator-plugin-vsphere/api/v1alpha1"
+	vtags "github.com/vmware/govmomi/vapi/tags"
 	corev1 "k8s.io/api/core/v1"
 	apierrs "k8s.io/apimachinery/pkg/api/errors"
+	"k8s.io/apimachinery/pkg/runtime"
 	ktypes "k8s.io/apimachinery/pkg/types"
+	ctrl "sigs.k8s.io/controller-runtime"
+	"sigs.k8s.io/controller-runtime/pkg/client"
 )
 
 // VsphereValidatorReconciler reconciles a VsphereValidator object
@@ -62,7 +64,7 @@ type VsphereValidatorReconciler struct {
 // For more details, check Reconcile and its Result here:
 // - https://pkg.go.dev/sigs.k8s.io/controller-runtime@v0.15.0/pkg/reconcile
 func (r *VsphereValidatorReconciler) Reconcile(ctx context.Context, req ctrl.Request) (ctrl.Result, error) {
-	_ = log.FromContext(ctx)
+	r.Log.V(0).Info("Reconciling VsphereValidator", "name", req.Name, "namespace", req.Namespace)
 
 	validator := &v1alpha1.VsphereValidator{}
 	if err := r.Get(ctx, req.NamespacedName, validator); err != nil {
@@ -74,8 +76,6 @@ func (r *VsphereValidatorReconciler) Reconcile(ctx context.Context, req ctrl.Req
 		return ctrl.Result{}, client.IgnoreNotFound(err)
 	}
 
-	fmt.Println("Reconciliation triggered")
-
 	// Initialize Vsphere driver
 	var vsphereCloudAccount *vsphere.VsphereCloudAccount
 	var res *ctrl.Result
@@ -86,19 +86,34 @@ func (r *VsphereValidatorReconciler) Reconcile(ctx context.Context, req ctrl.Req
 		}
 	}
 
-	vsphereCloudDriver, err := vsphere.NewVSphereDriver(r.Log, vsphereCloudAccount.VcenterServer, vsphereCloudAccount.Username, vsphereCloudAccount.Password)
+	vsphereCloudDriver, err := vsphere.NewVSphereDriver(vsphereCloudAccount.VcenterServer, vsphereCloudAccount.Username, vsphereCloudAccount.Password, validator.Spec.Datacenter)
+
 	if err != nil {
 		return ctrl.Result{}, err
 	}
 
+	// Get the authorization manager from the Client
+
+	authManager := object.NewAuthorizationManager(vsphereCloudDriver.Client.Client)
+	if authManager == nil {
+		return ctrl.Result{}, err
+	}
+
+	// Get the current user
+	userName, err := vsphereCloudDriver.GetCurrentVmwareUser(ctx)
+	if err != nil {
+		return ctrl.Result{}, err
+	}
+
+	rolePrivilegeValidationService := privileges.NewPrivilegeValidationService(r.Log, vsphereCloudDriver, validator.Spec.Datacenter, authManager, userName)
+	tagValidationService := tags.NewTagsValidationService(r.Log)
+	computeResourceValidationService := computeresources.NewComputeResourcesValidationService(r.Log, vsphereCloudDriver)
+
 	// Get the active validator's validation result
 	vr := &v8or.ValidationResult{}
 	nn := ktypes.NamespacedName{
-		Name:      fmt.Sprintf("valid8or-plugin-aws-%s", validator.Name),
+		Name:      fmt.Sprintf("validator-plugin-vsphere-%s", validator.Name),
 		Namespace: req.Namespace,
-	}
-	if err := r.Client.Get(ctx, nn, vr); err != nil {
-		fmt.Println("VR:", vr)
 	}
 	if err := r.Get(ctx, nn, vr); err == nil {
 		res, err := v8ores.HandleExistingValidationResult(nn, vr, r.Log)
@@ -115,34 +130,58 @@ func (r *VsphereValidatorReconciler) Reconcile(ctx context.Context, req ctrl.Req
 		}
 	}
 
-	userPrivileges, err := roleprivilege.GetUserRolePrivilegesMapping(vsphereCloudDriver)
+	tagsManager := vtags.NewManager(vsphereCloudDriver.RestClient)
+	finder, _, err := vsphereCloudDriver.GetFinderWithDatacenter(ctx, vsphereCloudDriver.Datacenter)
 	if err != nil {
-		r.Log.V(0).Error(err, "Error fetching user privileges mapping")
 		return ctrl.Result{}, err
 	}
 
-	for _, rule := range validator.Spec.RolePrivilegeValidationRules {
-		validationResult, err := roleprivilege.ReconcileRolePrivilegesRule(rule, userPrivileges)
+	failed := &types.MonotonicBool{}
+
+	// entity privilege validation rules
+	for _, rule := range validator.Spec.EntityPrivilegeValidationRules {
+		validationResult, err := rolePrivilegeValidationService.ReconcileEntityPrivilegeRule(rule, finder)
 		if err != nil {
-			r.Log.V(0).Error(err, "failed to reconcile IAM role rule")
+			r.Log.V(0).Error(err, "failed to reconcile entity privilege rule")
 		}
-		//v8ores.SafeUpdateValidationResult(r.Client, nn, validationResult, failed, err, r.Log)
-		r.Log.V(0).Info("ValidationResult: ", validationResult)
-	}
-	fmt.Println("Validated privileges for account")
-
-	r.Log.V(0).Info("Checking if region and zone tags are properly assigned")
-	regionZoneTagRule := validator.Spec.RegionZoneValidationRule
-
-	validationResult, err := tags.ReconcileRegionZoneTagRules(regionZoneTagRule, vsphereCloudDriver)
-	if err != nil {
-		r.Log.V(0).Error(err, "failed to reconcile IAM role rule")
+		v8ores.SafeUpdateValidationResult(r.Client, nn, validationResult, failed, err, r.Log)
+		r.Log.V(0).Info("Validated privileges for account", "user", rule.Username)
 	}
 
-	r.Log.V(0).Info("ValidationResult: ", validationResult)
+	// role privilege validation rules
+	for _, rule := range validator.Spec.RolePrivilegeValidationRules {
+		validationResult, err := rolePrivilegeValidationService.ReconcileRolePrivilegesRule(rule, vsphereCloudDriver, authManager)
+		if err != nil {
+			r.Log.V(0).Error(err, "failed to reconcile role privilege rule")
+		}
+		v8ores.SafeUpdateValidationResult(r.Client, nn, validationResult, failed, err, r.Log)
+		r.Log.V(0).Info("Validated privileges for account", "user", rule.Username)
+	}
 
-	return ctrl.Result{}, nil
+	// tag validation rules
+	r.Log.V(0).Info("Checking if tags are properly assigned")
+	for _, rule := range validator.Spec.TagValidationRules {
+		validationResult, err := tagValidationService.ReconcileTagRules(tagsManager, finder, vsphereCloudDriver, rule)
+		if err != nil {
+			r.Log.V(0).Error(err, "failed to reconcile role privilege rule")
+		}
+		v8ores.SafeUpdateValidationResult(r.Client, nn, validationResult, failed, err, r.Log)
+		r.Log.V(0).Info("Validated tags", "entity type", rule.EntityType, "entity name", rule.EntityName, "tag", rule.Tag)
+	}
 
+	// computeresources validation rules
+	for _, rule := range validator.Spec.ComputeResourceRules {
+		validationResult, err := computeResourceValidationService.ReconcileComputeResourceValidationRule(rule, finder, vsphereCloudDriver)
+		if err != nil {
+			r.Log.V(0).Error(err, "failed to reconcile computeresources validation rule")
+		}
+		v8ores.SafeUpdateValidationResult(r.Client, nn, validationResult, failed, err, r.Log)
+		r.Log.V(0).Info("Validated compute resources", "scope", rule.Scope, "entity name", rule.EntityName)
+	}
+
+	// requeue after two minutes for re-validation
+	r.Log.V(0).Info("Requeuing for re-validation in two minutes.", "name", req.Name, "namespace", req.Namespace)
+	return ctrl.Result{RequeueAfter: 2 * time.Minute}, nil
 }
 
 func (r *VsphereValidatorReconciler) secretKeyAuth(req ctrl.Request, validator *v1alpha1.VsphereValidator) (*vsphere.VsphereCloudAccount, *reconcile.Result) {

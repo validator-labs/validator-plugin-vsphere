@@ -6,8 +6,8 @@ metadata:
     app.kubernetes.io/name: clusterrole
     app.kubernetes.io/instance: vspherevalidator-viewer-role
     app.kubernetes.io/component: rbac
-    app.kubernetes.io/created-by: valid8or-plugin-vsphere
-    app.kubernetes.io/part-of: valid8or-plugin-vsphere
+    app.kubernetes.io/created-by: validator-plugin-vsphere
+    app.kubernetes.io/part-of: validator-plugin-vsphere
     app.kubernetes.io/managed-by: kustomize
   name: vspherevalidator-viewer-role
 rules:
