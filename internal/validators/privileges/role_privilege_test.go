@@ -3,7 +3,7 @@ package privileges
 import (
 	"context"
 	"fmt"
-	"github.com/spectrocloud-labs/valid8or-plugin-vsphere/pkg/vsphere"
+	"github.com/spectrocloud-labs/validator-plugin-vsphere/pkg/vsphere"
 	"reflect"
 	"testing"
 
@@ -11,11 +11,11 @@ import (
 	"github.com/vmware/govmomi/object"
 	corev1 "k8s.io/api/core/v1"
 
-	"github.com/spectrocloud-labs/valid8or-plugin-vsphere/api/v1alpha1"
-	"github.com/spectrocloud-labs/valid8or-plugin-vsphere/internal/vcsim"
-	v8or "github.com/spectrocloud-labs/valid8or/api/v1alpha1"
-	"github.com/spectrocloud-labs/valid8or/pkg/types"
-	"github.com/spectrocloud-labs/valid8or/pkg/util/ptr"
+	"github.com/spectrocloud-labs/validator-plugin-vsphere/api/v1alpha1"
+	"github.com/spectrocloud-labs/validator-plugin-vsphere/internal/vcsim"
+	v8or "github.com/spectrocloud-labs/validator/api/v1alpha1"
+	"github.com/spectrocloud-labs/validator/pkg/types"
+	"github.com/spectrocloud-labs/validator/pkg/util/ptr"
 )
 
 func TestRolePrivilegeValidationService_ReconcileRolePrivilegesRule(t *testing.T) {

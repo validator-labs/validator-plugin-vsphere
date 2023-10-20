@@ -3,7 +3,7 @@ package vsphere
 import (
 	"context"
 	"fmt"
-	"github.com/spectrocloud-labs/valid8or-plugin-vsphere/internal/constants"
+	"github.com/spectrocloud-labs/validator-plugin-vsphere/internal/constants"
 	"github.com/vmware/govmomi/find"
 	"github.com/vmware/govmomi/object"
 )

@@ -31,7 +31,7 @@ controllerManager:
         drop:
         - ALL
     image:
-      repository: quay.io/spectrocloud-labs/valid8or-plugin-vsphere
+      repository: quay.io/spectrocloud-labs/validator-plugin-vsphere
       tag: v0.0.10  # x-release-please-version
     resources:
       limits:

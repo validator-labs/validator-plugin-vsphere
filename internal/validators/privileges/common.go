@@ -2,7 +2,7 @@ package privileges
 
 import (
 	"github.com/go-logr/logr"
-	"github.com/spectrocloud-labs/valid8or-plugin-vsphere/pkg/vsphere"
+	"github.com/spectrocloud-labs/validator-plugin-vsphere/pkg/vsphere"
 	"github.com/vmware/govmomi/object"
 )
 

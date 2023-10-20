@@ -1,8 +1,8 @@
-# valid8or-plugin-vsphere
-The vSphere [valid8or](https://github.com/spectrocloud-labs/valid8or) plugin ensures that your vSphere environment matches a user-configurable expected state.
+# validator-plugin-vsphere
+The vSphere [validator](https://github.com/spectrocloud-labs/validator) plugin ensures that your vSphere environment matches a user-configurable expected state.
 
 ## Description
-The vSphere valid8or plugin reconciles `VsphereValidator` custom resources to perform the following validations against your vSphere environment:
+The vSphere validator plugin reconciles `VsphereValidator` custom resources to perform the following validations against your vSphere environment:
 
 1. Compare the privileges associated with a user against an expected privileges set
 2. Compare the privileges associated with a user against an expected privileges set on a particular entity(cluster, resourcepool, folder, vapp, host)
@@ -11,7 +11,7 @@ The vSphere valid8or plugin reconciles `VsphereValidator` custom resources to pe
 
 Each `VsphereValidator` CR is (re)-processed every two minutes to continuously ensure that your vSphere environment matches the expected state.
 
-See the [samples](https://github.com/spectrocloud-labs/valid8or-plugin-vsphere/tree/main/config/samples) directory for example `VsphereValidator` configurations.
+See the [samples](https://github.com/spectrocloud-labs/validator-plugin-vsphere/tree/main/config/samples) directory for example `VsphereValidator` configurations.
 
 ## Getting Started
 You’ll need a Kubernetes cluster to run against. You can use [KIND](https://sigs.k8s.io/kind) to get a local cluster for testing, or run against a remote cluster.
@@ -27,13 +27,13 @@ kubectl apply -f config/samples/
 2. Build and push your image to the location specified by `IMG`:
 
 ```sh
-make docker-build docker-push IMG=<some-registry>/valid8or-plugin-vsphere:tag
+make docker-build docker-push IMG=<some-registry>/validator-plugin-vsphere:tag
 ```
 
 3. Deploy the controller to the cluster with the image specified by `IMG`:
 
 ```sh
-make deploy IMG=<some-registry>/valid8or-plugin-vsphere:tag
+make deploy IMG=<some-registry>/validator-plugin-vsphere:tag
 ```
 
 ### Uninstall CRDs

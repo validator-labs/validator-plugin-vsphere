@@ -2,7 +2,7 @@ package common
 
 import (
 	log "github.com/sirupsen/logrus"
-	"github.com/spectrocloud-labs/valid8or-plugin-vsphere/tests/utils/test"
+	"github.com/spectrocloud-labs/validator-plugin-vsphere/tests/utils/test"
 )
 
 type SingleFuncTestCase struct {
