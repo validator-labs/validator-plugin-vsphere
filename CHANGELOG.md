@@ -1,5 +1,29 @@
 # Changelog
 
+## [0.0.11](https://github.com/spectrocloud-labs/valid8or-plugin-vsphere/compare/v0.0.10...v0.0.11) (2023-10-20)
+
+
+### Bug Fixes
+
+* ct lints ([739b4a8](https://github.com/spectrocloud-labs/valid8or-plugin-vsphere/commit/739b4a80e8b0ba0723213e09b94ba1b7fd97ea2f))
+* **deps:** update module sigs.k8s.io/controller-runtime to v0.16.3 ([#82](https://github.com/spectrocloud-labs/valid8or-plugin-vsphere/issues/82)) ([f031533](https://github.com/spectrocloud-labs/valid8or-plugin-vsphere/commit/f03153304f8c9a331242b255178749aef8b1fe48))
+
+
+### Other
+
+* **deps:** bump golang.org/x/net from 0.16.0 to 0.17.0 ([#74](https://github.com/spectrocloud-labs/valid8or-plugin-vsphere/issues/74)) ([a27698d](https://github.com/spectrocloud-labs/valid8or-plugin-vsphere/commit/a27698d6a0df19c892880dac7f83512f91d24e0e))
+* **deps:** update actions/checkout digest to b4ffde6 ([#80](https://github.com/spectrocloud-labs/valid8or-plugin-vsphere/issues/80)) ([0b5d05d](https://github.com/spectrocloud-labs/valid8or-plugin-vsphere/commit/0b5d05d24901f870e66ac30d20a70216c3f99722))
+* **deps:** update actions/setup-python digest to 65d7f2d ([#78](https://github.com/spectrocloud-labs/valid8or-plugin-vsphere/issues/78)) ([5652f1d](https://github.com/spectrocloud-labs/valid8or-plugin-vsphere/commit/5652f1d641f3f53253858703f5be857b35ac9dc9))
+* **deps:** update gcr.io/kubebuilder/kube-rbac-proxy docker tag to v0.14.4 ([#71](https://github.com/spectrocloud-labs/valid8or-plugin-vsphere/issues/71)) ([db4676e](https://github.com/spectrocloud-labs/valid8or-plugin-vsphere/commit/db4676e5d4621da7910c1cbefda5f1ac414b0d5f))
+* **deps:** update google-github-actions/release-please-action digest to 4c5670f ([#79](https://github.com/spectrocloud-labs/valid8or-plugin-vsphere/issues/79)) ([93fb4a8](https://github.com/spectrocloud-labs/valid8or-plugin-vsphere/commit/93fb4a8659650db5a45353830b1985dd1baae286))
+* enable renovate automerges ([2639694](https://github.com/spectrocloud-labs/valid8or-plugin-vsphere/commit/2639694fac061f5e284f1fccc48a675b0738fdef))
+* release 0.0.11 ([dffec26](https://github.com/spectrocloud-labs/valid8or-plugin-vsphere/commit/dffec2605f8cf5db33522a6c7ff772fd48e37193))
+
+
+### Refactoring
+
+* valid8or -&gt; validator ([#83](https://github.com/spectrocloud-labs/valid8or-plugin-vsphere/issues/83)) ([acf1f53](https://github.com/spectrocloud-labs/valid8or-plugin-vsphere/commit/acf1f53d94f209fd22da31fec62f34b5afee6b53))
+
 ## [0.0.10](https://github.com/spectrocloud-labs/validator-plugin-vsphere/compare/v0.0.9...v0.0.10) (2023-10-16)
 
 
