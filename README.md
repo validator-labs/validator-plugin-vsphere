@@ -1,3 +1,8 @@
+![Build](https://github.com/spectrocloud-labs/validator-plugin-vsphere/actions/workflows/build_container.yaml/badge.svg)
+[![Go Report Card](https://goreportcard.com/badge/github.com/spectrocloud-labs/validator-plugin-vsphere)](https://goreportcard.com/report/github.com/spectrocloud-labs/validator-plugin-vsphere)
+[![Contributions Welcome](https://img.shields.io/badge/contributions-welcome-brightgreen.svg?style=flat)](https://github.com/spectrocloud-labs/validator-plugin-vsphere/issues)
+[![Go Reference](https://pkg.go.dev/badge/github.com/spectrocloud-labs/validator-plugin-vsphere.svg)](https://pkg.go.dev/github.com/spectrocloud-labs/validator-plugin-vsphere)
+
 # validator-plugin-vsphere
 The vSphere [validator](https://github.com/spectrocloud-labs/validator) plugin ensures that your vSphere environment matches a user-configurable expected state.
 
