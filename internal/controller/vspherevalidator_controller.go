@@ -22,6 +22,7 @@ import (
 	"github.com/go-logr/logr"
 	"github.com/spectrocloud-labs/validator-plugin-vsphere/internal/constants"
 	"github.com/spectrocloud-labs/validator-plugin-vsphere/internal/validators/computeresources"
+	"github.com/spectrocloud-labs/validator-plugin-vsphere/internal/validators/ntp"
 	"github.com/spectrocloud-labs/validator-plugin-vsphere/internal/validators/privileges"
 	"github.com/spectrocloud-labs/validator-plugin-vsphere/internal/validators/tags"
 	"github.com/spectrocloud-labs/validator-plugin-vsphere/pkg/vsphere"

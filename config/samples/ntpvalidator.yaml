@@ -4,11 +4,11 @@ metadata:
   labels:
     app.kubernetes.io/name: vspherevalidator
     app.kubernetes.io/instance: vspherevalidator-sample
-    app.kubernetes.io/part-of: valid8or-plugin-vsphere
+    app.kubernetes.io/part-of: validator-plugin-vsphere
     app.kubernetes.io/managed-by: kustomize
-    app.kubernetes.io/created-by: valid8or-plugin-vsphere
+    app.kubernetes.io/created-by: validator-plugin-vsphere
   name: vspherevalidator
-  namespace: valid8or
+  namespace: validator
 spec:
   datacenter: "Datacenter"
   ntpValidationRules:
