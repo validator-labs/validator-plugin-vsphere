@@ -33,7 +33,7 @@ func NewNTPValidationService(log logr.Logger, driver *vsphere.VSphereCloudDriver
 func buildValidationResult(rule v1alpha1.NTPValidationRule, validationType string) *types.ValidationResult {
 	state := v8or.ValidationSucceeded
 	latestCondition := v8or.DefaultValidationCondition()
-	latestCondition.Message = fmt.Sprintf("All required ntp rules were satisfied")
+	latestCondition.Message = fmt.Sprintf("All required NTP rules were satisfied")
 	latestCondition.ValidationRule = fmt.Sprintf("%s-%s", v8orconstants.ValidationRulePrefix, strings.ReplaceAll(rule.Name, " ", "-"))
 	latestCondition.ValidationType = validationType
 
@@ -47,16 +47,16 @@ func (n *NTPValidationService) ReconcileNTPRule(rule v1alpha1.NTPValidationRule,
 	ctx, cancel := context.WithCancel(context.Background())
 	defer cancel()
 
-	valid, failures, err := n.driver.ValidateHostNTPSettings(ctx, n.driver, finder, n.datacenter, rule.ClusterName, rule.Hosts)
+	valid, failures, err := n.driver.ValidateHostNTPSettings(ctx, finder, n.datacenter, rule.ClusterName, rule.Hosts)
 	if !valid {
 		vr.Condition.Failures = failures
 	}
 
 	if len(vr.Condition.Failures) > 0 {
 		vr.State = ptr.Ptr(v8or.ValidationFailed)
-		vr.Condition.Message = fmt.Sprintf("One or more ntp rules were not satisfied for rule: %s", rule.Name)
+		vr.Condition.Message = fmt.Sprintf("One or more NTP rules were not satisfied for rule: %s", rule.Name)
 		vr.Condition.Status = corev1.ConditionFalse
-		err = fmt.Errorf("one or more ntp rules were not satisfied for rule: %s", rule.Name)
+		err = fmt.Errorf("one or more NTP rules were not satisfied for rule: %s", rule.Name)
 	}
 
 	return vr, err

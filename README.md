@@ -13,6 +13,7 @@ The vSphere validator plugin reconciles `VsphereValidator` custom resources to p
 2. Compare the privileges associated with a user against an expected privileges set on a particular entity(cluster, resourcepool, folder, vapp, host)
 3. Check if enough compute resources are available on a host, resourcepool or cluster against a resource request
 4. Compare the tags associated with a datacenter, cluster, host, vm, resourcepool or vm against an expected tag set
+5. Check if a given set of host systems have a valid NTP configuration
 
 Each `VsphereValidator` CR is (re)-processed every two minutes to continuously ensure that your vSphere environment matches the expected state.
 

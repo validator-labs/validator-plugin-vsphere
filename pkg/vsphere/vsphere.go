@@ -8,6 +8,7 @@ import (
 	"net/http"
 	"net/url"
 	"path"
+	"slices"
 	"sort"
 	"strings"
 	"sync"
@@ -501,22 +502,23 @@ func (v *VSphereCloudDriver) getClusterComputeResources(ctx context.Context, fin
 	return ccrs, nil
 }
 
-type hostDateInfo struct {
-	hostName   string
-	ntpServers []string
+type HostDateInfo struct {
+	HostName   string
+	NtpServers []string
 	types.HostDateTimeInfo
 	Service       *types.HostService
 	Current       *time.Time
-	clientStatus  string
-	serviceStatus string
+	ClientStatus  string
+	ServiceStatus string
 }
 
-func (info *hostDateInfo) servers() []string {
+func (info *HostDateInfo) servers() []string {
 	return info.NtpConfig.Server
 }
 
-func (v *VSphereCloudDriver) ValidateHostNTPSettings(ctx context.Context, driver *VSphereCloudDriver, finder *find.Finder, datacenter string, clusterName string, hosts []string) (isvalid bool, failures []string, err error) {
-	var hostsDateInfo []hostDateInfo
+func (v *VSphereCloudDriver) ValidateHostNTPSettings(ctx context.Context, finder *find.Finder, datacenter string, clusterName string, hosts []string) (bool, []string, error) {
+	var hostsDateInfo []HostDateInfo
+	var failures []string
 
 	for _, host := range hosts {
 		_, hostObj, err := v.GetHostIfExists(ctx, finder, datacenter, clusterName, host)
@@ -544,7 +546,7 @@ func (v *VSphereCloudDriver) ValidateHostNTPSettings(ctx context.Context, driver
 			return false, nil, err
 		}
 
-		res := &hostDateInfo{HostDateTimeInfo: hs.DateTimeInfo}
+		res := &HostDateInfo{HostDateTimeInfo: hs.DateTimeInfo}
 
 		for i, service := range services {
 			if service.Key == "ntpd" {
@@ -553,32 +555,37 @@ func (v *VSphereCloudDriver) ValidateHostNTPSettings(ctx context.Context, driver
 			}
 		}
 
+		if res.Service == nil {
+			failures = append(failures, fmt.Sprintf("Host: %s has no NTP service operating on it", host))
+			return false, failures, fmt.Errorf("host: %s has no NTP service operating on it", host)
+		}
+
 		res.Current, err = s.Query(ctx)
 		if err != nil {
 			return false, nil, err
 		}
 
-		res.clientStatus = service.Policy(*res.Service)
-		res.serviceStatus = service.Status(*res.Service)
-		res.hostName = host
-		res.ntpServers = res.servers()
+		res.ClientStatus = service.Policy(*res.Service)
+		res.ServiceStatus = service.Status(*res.Service)
+		res.HostName = host
+		res.NtpServers = res.servers()
 
 		hostsDateInfo = append(hostsDateInfo, *res)
 	}
 
 	for _, dateInfo := range hostsDateInfo {
-		if dateInfo.clientStatus != "Enabled" {
-			failureMsg := fmt.Sprintf("NTP client status is disabled or unknown for host: %s", dateInfo.hostName)
+		if dateInfo.ClientStatus != "Enabled" {
+			failureMsg := fmt.Sprintf("NTP client status is disabled or unknown for host: %s", dateInfo.HostName)
 			failures = append(failures, failureMsg)
 		}
 
-		if dateInfo.serviceStatus != "Running" {
-			failureMsg := fmt.Sprintf("NTP service status is Stopped or unknown for host: %s", dateInfo.hostName)
+		if dateInfo.ServiceStatus != "Running" {
+			failureMsg := fmt.Sprintf("NTP service status is stopped or unknown for host: %s", dateInfo.HostName)
 			failures = append(failures, failureMsg)
 		}
 	}
 
-	err = checkHostsNTPConf(hostsDateInfo)
+	err := validateHostNTPServers(hostsDateInfo)
 	if err != nil {
 		failures = append(failures, fmt.Sprintf("%s", err.Error()))
 	}
@@ -590,21 +597,17 @@ func (v *VSphereCloudDriver) ValidateHostNTPSettings(ctx context.Context, driver
 	return true, failures, nil
 }
 
-func checkHostsNTPConf(hostsDateInfo []hostDateInfo) error {
+func validateHostNTPServers(hostsDateInfo []HostDateInfo) error {
 	var intersectionList []string
-	intersectionList = nil
-	for i := range hostsDateInfo {
-		if i >= (len(hostsDateInfo) - 1) {
-			break
-		}
+	for i := 0; i < len(hostsDateInfo)-1; i++ {
 		if intersectionList == nil {
-			intersectionList = intersection(hostsDateInfo[i].ntpServers, hostsDateInfo[i+1].ntpServers)
+			intersectionList = intersection(hostsDateInfo[i].NtpServers, hostsDateInfo[i+1].NtpServers)
 		} else {
-			intersectionList = intersection(intersectionList, hostsDateInfo[i+1].ntpServers)
+			intersectionList = intersection(intersectionList, hostsDateInfo[i+1].NtpServers)
 		}
 
 		if intersectionList == nil {
-			return fmt.Errorf("some of the hosts has differently configured NTP servers: %s and %s", hostsDateInfo[i].hostName, hostsDateInfo[i+1].hostName)
+			return fmt.Errorf("some of the hosts has differently configured NTP servers")
 		}
 	}
 
@@ -613,11 +616,9 @@ func checkHostsNTPConf(hostsDateInfo []hostDateInfo) error {
 
 func intersection(listA []string, listB []string) []string {
 	var intersect []string
-	for _, element1 := range listA {
-		for _, element2 := range listB {
-			if element1 == element2 {
-				intersect = append(intersect, element1)
-			}
+	for _, element := range listA {
+		if slices.Contains(listB, element) {
+			intersect = append(intersect, element)
 		}
 	}
 

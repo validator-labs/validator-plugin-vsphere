@@ -27,12 +27,12 @@ type VsphereAuth struct {
 
 type NTPValidationRule struct {
 	Name        string   `json:"name" yaml:"name"`
-	ClusterName string   `json:"clusterName,omitempty" yaml:"clusterName,omitempty"`
+	ClusterName string   `json:"clusterName,omitempty" yaml:"clusterName,omitempty"` // if cluster name is specified, the host will be looked up under the cluster hierarchy
 	Hosts       []string `json:"hosts" yaml:"hosts"`
 }
 type ComputeResourceRule struct {
 	Name                         string                        `json:"name" yaml:"name"`
-	ClusterName                  string                        `json:"clusterName,omitempty" yaml:"clusterName"`
+	ClusterName                  string                        `json:"clusterName,omitempty" yaml:"clusterName"` // if cluster name is specified, the entity will be looked up under the cluster hierarchy
 	Scope                        string                        `json:"scope" yaml:"scope"`
 	EntityName                   string                        `json:"entityName" yaml:"entityName"`
 	NodepoolResourceRequirements []NodepoolResourceRequirement `json:"nodepoolResourceRequirements" yaml:"nodepoolResourceRequirements"`
@@ -41,7 +41,7 @@ type ComputeResourceRule struct {
 type EntityPrivilegeValidationRule struct {
 	Name        string   `json:"name" yaml:"name"`
 	Username    string   `json:"username" yaml:"username"`
-	ClusterName string   `json:"clusterName,omitempty" yaml:"clusterName"`
+	ClusterName string   `json:"clusterName,omitempty" yaml:"clusterName"` // if cluster name is specified, the entity will be looked up under the cluster hierarchy
 	EntityType  string   `json:"entityType" yaml:"entityType"`
 	EntityName  string   `json:"entityName" yaml:"entityName"`
 	Privileges  []string `json:"privileges" yaml:"privileges"`
@@ -54,7 +54,7 @@ type GenericRolePrivilegeValidationRule struct {
 
 type TagValidationRule struct {
 	Name        string `json:"name" yaml:"name"`
-	ClusterName string `json:"clusterName,omitempty" yaml:"clusterName"`
+	ClusterName string `json:"clusterName,omitempty" yaml:"clusterName"` // if cluster name is specified, the resource will be looked up under the cluster hierarchy
 	EntityType  string `json:"entityType" yaml:"entityType"`
 	EntityName  string `json:"entityName" yaml:"entityName"`
 	Tag         string `json:"tag" yaml:"tag"`
