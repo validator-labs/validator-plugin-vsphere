@@ -3,12 +3,9 @@ package vsphere
 import (
 	"context"
 	"fmt"
-	"github.com/vmware/govmomi/govc/host/service"
-	ssoadmintypes "github.com/vmware/govmomi/ssoadmin/types"
 	"net/http"
 	"net/url"
 	"path"
-	"slices"
 	"sort"
 	"strings"
 	"sync"
@@ -17,15 +14,18 @@ import (
 	"github.com/pkg/errors"
 	"github.com/vmware/govmomi"
 	"github.com/vmware/govmomi/find"
+	"github.com/vmware/govmomi/govc/host/service"
 	"github.com/vmware/govmomi/object"
 	"github.com/vmware/govmomi/session"
 	"github.com/vmware/govmomi/session/keepalive"
+	ssoadmintypes "github.com/vmware/govmomi/ssoadmin/types"
 	"github.com/vmware/govmomi/vapi/rest"
 	"github.com/vmware/govmomi/vim25"
 	"github.com/vmware/govmomi/vim25/methods"
 	"github.com/vmware/govmomi/vim25/mo"
 	"github.com/vmware/govmomi/vim25/soap"
 	"github.com/vmware/govmomi/vim25/types"
+	"golang.org/x/exp/slices"
 )
 
 const KeepAliveIntervalInMinute = 10
