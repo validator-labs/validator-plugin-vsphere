@@ -11,52 +11,52 @@ metadata:
   namespace: validator
 spec:
   datacenter: "Datacenter"
-  computeResourceRules:
-    - name: "rp-cluster2-palette-advanced-projects check resources"
-      clusterName: Cluster2
-      scope: resourcepool
-      entityName: "Resources"
-      nodepoolResourceRequirements:
-        - name: master-pool
-          numberOfNodes: 3
-          cpu: "9.5GHz"
-          memory: 16Gi
-          diskSpace: 80Gi
-        - name: worker-pool
-          numberOfNodes: 2
-          cpu: "10.5GHz"
-          memory: 32Gi
-          diskSpace: 100Gi
+#  computeResourceRules:
+#    - name: "rp-cluster2-palette-advanced-projects check resources"
+#      clusterName: Cluster2
+#      scope: resourcepool
+#      entityName: "Resources"
+#      nodepoolResourceRequirements:
+#        - name: master-pool
+#          numberOfNodes: 3
+#          cpu: "1GHz"
+#          memory: 8Gi
+#          diskSpace: 80Gi
+#        - name: worker-pool
+#          numberOfNodes: 2
+#          cpu: "2GHz"
+#          memory: 8Gi
+#          diskSpace: 100Gi
   auth:
     secretName: validator-secret
   entityPrivilegeValidationRules:
     - name: "Deploy VM to vapp test-vapp"
       username: prakash@vsphere.local
 #      clusterName: "Cluster2"
-      entityName: "ubuntu-test-mig"
-      entityType: "vm"
+      entityName: "sp-prakash"
+      entityType: "folder"
       privileges:
       - "VirtualMachine.Config.AddExistingDisk"
       - "VirtualMachine.Config.AddNewDisk"
-  tagValidationRules:
-    - name: "Datacenter k8s-region tag validation"
-      entityType: "resourcepool"
-      entityName: "Resources"
-      clusterName: "Cluster2"
-      tag: "owner"
-#    - name: "Folder tag validation"
+#  tagValidationRules:
+#    - name: "Datacenter k8s-region tag validation"
+#      entityType: "resourcepool"
+#      entityName: "Resources"
 #      clusterName: "Cluster2"
-#      entityType: "folder"
-#      entityName: "sp-prakash"
 #      tag: "owner"
-  rolePrivilegeValidationRules:
-    - username: tmpadmin@vsphere.local
-      privileges:
-        - Cns.Searchable
-        - Datastore.Browse
-        - InventoryService.Tagging.CreateTag
-        - InventoryService.Tagging.EditTag
-        - Network.Assign
-        - Sessions.ValidateSession
-        - StorageProfile.View
-        - StorageViews.View
+##    - name: "Folder tag validation"
+##      clusterName: "Cluster2"
+##      entityType: "folder"
+##      entityName: "sp-prakash"
+##      tag: "owner"
+#  rolePrivilegeValidationRules:
+#    - username: tmpadmin@vsphere.local
+#      privileges:
+#        - Cns.Searchable
+#        - Datastore.Browse
+#        - InventoryService.Tagging.CreateTag
+#        - InventoryService.Tagging.EditTag
+#        - Network.Assign
+#        - Sessions.ValidateSession
+#        - StorageProfile.View
+#        - StorageViews.View

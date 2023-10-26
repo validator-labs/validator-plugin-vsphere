@@ -19,21 +19,11 @@ package controller
 import (
 	"context"
 	"fmt"
-	"github.com/go-logr/logr"
-	"github.com/spectrocloud-labs/validator-plugin-vsphere/internal/constants"
-	"github.com/spectrocloud-labs/validator-plugin-vsphere/internal/validators/computeresources"
-	"github.com/spectrocloud-labs/validator-plugin-vsphere/internal/validators/privileges"
-	"github.com/spectrocloud-labs/validator-plugin-vsphere/internal/validators/tags"
-	"github.com/spectrocloud-labs/validator-plugin-vsphere/pkg/vsphere"
-	v8or "github.com/spectrocloud-labs/validator/api/v1alpha1"
-	"github.com/spectrocloud-labs/validator/pkg/types"
-	v8ores "github.com/spectrocloud-labs/validator/pkg/validationresult"
-	"github.com/vmware/govmomi/object"
-	"sigs.k8s.io/controller-runtime/pkg/reconcile"
 	"strconv"
 	"time"
 
-	"github.com/spectrocloud-labs/validator-plugin-vsphere/api/v1alpha1"
+	"github.com/go-logr/logr"
+	"github.com/vmware/govmomi/object"
 	vtags "github.com/vmware/govmomi/vapi/tags"
 	corev1 "k8s.io/api/core/v1"
 	apierrs "k8s.io/apimachinery/pkg/api/errors"
@@ -41,6 +31,18 @@ import (
 	ktypes "k8s.io/apimachinery/pkg/types"
 	ctrl "sigs.k8s.io/controller-runtime"
 	"sigs.k8s.io/controller-runtime/pkg/client"
+	"sigs.k8s.io/controller-runtime/pkg/reconcile"
+
+	"github.com/spectrocloud-labs/validator-plugin-vsphere/api/v1alpha1"
+	"github.com/spectrocloud-labs/validator-plugin-vsphere/internal/constants"
+	"github.com/spectrocloud-labs/validator-plugin-vsphere/internal/validators/computeresources"
+	"github.com/spectrocloud-labs/validator-plugin-vsphere/internal/validators/ntp"
+	"github.com/spectrocloud-labs/validator-plugin-vsphere/internal/validators/privileges"
+	"github.com/spectrocloud-labs/validator-plugin-vsphere/internal/validators/tags"
+	"github.com/spectrocloud-labs/validator-plugin-vsphere/pkg/vsphere"
+	vapi "github.com/spectrocloud-labs/validator/api/v1alpha1"
+	"github.com/spectrocloud-labs/validator/pkg/types"
+	vres "github.com/spectrocloud-labs/validator/pkg/validationresult"
 )
 
 // VsphereValidatorReconciler reconciles a VsphereValidator object
@@ -108,15 +110,16 @@ func (r *VsphereValidatorReconciler) Reconcile(ctx context.Context, req ctrl.Req
 	rolePrivilegeValidationService := privileges.NewPrivilegeValidationService(r.Log, vsphereCloudDriver, validator.Spec.Datacenter, authManager, userName)
 	tagValidationService := tags.NewTagsValidationService(r.Log)
 	computeResourceValidationService := computeresources.NewComputeResourcesValidationService(r.Log, vsphereCloudDriver)
+	ntpValidationService := ntp.NewNTPValidationService(r.Log, vsphereCloudDriver, validator.Spec.Datacenter)
 
 	// Get the active validator's validation result
-	vr := &v8or.ValidationResult{}
+	vr := &vapi.ValidationResult{}
 	nn := ktypes.NamespacedName{
 		Name:      fmt.Sprintf("validator-plugin-vsphere-%s", validator.Name),
 		Namespace: req.Namespace,
 	}
 	if err := r.Get(ctx, nn, vr); err == nil {
-		res, err := v8ores.HandleExistingValidationResult(nn, vr, r.Log)
+		res, err := vres.HandleExistingValidationResult(nn, vr, r.Log)
 		if res != nil {
 			return *res, err
 		}
@@ -124,7 +127,7 @@ func (r *VsphereValidatorReconciler) Reconcile(ctx context.Context, req ctrl.Req
 		if !apierrs.IsNotFound(err) {
 			r.Log.V(0).Error(err, "unexpected error getting ValidationResult", "name", nn.Name, "namespace", nn.Namespace)
 		}
-		res, err := v8ores.HandleNewValidationResult(r.Client, constants.PluginCode, nn, vr, r.Log)
+		res, err := vres.HandleNewValidationResult(r.Client, constants.PluginCode, nn, vr, r.Log)
 		if res != nil {
 			return *res, err
 		}
@@ -138,13 +141,23 @@ func (r *VsphereValidatorReconciler) Reconcile(ctx context.Context, req ctrl.Req
 
 	failed := &types.MonotonicBool{}
 
+	// NTP validation rules
+	for _, rule := range validator.Spec.NTPValidationRules {
+		validationResult, err := ntpValidationService.ReconcileNTPRule(rule, finder)
+		if err != nil {
+			r.Log.V(0).Error(err, "failed to reconcile NTP rule")
+		}
+		vres.SafeUpdateValidationResult(r.Client, nn, validationResult, failed, err, r.Log)
+		r.Log.V(0).Info("Validated NTP rules")
+	}
+
 	// entity privilege validation rules
 	for _, rule := range validator.Spec.EntityPrivilegeValidationRules {
 		validationResult, err := rolePrivilegeValidationService.ReconcileEntityPrivilegeRule(rule, finder)
 		if err != nil {
 			r.Log.V(0).Error(err, "failed to reconcile entity privilege rule")
 		}
-		v8ores.SafeUpdateValidationResult(r.Client, nn, validationResult, failed, err, r.Log)
+		vres.SafeUpdateValidationResult(r.Client, nn, validationResult, failed, err, r.Log)
 		r.Log.V(0).Info("Validated privileges for account", "user", rule.Username)
 	}
 
@@ -154,7 +167,7 @@ func (r *VsphereValidatorReconciler) Reconcile(ctx context.Context, req ctrl.Req
 		if err != nil {
 			r.Log.V(0).Error(err, "failed to reconcile role privilege rule")
 		}
-		v8ores.SafeUpdateValidationResult(r.Client, nn, validationResult, failed, err, r.Log)
+		vres.SafeUpdateValidationResult(r.Client, nn, validationResult, failed, err, r.Log)
 		r.Log.V(0).Info("Validated privileges for account", "user", rule.Username)
 	}
 
@@ -165,7 +178,7 @@ func (r *VsphereValidatorReconciler) Reconcile(ctx context.Context, req ctrl.Req
 		if err != nil {
 			r.Log.V(0).Error(err, "failed to reconcile role privilege rule")
 		}
-		v8ores.SafeUpdateValidationResult(r.Client, nn, validationResult, failed, err, r.Log)
+		vres.SafeUpdateValidationResult(r.Client, nn, validationResult, failed, err, r.Log)
 		r.Log.V(0).Info("Validated tags", "entity type", rule.EntityType, "entity name", rule.EntityName, "tag", rule.Tag)
 	}
 
@@ -175,7 +188,7 @@ func (r *VsphereValidatorReconciler) Reconcile(ctx context.Context, req ctrl.Req
 		if err != nil {
 			r.Log.V(0).Error(err, "failed to reconcile computeresources validation rule")
 		}
-		v8ores.SafeUpdateValidationResult(r.Client, nn, validationResult, failed, err, r.Log)
+		vres.SafeUpdateValidationResult(r.Client, nn, validationResult, failed, err, r.Log)
 		r.Log.V(0).Info("Validated compute resources", "scope", rule.Scope, "entity name", rule.EntityName)
 	}
 

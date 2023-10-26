@@ -3,7 +3,6 @@ package privileges
 import (
 	"context"
 	"fmt"
-	"github.com/spectrocloud-labs/validator-plugin-vsphere/pkg/vsphere"
 	"net/url"
 	"os"
 	"strings"
@@ -16,8 +15,9 @@ import (
 
 	"github.com/spectrocloud-labs/validator-plugin-vsphere/api/v1alpha1"
 	"github.com/spectrocloud-labs/validator-plugin-vsphere/internal/constants"
-	v8or "github.com/spectrocloud-labs/validator/api/v1alpha1"
-	v8orconstants "github.com/spectrocloud-labs/validator/pkg/constants"
+	"github.com/spectrocloud-labs/validator-plugin-vsphere/pkg/vsphere"
+	vapi "github.com/spectrocloud-labs/validator/api/v1alpha1"
+	vapiconstants "github.com/spectrocloud-labs/validator/pkg/constants"
 	"github.com/spectrocloud-labs/validator/pkg/types"
 	"github.com/spectrocloud-labs/validator/pkg/util/ptr"
 )
@@ -25,10 +25,10 @@ import (
 var GetUserAndGroupPrincipals = getUserAndGroupPrincipals
 
 func buildValidationResult(rule v1alpha1.GenericRolePrivilegeValidationRule, validationType string) *types.ValidationResult {
-	state := v8or.ValidationSucceeded
-	latestCondition := v8or.DefaultValidationCondition()
+	state := vapi.ValidationSucceeded
+	latestCondition := vapi.DefaultValidationCondition()
 	latestCondition.Message = fmt.Sprintf("All required %s permissions were found", validationType)
-	latestCondition.ValidationRule = fmt.Sprintf("%s-%s", v8orconstants.ValidationRulePrefix, rule.Username)
+	latestCondition.ValidationRule = fmt.Sprintf("%s-%s", vapiconstants.ValidationRulePrefix, rule.Username)
 	latestCondition.ValidationType = validationType
 
 	return &types.ValidationResult{Condition: &latestCondition, State: &state}
@@ -60,7 +60,7 @@ func (s *PrivilegeValidationService) ReconcileRolePrivilegesRule(rule v1alpha1.G
 	}
 
 	if len(vr.Condition.Failures) > 0 {
-		vr.State = ptr.Ptr(v8or.ValidationFailed)
+		vr.State = ptr.Ptr(vapi.ValidationFailed)
 		vr.Condition.Message = "One or more required privileges was not found, or a condition was not met"
 		vr.Condition.Status = corev1.ConditionFalse
 		err = fmt.Errorf("one or more required privileges was not found for account: %s", rule.Username)

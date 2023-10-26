@@ -45,6 +45,8 @@ spec:
                 items:
                   properties:
                     clusterName:
+                      description: ClusterName is required when the vCenter Entity
+                        resides beneath a Cluster in the vCenter object hierarchy
                       type: string
                     entityName:
                       type: string
@@ -86,6 +88,8 @@ spec:
                 items:
                   properties:
                     clusterName:
+                      description: ClusterName is required when the vCenter Entity
+                        resides beneath a Cluster in the vCenter object hierarchy
                       type: string
                     entityName:
                       type: string
@@ -105,6 +109,24 @@ spec:
                   - name
                   - privileges
                   - username
+                  type: object
+                type: array
+              ntpValidationRules:
+                items:
+                  properties:
+                    clusterName:
+                      description: ClusterName is required when the vCenter Host(s)
+                        reside beneath a Cluster in the vCenter object hierarchy
+                      type: string
+                    hosts:
+                      items:
+                        type: string
+                      type: array
+                    name:
+                      type: string
+                  required:
+                  - hosts
+                  - name
                   type: object
                 type: array
               rolePrivilegeValidationRules:
@@ -125,6 +147,8 @@ spec:
                 items:
                   properties:
                     clusterName:
+                      description: ClusterName is required when the vCenter Entity
+                        resides beneath a Cluster in the vCenter object hierarchy
                       type: string
                     entityName:
                       type: string
@@ -143,11 +167,7 @@ spec:
                 type: array
             required:
             - auth
-            - computeResourceRules
             - datacenter
-            - entityPrivilegeValidationRules
-            - rolePrivilegeValidationRules
-            - tagValidationRules
             type: object
           status:
             description: VsphereValidatorStatus defines the observed state of VsphereValidator

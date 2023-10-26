@@ -4,7 +4,6 @@ import (
 	"context"
 	"crypto/tls"
 	"fmt"
-	"github.com/spectrocloud-labs/validator-plugin-vsphere/pkg/vsphere"
 	"log"
 	"net/url"
 	"os"
@@ -16,6 +15,8 @@ import (
 	"github.com/pkg/errors"
 	"github.com/vmware/govmomi/simulator"
 	_ "github.com/vmware/govmomi/vapi/simulator"
+
+	"github.com/spectrocloud-labs/validator-plugin-vsphere/pkg/vsphere"
 )
 
 var sig chan os.Signal
