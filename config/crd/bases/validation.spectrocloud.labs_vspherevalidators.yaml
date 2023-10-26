@@ -45,6 +45,8 @@ spec:
                 items:
                   properties:
                     clusterName:
+                      description: ClusterName is required when the vCenter Entity
+                        resides beneath a Cluster in the vCenter object hierarchy
                       type: string
                     entityName:
                       type: string
@@ -86,6 +88,8 @@ spec:
                 items:
                   properties:
                     clusterName:
+                      description: ClusterName is required when the vCenter Entity
+                        resides beneath a Cluster in the vCenter object hierarchy
                       type: string
                     entityName:
                       type: string
@@ -111,6 +115,8 @@ spec:
                 items:
                   properties:
                     clusterName:
+                      description: ClusterName is required when the vCenter Host(s)
+                        reside beneath a Cluster in the vCenter object hierarchy
                       type: string
                     hosts:
                       items:
@@ -141,6 +147,8 @@ spec:
                 items:
                   properties:
                     clusterName:
+                      description: ClusterName is required when the vCenter Entity
+                        resides beneath a Cluster in the vCenter object hierarchy
                       type: string
                     entityName:
                       type: string

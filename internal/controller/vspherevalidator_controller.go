@@ -140,14 +140,14 @@ func (r *VsphereValidatorReconciler) Reconcile(ctx context.Context, req ctrl.Req
 
 	failed := &types.MonotonicBool{}
 
-	// ntpvalidation rules
+	// NTP validation rules
 	for _, rule := range validator.Spec.NTPValidationRules {
 		validationResult, err := ntpValidationService.ReconcileNTPRule(rule, finder)
 		if err != nil {
-			r.Log.V(0).Error(err, "failed to reconcile entity privilege rule")
+			r.Log.V(0).Error(err, "failed to reconcile NTP rule")
 		}
 		v8ores.SafeUpdateValidationResult(r.Client, nn, validationResult, failed, err, r.Log)
-		r.Log.V(0).Info("Validated ntp rules")
+		r.Log.V(0).Info("Validated NTP rules")
 	}
 
 	// entity privilege validation rules

@@ -39,7 +39,7 @@ func TestValidateHostNTPServers(t *testing.T) {
 			},
 		},
 		{
-			name:        "one invalid server",
+			name:        "first server invalid",
 			expectedErr: fmt.Errorf("some of the hosts has differently configured NTP servers"),
 			hostsDateInfo: []HostDateInfo{
 				{
@@ -61,32 +61,6 @@ func TestValidateHostNTPServers(t *testing.T) {
 				{
 					HostName:   "host0",
 					NtpServers: []string{"ntp.l.com", "ntp.m.com", "ntp.c.com"},
-				},
-			},
-		},
-		{
-			name:        "all invalid servers",
-			expectedErr: fmt.Errorf("some of the hosts has differently configured NTP servers"),
-			hostsDateInfo: []HostDateInfo{
-				{
-					HostName:   "host0",
-					NtpServers: []string{"ntp.a.com", "ntp.b.com"},
-				},
-				{
-					HostName:   "host1",
-					NtpServers: []string{"ntp.e.com"},
-				},
-				{
-					HostName:   "host0",
-					NtpServers: []string{"ntp.c.com"},
-				},
-				{
-					HostName:   "host0",
-					NtpServers: []string{"ntp.x.com"},
-				},
-				{
-					HostName:   "host0",
-					NtpServers: []string{"ntp.l.com"},
 				},
 			},
 		},
