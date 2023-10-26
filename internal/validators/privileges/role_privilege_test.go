@@ -3,7 +3,6 @@ package privileges
 import (
 	"context"
 	"fmt"
-	"github.com/spectrocloud-labs/validator-plugin-vsphere/pkg/vsphere"
 	"reflect"
 	"testing"
 
@@ -13,7 +12,8 @@ import (
 
 	"github.com/spectrocloud-labs/validator-plugin-vsphere/api/v1alpha1"
 	"github.com/spectrocloud-labs/validator-plugin-vsphere/internal/vcsim"
-	v8or "github.com/spectrocloud-labs/validator/api/v1alpha1"
+	"github.com/spectrocloud-labs/validator-plugin-vsphere/pkg/vsphere"
+	vapi "github.com/spectrocloud-labs/validator/api/v1alpha1"
 	"github.com/spectrocloud-labs/validator/pkg/types"
 	"github.com/spectrocloud-labs/validator/pkg/util/ptr"
 )
@@ -59,7 +59,7 @@ func TestRolePrivilegeValidationService_ReconcileRolePrivilegesRule(t *testing.T
 				Username:   userName,
 				Privileges: []string{"Datastore.AllocateSpace"},
 			},
-			expectedResult: types.ValidationResult{Condition: &v8or.ValidationCondition{
+			expectedResult: types.ValidationResult{Condition: &vapi.ValidationCondition{
 				ValidationType: "vsphere-role-privileges",
 				ValidationRule: fmt.Sprintf("validation-%s", userName),
 				Message:        "All required vsphere-role-privileges permissions were found",
@@ -67,7 +67,7 @@ func TestRolePrivilegeValidationService_ReconcileRolePrivilegesRule(t *testing.T
 				Failures:       nil,
 				Status:         corev1.ConditionTrue,
 			},
-				State: ptr.Ptr(v8or.ValidationSucceeded),
+				State: ptr.Ptr(vapi.ValidationSucceeded),
 			},
 		},
 		{
@@ -76,7 +76,7 @@ func TestRolePrivilegeValidationService_ReconcileRolePrivilegesRule(t *testing.T
 				Username:   userName,
 				Privileges: []string{"Cns.Searchable"},
 			},
-			expectedResult: types.ValidationResult{Condition: &v8or.ValidationCondition{
+			expectedResult: types.ValidationResult{Condition: &vapi.ValidationCondition{
 				ValidationType: "vsphere-role-privileges",
 				ValidationRule: fmt.Sprintf("validation-%s", userName),
 				Message:        "One or more required privileges was not found, or a condition was not met",
@@ -84,7 +84,7 @@ func TestRolePrivilegeValidationService_ReconcileRolePrivilegesRule(t *testing.T
 				Failures:       []string{"Privilege: Cns.Searchable, was not found in the user's privileges"},
 				Status:         corev1.ConditionFalse,
 			},
-				State: ptr.Ptr(v8or.ValidationFailed),
+				State: ptr.Ptr(vapi.ValidationFailed),
 			},
 		},
 	}

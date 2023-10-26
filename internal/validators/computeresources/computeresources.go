@@ -4,14 +4,9 @@ import (
 	"context"
 	"errors"
 	"fmt"
+	"strings"
+
 	"github.com/go-logr/logr"
-	"github.com/spectrocloud-labs/validator-plugin-vsphere/api/v1alpha1"
-	"github.com/spectrocloud-labs/validator-plugin-vsphere/internal/constants"
-	"github.com/spectrocloud-labs/validator-plugin-vsphere/pkg/vsphere"
-	v8or "github.com/spectrocloud-labs/validator/api/v1alpha1"
-	v8orconstants "github.com/spectrocloud-labs/validator/pkg/constants"
-	"github.com/spectrocloud-labs/validator/pkg/types"
-	"github.com/spectrocloud-labs/validator/pkg/util/ptr"
 	"github.com/vmware/govmomi/find"
 	"github.com/vmware/govmomi/object"
 	"github.com/vmware/govmomi/property"
@@ -19,7 +14,14 @@ import (
 	"github.com/vmware/govmomi/vim25/mo"
 	corev1 "k8s.io/api/core/v1"
 	"k8s.io/apimachinery/pkg/api/resource"
-	"strings"
+
+	"github.com/spectrocloud-labs/validator-plugin-vsphere/api/v1alpha1"
+	"github.com/spectrocloud-labs/validator-plugin-vsphere/internal/constants"
+	"github.com/spectrocloud-labs/validator-plugin-vsphere/pkg/vsphere"
+	vapi "github.com/spectrocloud-labs/validator/api/v1alpha1"
+	vapiconstants "github.com/spectrocloud-labs/validator/pkg/constants"
+	"github.com/spectrocloud-labs/validator/pkg/types"
+	"github.com/spectrocloud-labs/validator/pkg/util/ptr"
 )
 
 var GetResourcePoolAndVMs = getResourcePoolAndVMs
@@ -43,10 +45,10 @@ type resourceRequirement struct {
 }
 
 func buildValidationResult(rule v1alpha1.ComputeResourceRule, validationType string) *types.ValidationResult {
-	state := v8or.ValidationSucceeded
-	latestCondition := v8or.DefaultValidationCondition()
+	state := vapi.ValidationSucceeded
+	latestCondition := vapi.DefaultValidationCondition()
 	latestCondition.Message = fmt.Sprintf("All required compute resources were satisfied")
-	latestCondition.ValidationRule = fmt.Sprintf("%s-%s-%s", v8orconstants.ValidationRulePrefix, rule.Scope, rule.EntityName)
+	latestCondition.ValidationRule = fmt.Sprintf("%s-%s-%s", vapiconstants.ValidationRulePrefix, rule.Scope, rule.EntityName)
 	latestCondition.ValidationType = validationType
 
 	return &types.ValidationResult{Condition: &latestCondition, State: &state}
@@ -227,7 +229,7 @@ func (c *ComputeResourcesValidationService) ReconcileComputeResourceValidationRu
 	diskCapacityAvailable := requestedQuantityAvailable(freeStorage, resourceReq.DiskSpace)
 
 	if !cpuCapacityAvailable || !memoryCapacityAvailable || !diskCapacityAvailable {
-		vr.State = ptr.Ptr(v8or.ValidationFailed)
+		vr.State = ptr.Ptr(vapi.ValidationFailed)
 		vr.Condition.Failures = append(vr.Condition.Failures, fmt.Sprintf("Not enough resources available. CPU available: %t, Memory available: %t, Storage available: %t", cpuCapacityAvailable, memoryCapacityAvailable, diskCapacityAvailable))
 		vr.Condition.Message = "One or more resource requirements were not satisfied"
 		vr.Condition.Status = corev1.ConditionFalse

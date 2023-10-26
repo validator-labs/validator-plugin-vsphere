@@ -3,9 +3,11 @@ package vsphere
 import (
 	"context"
 	"fmt"
-	"github.com/spectrocloud-labs/validator-plugin-vsphere/internal/constants"
+
 	"github.com/vmware/govmomi/find"
 	"github.com/vmware/govmomi/object"
+
+	"github.com/spectrocloud-labs/validator-plugin-vsphere/internal/constants"
 )
 
 func (v *VSphereCloudDriver) GetFolderIfExists(ctx context.Context, finder *find.Finder, datacenter, folderName string) (bool, *object.Folder, error) {

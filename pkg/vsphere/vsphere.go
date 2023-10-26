@@ -516,7 +516,7 @@ func (info *HostDateInfo) servers() []string {
 	return info.NtpConfig.Server
 }
 
-func (v *VSphereCloudDriver) ValidateHostNTPSettings(ctx context.Context, finder *find.Finder, datacenter string, clusterName string, hosts []string) (bool, []string, error) {
+func (v *VSphereCloudDriver) ValidateHostNTPSettings(ctx context.Context, finder *find.Finder, datacenter, clusterName string, hosts []string) (bool, []string, error) {
 	var hostsDateInfo []HostDateInfo
 	var failures []string
 

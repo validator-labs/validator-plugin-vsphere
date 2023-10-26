@@ -12,7 +12,7 @@ import (
 
 	"github.com/spectrocloud-labs/validator-plugin-vsphere/api/v1alpha1"
 	"github.com/spectrocloud-labs/validator-plugin-vsphere/internal/vcsim"
-	v8or "github.com/spectrocloud-labs/validator/api/v1alpha1"
+	vapi "github.com/spectrocloud-labs/validator/api/v1alpha1"
 	"github.com/spectrocloud-labs/validator/pkg/types"
 	"github.com/spectrocloud-labs/validator/pkg/util/ptr"
 )
@@ -61,7 +61,7 @@ func TestRolePrivilegeValidationService_ReconcileEntityPrivilegeRule(t *testing.
 					"VirtualMachine.Config.AddExistingDisk",
 				},
 			},
-			expectedResult: types.ValidationResult{Condition: &v8or.ValidationCondition{
+			expectedResult: types.ValidationResult{Condition: &vapi.ValidationCondition{
 				ValidationType: "vsphere-entity-privileges",
 				ValidationRule: "validation-cluster-DC0_C0",
 				Message:        fmt.Sprintf("All required vsphere-entity-privileges permissions were found for account: %s", userName),
@@ -69,7 +69,7 @@ func TestRolePrivilegeValidationService_ReconcileEntityPrivilegeRule(t *testing.
 				Failures:       nil,
 				Status:         corev1.ConditionTrue,
 			},
-				State: ptr.Ptr(v8or.ValidationSucceeded),
+				State: ptr.Ptr(vapi.ValidationSucceeded),
 			},
 		},
 		{
@@ -84,7 +84,7 @@ func TestRolePrivilegeValidationService_ReconcileEntityPrivilegeRule(t *testing.
 					"VirtualMachine.Config.DestroyExistingDisk",
 				},
 			},
-			expectedResult: types.ValidationResult{Condition: &v8or.ValidationCondition{
+			expectedResult: types.ValidationResult{Condition: &vapi.ValidationCondition{
 				ValidationType: "vsphere-entity-privileges",
 				ValidationRule: "validation-cluster-DC0_C0",
 				Message:        "One or more required privileges was not found, or a condition was not met",
@@ -92,7 +92,7 @@ func TestRolePrivilegeValidationService_ReconcileEntityPrivilegeRule(t *testing.
 				Failures:       []string{"user: admin2@vsphere.local does not have privilege: VirtualMachine.Config.DestroyExistingDisk on entity type: cluster with name: DC0_C0"},
 				Status:         corev1.ConditionFalse,
 			},
-				State: ptr.Ptr(v8or.ValidationFailed),
+				State: ptr.Ptr(vapi.ValidationFailed),
 			},
 		},
 	}

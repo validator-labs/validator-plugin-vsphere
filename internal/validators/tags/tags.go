@@ -4,19 +4,21 @@ import (
 	"context"
 	"errors"
 	"fmt"
+
 	"github.com/go-logr/logr"
-	"github.com/spectrocloud-labs/validator-plugin-vsphere/api/v1alpha1"
-	"github.com/spectrocloud-labs/validator-plugin-vsphere/internal/constants"
-	"github.com/spectrocloud-labs/validator-plugin-vsphere/pkg/vsphere"
-	v8or "github.com/spectrocloud-labs/validator/api/v1alpha1"
-	v8orconstants "github.com/spectrocloud-labs/validator/pkg/constants"
-	"github.com/spectrocloud-labs/validator/pkg/types"
-	v8ortypes "github.com/spectrocloud-labs/validator/pkg/types"
-	"github.com/spectrocloud-labs/validator/pkg/util/ptr"
 	"github.com/vmware/govmomi/find"
 	"github.com/vmware/govmomi/vapi/tags"
 	"github.com/vmware/govmomi/vim25/mo"
 	corev1 "k8s.io/api/core/v1"
+
+	"github.com/spectrocloud-labs/validator-plugin-vsphere/api/v1alpha1"
+	"github.com/spectrocloud-labs/validator-plugin-vsphere/internal/constants"
+	"github.com/spectrocloud-labs/validator-plugin-vsphere/pkg/vsphere"
+	vapi "github.com/spectrocloud-labs/validator/api/v1alpha1"
+	vapiconstants "github.com/spectrocloud-labs/validator/pkg/constants"
+	"github.com/spectrocloud-labs/validator/pkg/types"
+	vapitypes "github.com/spectrocloud-labs/validator/pkg/types"
+	"github.com/spectrocloud-labs/validator/pkg/util/ptr"
 )
 
 // to enable monkey patching in integration tests
@@ -38,7 +40,7 @@ func (s *TagsValidationService) ReconcileTagRules(tagsManager *tags.Manager, fin
 
 	valid, err := tagIsValid(tagsManager, finder, driver.Datacenter, tagValidationRule.ClusterName, tagValidationRule.EntityType, tagValidationRule.EntityName, tagValidationRule.Tag)
 	if !valid {
-		vr.State = ptr.Ptr(v8or.ValidationFailed)
+		vr.State = ptr.Ptr(vapi.ValidationFailed)
 		vr.Condition.Failures = append(vr.Condition.Failures, "One or more required tags was not found")
 		vr.Condition.Message = "One or more required tags was not found"
 		vr.Condition.Status = corev1.ConditionFalse
@@ -50,12 +52,12 @@ func (s *TagsValidationService) ReconcileTagRules(tagsManager *tags.Manager, fin
 }
 
 func buildValidationResult(rule v1alpha1.TagValidationRule, validationType string) *types.ValidationResult {
-	state := v8or.ValidationSucceeded
-	latestCondition := v8or.DefaultValidationCondition()
+	state := vapi.ValidationSucceeded
+	latestCondition := vapi.DefaultValidationCondition()
 	latestCondition.Message = "Required entity tags were found"
-	latestCondition.ValidationRule = fmt.Sprintf("%s-%s-%s-%s", v8orconstants.ValidationRulePrefix, "tag", rule.EntityType, rule.Tag)
+	latestCondition.ValidationRule = fmt.Sprintf("%s-%s-%s-%s", vapiconstants.ValidationRulePrefix, "tag", rule.EntityType, rule.Tag)
 	latestCondition.ValidationType = validationType
-	validationResult := &v8ortypes.ValidationResult{Condition: &latestCondition, State: &state}
+	validationResult := &vapitypes.ValidationResult{Condition: &latestCondition, State: &state}
 
 	return validationResult
 }
