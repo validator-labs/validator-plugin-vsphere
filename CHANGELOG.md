@@ -1,5 +1,27 @@
 # Changelog
 
+## [0.0.12](https://github.com/spectrocloud-labs/validator-plugin-vsphere/compare/v0.0.11...v0.0.12) (2023-10-27)
+
+
+### Features
+
+* Add NTP validation to validator-plugin-vsphere ([#88](https://github.com/spectrocloud-labs/validator-plugin-vsphere/issues/88)) ([b439ebb](https://github.com/spectrocloud-labs/validator-plugin-vsphere/commit/b439ebb8585947a798f036a0803960520daf1f24))
+
+
+### Bug Fixes
+
+* **deps:** update module github.com/go-logr/logr to v1.3.0 ([#91](https://github.com/spectrocloud-labs/validator-plugin-vsphere/issues/91)) ([a84f798](https://github.com/spectrocloud-labs/validator-plugin-vsphere/commit/a84f7985637c3f0ab28e35b9d339dbfbe8793ccf))
+* **deps:** update module github.com/onsi/gomega to v1.28.1 ([#87](https://github.com/spectrocloud-labs/validator-plugin-vsphere/issues/87)) ([e264ce9](https://github.com/spectrocloud-labs/validator-plugin-vsphere/commit/e264ce9d2ac047a1fdb2f3621e2e70139e2b202c))
+* **deps:** update module github.com/onsi/gomega to v1.29.0 ([#89](https://github.com/spectrocloud-labs/validator-plugin-vsphere/issues/89)) ([51f0109](https://github.com/spectrocloud-labs/validator-plugin-vsphere/commit/51f010975192135478794f991ec94de8c935a633))
+* **deps:** update module github.com/vmware/govmomi to v0.33.0 ([#90](https://github.com/spectrocloud-labs/validator-plugin-vsphere/issues/90)) ([7e25a95](https://github.com/spectrocloud-labs/validator-plugin-vsphere/commit/7e25a95cef4fdb6a0aff3675e3eb353b188d4e02))
+
+
+### Other
+
+* add license ([8fb9e2e](https://github.com/spectrocloud-labs/validator-plugin-vsphere/commit/8fb9e2e537221cb260c22f23e4bfd81ead41ba18))
+* **deps:** update gcr.io/kubebuilder/kube-rbac-proxy docker tag to v0.15.0 ([#85](https://github.com/spectrocloud-labs/validator-plugin-vsphere/issues/85)) ([33f9f8c](https://github.com/spectrocloud-labs/validator-plugin-vsphere/commit/33f9f8c506f37555add0158a64050e5921dddae4))
+* update plugin code ([8c29d0c](https://github.com/spectrocloud-labs/validator-plugin-vsphere/commit/8c29d0c93db6e71063b7a3ec6277dc8098a58c40))
+
 ## [0.0.11](https://github.com/spectrocloud-labs/validator-plugin-vsphere/compare/v0.0.10...v0.0.11) (2023-10-20)
 
 
