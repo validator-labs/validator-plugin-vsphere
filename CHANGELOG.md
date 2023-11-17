@@ -1,5 +1,30 @@
 # Changelog
 
+## [0.0.13](https://github.com/spectrocloud-labs/validator-plugin-vsphere/compare/v0.0.12...v0.0.13) (2023-11-17)
+
+
+### Bug Fixes
+
+* **deps:** update golang.org/x/exp digest to 9a3e603 ([#102](https://github.com/spectrocloud-labs/validator-plugin-vsphere/issues/102)) ([9456e5b](https://github.com/spectrocloud-labs/validator-plugin-vsphere/commit/9456e5b8664a5b8df18a1502a21748cb6f49ae8e))
+* **deps:** update kubernetes packages to v0.28.4 ([#106](https://github.com/spectrocloud-labs/validator-plugin-vsphere/issues/106)) ([2a9fd27](https://github.com/spectrocloud-labs/validator-plugin-vsphere/commit/2a9fd2786aa58527acecf4264a998c605ea70634))
+* **deps:** update module github.com/onsi/ginkgo/v2 to v2.13.1 ([#105](https://github.com/spectrocloud-labs/validator-plugin-vsphere/issues/105)) ([972f639](https://github.com/spectrocloud-labs/validator-plugin-vsphere/commit/972f639a35077137806267befe9afde5b0f7b301))
+* **deps:** update module github.com/onsi/gomega to v1.30.0 ([#101](https://github.com/spectrocloud-labs/validator-plugin-vsphere/issues/101)) ([99d4cca](https://github.com/spectrocloud-labs/validator-plugin-vsphere/commit/99d4ccac73fc906fb45edb0dd1b1ee4190d4b699))
+* **deps:** update module github.com/vmware/govmomi to v0.33.1 ([#92](https://github.com/spectrocloud-labs/validator-plugin-vsphere/issues/92)) ([70f7980](https://github.com/spectrocloud-labs/validator-plugin-vsphere/commit/70f79803e7ebdbb8474c33697eb1896d9ed6a909))
+* update VsphereValidator CRD ([0dccf7d](https://github.com/spectrocloud-labs/validator-plugin-vsphere/commit/0dccf7dd761e5bf60f33e8b00e7a123bf23cccf6))
+
+
+### Other
+
+* **deps:** update docker/build-push-action digest to 4a13e50 ([#108](https://github.com/spectrocloud-labs/validator-plugin-vsphere/issues/108)) ([6a5abdb](https://github.com/spectrocloud-labs/validator-plugin-vsphere/commit/6a5abdb51c9a9119a65cf685f3e065041818415a))
+* **deps:** update golang:1.21 docker digest to 5206873 ([#96](https://github.com/spectrocloud-labs/validator-plugin-vsphere/issues/96)) ([1d90fbb](https://github.com/spectrocloud-labs/validator-plugin-vsphere/commit/1d90fbb28446890b630028cd958bad04a9d559fb))
+* **deps:** update golang:1.21 docker digest to 57bf74a ([#107](https://github.com/spectrocloud-labs/validator-plugin-vsphere/issues/107)) ([9dd1218](https://github.com/spectrocloud-labs/validator-plugin-vsphere/commit/9dd121891443c988f1b2d18ade76817eeb0a7e0a))
+* **deps:** update golang:1.21 docker digest to 81cd210 ([#100](https://github.com/spectrocloud-labs/validator-plugin-vsphere/issues/100)) ([d6d4fd4](https://github.com/spectrocloud-labs/validator-plugin-vsphere/commit/d6d4fd43581f2f9360af32195072b2c518a18958))
+* **deps:** update golang:1.21 docker digest to 84e41b3 ([#95](https://github.com/spectrocloud-labs/validator-plugin-vsphere/issues/95)) ([37aaee1](https://github.com/spectrocloud-labs/validator-plugin-vsphere/commit/37aaee191731a459f497d1ca5f9481ad624f4d74))
+* **deps:** update golang:1.21 docker digest to b113af1 ([#97](https://github.com/spectrocloud-labs/validator-plugin-vsphere/issues/97)) ([7a03507](https://github.com/spectrocloud-labs/validator-plugin-vsphere/commit/7a035072501d3b034194ba9d7f66046769dbb271))
+* **deps:** update google-github-actions/release-please-action digest to db8f2c6 ([#99](https://github.com/spectrocloud-labs/validator-plugin-vsphere/issues/99)) ([4e61952](https://github.com/spectrocloud-labs/validator-plugin-vsphere/commit/4e61952cb09c6d4dbbef52e8b869fdedfe268880))
+* **deps:** update helm/chart-testing-action action to v2.6.0 ([#94](https://github.com/spectrocloud-labs/validator-plugin-vsphere/issues/94)) ([e8addc3](https://github.com/spectrocloud-labs/validator-plugin-vsphere/commit/e8addc3e585bed76368b1359b341f2625e3e40ed))
+* **deps:** update helm/chart-testing-action action to v2.6.1 ([#98](https://github.com/spectrocloud-labs/validator-plugin-vsphere/issues/98)) ([0f24db3](https://github.com/spectrocloud-labs/validator-plugin-vsphere/commit/0f24db3b089867089380ee473221e12d7a242305))
+
 ## [0.0.12](https://github.com/spectrocloud-labs/validator-plugin-vsphere/compare/v0.0.11...v0.0.12) (2023-10-27)
 
 
