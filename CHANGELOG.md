@@ -1,5 +1,12 @@
 # Changelog
 
+## [0.0.14](https://github.com/spectrocloud-labs/validator-plugin-vsphere/compare/v0.0.13...v0.0.14) (2023-11-17)
+
+
+### Refactoring
+
+* remove auth secret creation ([#109](https://github.com/spectrocloud-labs/validator-plugin-vsphere/issues/109)) ([965ed7f](https://github.com/spectrocloud-labs/validator-plugin-vsphere/commit/965ed7f63874df4ac5280edecbe41df6d9d1999f))
+
 ## [0.0.13](https://github.com/spectrocloud-labs/validator-plugin-vsphere/compare/v0.0.12...v0.0.13) (2023-11-17)
 
 
