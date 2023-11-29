@@ -65,5 +65,9 @@ spec:
           | nindent 10 }}
       securityContext:
         runAsNonRoot: true
+      {{- if .Values.auth.serviceAccountName }}
+      serviceAccountName: {{ .Values.auth.serviceAccountName }}
+      {{- else }}
       serviceAccountName: {{ include "chart.fullname" . }}-controller-manager
+      {{- end }}
       terminationGracePeriodSeconds: 10
