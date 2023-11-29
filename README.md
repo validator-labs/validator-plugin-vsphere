@@ -2,6 +2,7 @@
 [![License](https://img.shields.io/badge/License-Apache%202.0-blue.svg)](https://opensource.org/licenses/Apache-2.0)
 ![Build](https://github.com/spectrocloud-labs/validator-plugin-vsphere/actions/workflows/build_container.yaml/badge.svg)
 [![Go Report Card](https://goreportcard.com/badge/github.com/spectrocloud-labs/validator-plugin-vsphere)](https://goreportcard.com/report/github.com/spectrocloud-labs/validator-plugin-vsphere)
+[![codecov](https://codecov.io/gh/spectrocloud-labs/validator-plugin-vsphere/graph/badge.svg?token=QHR08U8SEQ)](https://codecov.io/gh/spectrocloud-labs/validator-plugin-vsphere)
 [![Go Reference](https://pkg.go.dev/badge/github.com/spectrocloud-labs/validator-plugin-vsphere.svg)](https://pkg.go.dev/github.com/spectrocloud-labs/validator-plugin-vsphere)
 
 # validator-plugin-vsphere
