@@ -55,4 +55,3 @@ auth:
   # Specify the name of a secret in your cluster that contains vSphere credentials.
   # E.g.: https://github.com/spectrocloud-labs/validator/blob/main/chart/validator/templates/plugin-secret-vsphere.yaml
   secretName: vsphere-credentials
-
