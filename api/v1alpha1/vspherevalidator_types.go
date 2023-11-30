@@ -91,6 +91,11 @@ type VsphereValidator struct {
 	Status VsphereValidatorStatus `json:"status,omitempty"`
 }
 
+func (s VsphereValidatorSpec) ResultCount() int {
+	return len(s.RolePrivilegeValidationRules) + len(s.EntityPrivilegeValidationRules) + len(s.ComputeResourceRules) +
+		len(s.TagValidationRules) + len(s.NTPValidationRules)
+}
+
 //+kubebuilder:object:root=true
 
 // VsphereValidatorList contains a list of VsphereValidator
