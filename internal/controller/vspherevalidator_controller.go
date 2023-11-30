@@ -20,8 +20,6 @@ import (
 	"context"
 	"errors"
 	"fmt"
-	"github.com/spectrocloud-labs/validator/pkg/util/ptr"
-	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
 	"strconv"
 	"time"
 
@@ -30,6 +28,7 @@ import (
 	vtags "github.com/vmware/govmomi/vapi/tags"
 	corev1 "k8s.io/api/core/v1"
 	apierrs "k8s.io/apimachinery/pkg/api/errors"
+	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
 	"k8s.io/apimachinery/pkg/runtime"
 	ktypes "k8s.io/apimachinery/pkg/types"
 	ctrl "sigs.k8s.io/controller-runtime"
@@ -44,6 +43,7 @@ import (
 	"github.com/spectrocloud-labs/validator-plugin-vsphere/internal/validators/tags"
 	"github.com/spectrocloud-labs/validator-plugin-vsphere/pkg/vsphere"
 	vapi "github.com/spectrocloud-labs/validator/api/v1alpha1"
+	"github.com/spectrocloud-labs/validator/pkg/util/ptr"
 	vres "github.com/spectrocloud-labs/validator/pkg/validationresult"
 )
 
@@ -86,7 +86,7 @@ func (r *VsphereValidatorReconciler) Reconcile(ctx context.Context, req ctrl.Req
 	var res *ctrl.Result
 	if !validator.Spec.Auth.Implicit {
 		if validator.Spec.Auth.SecretName == "" {
-			r.Log.Error(ErrSecretNameRequired, "failed to reconcile AwsValidator with empty auth.secretName", "key", req)
+			r.Log.Error(ErrSecretNameRequired, "failed to reconcile VsphereValidator with empty auth.secretName", "key", req)
 			return ctrl.Result{}, ErrSecretNameRequired
 		} else {
 			vsphereCloudAccount, res = r.secretKeyAuth(req, validator)
