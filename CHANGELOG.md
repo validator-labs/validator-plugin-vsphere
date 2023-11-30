@@ -1,5 +1,21 @@
 # Changelog
 
+## [0.0.15](https://github.com/spectrocloud-labs/validator-plugin-vsphere/compare/v0.0.14...v0.0.15) (2023-11-30)
+
+
+### Bug Fixes
+
+* **deps:** update golang.org/x/exp digest to 6522937 ([#115](https://github.com/spectrocloud-labs/validator-plugin-vsphere/issues/115)) ([5a72d63](https://github.com/spectrocloud-labs/validator-plugin-vsphere/commit/5a72d6333c8e9e701019a75b46d8ef01b8653b7a))
+* **deps:** update module github.com/onsi/ginkgo/v2 to v2.13.2 ([#116](https://github.com/spectrocloud-labs/validator-plugin-vsphere/issues/116)) ([252f7fc](https://github.com/spectrocloud-labs/validator-plugin-vsphere/commit/252f7fcdc55d519f413658566bc78a4e8910ec02))
+
+
+### Other
+
+* **deps:** update actions/checkout action to v4 ([#119](https://github.com/spectrocloud-labs/validator-plugin-vsphere/issues/119)) ([7c612c4](https://github.com/spectrocloud-labs/validator-plugin-vsphere/commit/7c612c45da18a2f85e3c35d9fb0aee07bc54df90))
+* **deps:** update anchore/sbom-action action to v0.15.0 ([#113](https://github.com/spectrocloud-labs/validator-plugin-vsphere/issues/113)) ([ad9df0d](https://github.com/spectrocloud-labs/validator-plugin-vsphere/commit/ad9df0d7d7e2afbc3a4954cedfba58d4a1ed21ae))
+* **deps:** update golang:1.21 docker digest to 9baee0e ([#114](https://github.com/spectrocloud-labs/validator-plugin-vsphere/issues/114)) ([b3ce98f](https://github.com/spectrocloud-labs/validator-plugin-vsphere/commit/b3ce98f989859e90570dfb67395b56ae262243ca))
+* Update validator core and refactor ([#121](https://github.com/spectrocloud-labs/validator-plugin-vsphere/issues/121)) ([6d0d6f8](https://github.com/spectrocloud-labs/validator-plugin-vsphere/commit/6d0d6f888d0e91963294fc39ca35288fc9de4792))
+
 ## [0.0.14](https://github.com/spectrocloud-labs/validator-plugin-vsphere/compare/v0.0.13...v0.0.14) (2023-11-17)
 
 
