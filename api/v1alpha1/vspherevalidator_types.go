@@ -22,6 +22,7 @@ type VsphereValidatorSpec struct {
 }
 
 type VsphereAuth struct {
+	Implicit   bool   `json:"implicit" yaml:"implicit"`
 	SecretName string `json:"secretName" yaml:"secretName"`
 }
 
@@ -89,6 +90,11 @@ type VsphereValidator struct {
 
 	Spec   VsphereValidatorSpec   `json:"spec,omitempty"`
 	Status VsphereValidatorStatus `json:"status,omitempty"`
+}
+
+func (s VsphereValidatorSpec) ResultCount() int {
+	return len(s.RolePrivilegeValidationRules) + len(s.EntityPrivilegeValidationRules) + len(s.ComputeResourceRules) +
+		len(s.TagValidationRules) + len(s.NTPValidationRules)
 }
 
 //+kubebuilder:object:root=true

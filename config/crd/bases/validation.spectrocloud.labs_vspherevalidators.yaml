@@ -36,9 +36,12 @@ spec:
             properties:
               auth:
                 properties:
+                  implicit:
+                    type: boolean
                   secretName:
                     type: string
                 required:
+                - implicit
                 - secretName
                 type: object
               computeResourceRules:
