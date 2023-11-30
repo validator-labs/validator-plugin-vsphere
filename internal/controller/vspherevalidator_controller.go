@@ -84,15 +84,13 @@ func (r *VsphereValidatorReconciler) Reconcile(ctx context.Context, req ctrl.Req
 	// Initialize Vsphere driver
 	var vsphereCloudAccount *vsphere.VsphereCloudAccount
 	var res *ctrl.Result
-	if !validator.Spec.Auth.Implicit {
-		if validator.Spec.Auth.SecretName == "" {
-			r.Log.Error(ErrSecretNameRequired, "failed to reconcile VsphereValidator with empty auth.secretName", "key", req)
-			return ctrl.Result{}, ErrSecretNameRequired
-		} else {
-			vsphereCloudAccount, res = r.secretKeyAuth(req, validator)
-			if res != nil {
-				return *res, nil
-			}
+	if validator.Spec.Auth.SecretName == "" {
+		r.Log.Error(ErrSecretNameRequired, "failed to reconcile VsphereValidator with empty auth.secretName", "key", req)
+		return ctrl.Result{}, ErrSecretNameRequired
+	} else {
+		vsphereCloudAccount, res = r.secretKeyAuth(req, validator)
+		if res != nil {
+			return *res, nil
 		}
 	}
 
@@ -102,7 +100,6 @@ func (r *VsphereValidatorReconciler) Reconcile(ctx context.Context, req ctrl.Req
 	}
 
 	// Get the authorization manager from the Client
-
 	authManager := object.NewAuthorizationManager(vsphereCloudDriver.Client.Client)
 	if authManager == nil {
 		return ctrl.Result{}, err
@@ -195,7 +192,7 @@ func (r *VsphereValidatorReconciler) Reconcile(ctx context.Context, req ctrl.Req
 
 	// requeue after two minutes for re-validation
 	r.Log.V(0).Info("Requeuing for re-validation in two minutes.", "name", req.Name, "namespace", req.Namespace)
-	return ctrl.Result{}, nil
+	return ctrl.Result{RequeueAfter: 2 * time.Minute}, nil
 }
 
 func (r *VsphereValidatorReconciler) secretKeyAuth(req ctrl.Request, validator *v1alpha1.VsphereValidator) (*vsphere.VsphereCloudAccount, *reconcile.Result) {

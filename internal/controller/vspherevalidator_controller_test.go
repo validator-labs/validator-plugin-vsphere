@@ -37,7 +37,6 @@ var _ = Describe("VsphereValidator controller", Ordered, func() {
 		},
 		Spec: v1alpha1.VsphereValidatorSpec{
 			Auth: v1alpha1.VsphereAuth{
-				Implicit:   false,
 				SecretName: "validator-secret",
 			},
 			Datacenter:                     "DC0",

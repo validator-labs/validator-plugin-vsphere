@@ -22,7 +22,6 @@ type VsphereValidatorSpec struct {
 }
 
 type VsphereAuth struct {
-	Implicit   bool   `json:"implicit" yaml:"implicit"`
 	SecretName string `json:"secretName" yaml:"secretName"`
 }
 
