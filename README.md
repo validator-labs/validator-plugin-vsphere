@@ -21,6 +21,9 @@ Each `VsphereValidator` CR is (re)-processed every two minutes to continuously e
 
 See the [samples](https://github.com/spectrocloud-labs/validator-plugin-vsphere/tree/main/config/samples) directory for example `VsphereValidator` configurations.
 
+> [!NOTE]
+> This plugin currently require a user with administrator role to perform all of the validations specified above. Further information on fine-grained permissions required by each validation will be updated in the future.
+
 ## Getting Started
 You’ll need a Kubernetes cluster to run against. You can use [KIND](https://sigs.k8s.io/kind) to get a local cluster for testing, or run against a remote cluster.
 **Note:** Your controller will automatically use the current context in your kubeconfig file (i.e. whatever cluster `kubectl cluster-info` shows).
