@@ -10,7 +10,7 @@ require (
 	github.com/pkg/errors v0.9.1
 	github.com/sirupsen/logrus v1.9.3
 	github.com/spectrocloud-labs/validator v0.0.30
-	github.com/vmware/govmomi v0.34.0
+	github.com/vmware/govmomi v0.34.1
 	golang.org/x/exp v0.0.0-20231219180239-dc181d75b848
 	k8s.io/api v0.28.4
 	k8s.io/apimachinery v0.28.4
