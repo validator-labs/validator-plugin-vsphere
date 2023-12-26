@@ -9,7 +9,7 @@ require (
 	github.com/onsi/gomega v1.30.0
 	github.com/pkg/errors v0.9.1
 	github.com/sirupsen/logrus v1.9.3
-	github.com/spectrocloud-labs/validator v0.0.30
+	github.com/spectrocloud-labs/validator v0.0.31
 	github.com/vmware/govmomi v0.34.1
 	golang.org/x/exp v0.0.0-20231226003508-02704c960a9b
 	k8s.io/api v0.28.4
