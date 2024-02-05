@@ -43,6 +43,7 @@ import (
 	"github.com/spectrocloud-labs/validator-plugin-vsphere/internal/validators/tags"
 	"github.com/spectrocloud-labs/validator-plugin-vsphere/pkg/vsphere"
 	vapi "github.com/spectrocloud-labs/validator/api/v1alpha1"
+	"github.com/spectrocloud-labs/validator/pkg/types"
 	"github.com/spectrocloud-labs/validator/pkg/util/ptr"
 	vres "github.com/spectrocloud-labs/validator/pkg/validationresult"
 )
@@ -60,15 +61,9 @@ type VsphereValidatorReconciler struct {
 //+kubebuilder:rbac:groups=validation.spectrocloud.labs,resources=vspherevalidators/status,verbs=get;update;patch
 //+kubebuilder:rbac:groups=validation.spectrocloud.labs,resources=vspherevalidators/finalizers,verbs=update
 
-// Reconcile is part of the main kubernetes reconciliation loop which aims to
-// move the current state of the cluster closer to the desired state.
-// TODO(user): Modify the Reconcile function to compare the state specified by
-// the VsphereValidator object against the actual cluster state, and then
-// perform operations to make the cluster state reflect the state specified by
-// the user.
-//
-// For more details, check Reconcile and its Result here:
-// - https://pkg.go.dev/sigs.k8s.io/controller-runtime@v0.15.0/pkg/reconcile
+// Reconcile compares the state specified by the VsphereValidator object
+// against the actual cluster state, and then perform operations to make
+// the cluster state reflect the state specified by the user.
 func (r *VsphereValidatorReconciler) Reconcile(ctx context.Context, req ctrl.Request) (ctrl.Result, error) {
 	r.Log.V(0).Info("Reconciling VsphereValidator", "name", req.Name, "namespace", req.Namespace)
 
@@ -145,7 +140,7 @@ func (r *VsphereValidatorReconciler) Reconcile(ctx context.Context, req ctrl.Req
 		if err != nil {
 			r.Log.V(0).Error(err, "failed to reconcile NTP rule")
 		}
-		vres.SafeUpdateValidationResult(r.Client, nn, validationResult, err, r.Log)
+		r.safeUpdate(nn, validator, validationResult, err)
 		r.Log.V(0).Info("Validated NTP rules")
 	}
 
@@ -155,7 +150,7 @@ func (r *VsphereValidatorReconciler) Reconcile(ctx context.Context, req ctrl.Req
 		if err != nil {
 			r.Log.V(0).Error(err, "failed to reconcile entity privilege rule")
 		}
-		vres.SafeUpdateValidationResult(r.Client, nn, validationResult, err, r.Log)
+		r.safeUpdate(nn, validator, validationResult, err)
 		r.Log.V(0).Info("Validated privileges for account", "user", rule.Username)
 	}
 
@@ -165,7 +160,7 @@ func (r *VsphereValidatorReconciler) Reconcile(ctx context.Context, req ctrl.Req
 		if err != nil {
 			r.Log.V(0).Error(err, "failed to reconcile role privilege rule")
 		}
-		vres.SafeUpdateValidationResult(r.Client, nn, validationResult, err, r.Log)
+		r.safeUpdate(nn, validator, validationResult, err)
 		r.Log.V(0).Info("Validated privileges for account", "user", rule.Username)
 	}
 
@@ -176,7 +171,7 @@ func (r *VsphereValidatorReconciler) Reconcile(ctx context.Context, req ctrl.Req
 		if err != nil {
 			r.Log.V(0).Error(err, "failed to reconcile tag validation rule")
 		}
-		vres.SafeUpdateValidationResult(r.Client, nn, validationResult, err, r.Log)
+		r.safeUpdate(nn, validator, validationResult, err)
 		r.Log.V(0).Info("Validated tags", "entity type", rule.EntityType, "entity name", rule.EntityName, "tag", rule.Tag)
 	}
 
@@ -186,13 +181,17 @@ func (r *VsphereValidatorReconciler) Reconcile(ctx context.Context, req ctrl.Req
 		if err != nil {
 			r.Log.V(0).Error(err, "failed to reconcile computeresources validation rule")
 		}
-		vres.SafeUpdateValidationResult(r.Client, nn, validationResult, err, r.Log)
+		r.safeUpdate(nn, validator, validationResult, err)
 		r.Log.V(0).Info("Validated compute resources", "scope", rule.Scope, "entity name", rule.EntityName)
 	}
 
 	// requeue after two minutes for re-validation
 	r.Log.V(0).Info("Requeuing for re-validation in two minutes.", "name", req.Name, "namespace", req.Namespace)
 	return ctrl.Result{RequeueAfter: 2 * time.Minute}, nil
+}
+
+func (r *VsphereValidatorReconciler) safeUpdate(nn ktypes.NamespacedName, v *v1alpha1.VsphereValidator, vr *types.ValidationResult, err error) {
+	vres.SafeUpdateValidationResult(r.Client, nn, vr, v.Spec.ResultCount(), err, r.Log)
 }
 
 func (r *VsphereValidatorReconciler) secretKeyAuth(req ctrl.Request, validator *v1alpha1.VsphereValidator) (*vsphere.VsphereCloudAccount, *reconcile.Result) {
