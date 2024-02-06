@@ -1,5 +1,12 @@
 # Changelog
 
+## [0.0.17](https://github.com/spectrocloud-labs/validator-plugin-vsphere/compare/v0.0.16...v0.0.17) (2024-02-06)
+
+
+### Other
+
+* update validator ([c6f847c](https://github.com/spectrocloud-labs/validator-plugin-vsphere/commit/c6f847ca92bb48b2b4dd71385a5a0a565885d9d2))
+
 ## [0.0.16](https://github.com/spectrocloud-labs/validator-plugin-vsphere/compare/v0.0.15...v0.0.16) (2024-02-05)
 
 
