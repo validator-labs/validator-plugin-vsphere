@@ -10,7 +10,7 @@ require (
 	github.com/pkg/errors v0.9.1
 	github.com/sirupsen/logrus v1.9.3
 	github.com/spectrocloud-labs/validator v0.0.34
-	github.com/vmware/govmomi v0.34.2
+	github.com/vmware/govmomi v0.35.0
 	golang.org/x/exp v0.0.0-20240119083558-1b970713d09a
 	k8s.io/api v0.29.1
 	k8s.io/apimachinery v0.29.1
@@ -38,7 +38,7 @@ require (
 	github.com/google/go-cmp v0.6.0 // indirect
 	github.com/google/gofuzz v1.2.0 // indirect
 	github.com/google/pprof v0.0.0-20210720184732-4bb14d4b1be1 // indirect
-	github.com/google/uuid v1.4.0 // indirect
+	github.com/google/uuid v1.6.0 // indirect
 	github.com/imdario/mergo v0.3.6 // indirect
 	github.com/josharian/intern v1.0.0 // indirect
 	github.com/json-iterator/go v1.1.12 // indirect
