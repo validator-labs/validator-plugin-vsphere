@@ -12,9 +12,9 @@ require (
 	github.com/spectrocloud-labs/validator v0.0.34
 	github.com/vmware/govmomi v0.35.0
 	golang.org/x/exp v0.0.0-20240213143201-ec583247a57a
-	k8s.io/api v0.29.1
-	k8s.io/apimachinery v0.29.1
-	k8s.io/client-go v0.29.1
+	k8s.io/api v0.29.2
+	k8s.io/apimachinery v0.29.2
+	k8s.io/client-go v0.29.2
 	sigs.k8s.io/controller-runtime v0.17.1
 )
 
