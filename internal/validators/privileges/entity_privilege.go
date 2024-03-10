@@ -12,7 +12,7 @@ import (
 	vapi "github.com/spectrocloud-labs/validator/api/v1alpha1"
 	vapiconstants "github.com/spectrocloud-labs/validator/pkg/constants"
 	"github.com/spectrocloud-labs/validator/pkg/types"
-	"github.com/spectrocloud-labs/validator/pkg/util/ptr"
+	"github.com/spectrocloud-labs/validator/pkg/util"
 )
 
 func buildEntityPrivilegeValidationResult(rule v1alpha1.EntityPrivilegeValidationRule, validationType string) *types.ValidationResult {
@@ -38,7 +38,7 @@ func (s *PrivilegeValidationService) ReconcileEntityPrivilegeRule(rule v1alpha1.
 	}
 
 	if len(vr.Condition.Failures) > 0 {
-		vr.State = ptr.Ptr(vapi.ValidationFailed)
+		vr.State = util.Ptr(vapi.ValidationFailed)
 		vr.Condition.Message = "One or more required privileges was not found, or a condition was not met"
 		vr.Condition.Status = corev1.ConditionFalse
 		err = fmt.Errorf("one or more required entity privileges was not found for account: %s", rule.Username)

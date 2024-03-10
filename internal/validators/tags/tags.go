@@ -18,7 +18,7 @@ import (
 	vapiconstants "github.com/spectrocloud-labs/validator/pkg/constants"
 	"github.com/spectrocloud-labs/validator/pkg/types"
 	vapitypes "github.com/spectrocloud-labs/validator/pkg/types"
-	"github.com/spectrocloud-labs/validator/pkg/util/ptr"
+	"github.com/spectrocloud-labs/validator/pkg/util"
 )
 
 // to enable monkey patching in integration tests
@@ -40,7 +40,7 @@ func (s *TagsValidationService) ReconcileTagRules(tagsManager *tags.Manager, fin
 
 	valid, err := tagIsValid(tagsManager, finder, driver.Datacenter, tagValidationRule.ClusterName, tagValidationRule.EntityType, tagValidationRule.EntityName, tagValidationRule.Tag)
 	if !valid {
-		vr.State = ptr.Ptr(vapi.ValidationFailed)
+		vr.State = util.Ptr(vapi.ValidationFailed)
 		vr.Condition.Failures = append(vr.Condition.Failures, "One or more required tags was not found")
 		vr.Condition.Message = "One or more required tags was not found"
 		vr.Condition.Status = corev1.ConditionFalse

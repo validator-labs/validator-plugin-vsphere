@@ -44,7 +44,7 @@ import (
 	"github.com/spectrocloud-labs/validator-plugin-vsphere/pkg/vsphere"
 	vapi "github.com/spectrocloud-labs/validator/api/v1alpha1"
 	"github.com/spectrocloud-labs/validator/pkg/types"
-	"github.com/spectrocloud-labs/validator/pkg/util/ptr"
+	"github.com/spectrocloud-labs/validator/pkg/util"
 	vres "github.com/spectrocloud-labs/validator/pkg/validationresult"
 )
 
@@ -262,7 +262,7 @@ func buildValidationResult(validator *v1alpha1.VsphereValidator) *vapi.Validatio
 					Kind:       validator.Kind,
 					Name:       validator.Name,
 					UID:        validator.UID,
-					Controller: ptr.Ptr(true),
+					Controller: util.Ptr(true),
 				},
 			},
 		},
