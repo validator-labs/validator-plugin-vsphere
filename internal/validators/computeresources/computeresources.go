@@ -24,7 +24,10 @@ import (
 	"github.com/spectrocloud-labs/validator/pkg/util"
 )
 
-var GetResourcePoolAndVMs = getResourcePoolAndVMs
+var (
+	GetResourcePoolAndVMs           = getResourcePoolAndVMs
+	errInsufficientComputeResources = errors.New("compute resources rule not satisfied")
+)
 
 type ComputeResourcesValidationService struct {
 	log    logr.Logger
@@ -237,7 +240,7 @@ func (c *ComputeResourcesValidationService) ReconcileComputeResourceValidationRu
 		vr.Condition.Message = "One or more resource requirements were not satisfied"
 		vr.Condition.Status = corev1.ConditionFalse
 
-		return vr, errors.New("compute resources rule not satisfied")
+		return vr, errInsufficientComputeResources
 	}
 
 	return vr, nil
