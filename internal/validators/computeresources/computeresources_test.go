@@ -519,7 +519,12 @@ func CheckTestCase(t *testing.T, res *types.ValidationResult, expectedResult typ
 	if !reflect.DeepEqual(res.Condition.Status, expectedResult.Condition.Status) {
 		t.Errorf("expected status (%s), got (%s)", expectedResult.Condition.Status, res.Condition.Status)
 	}
-	if !reflect.DeepEqual(err.Error(), expectedError.Error()) {
-		t.Errorf("expected error (%v), got (%v)", expectedError, err)
+	if err != nil {
+		if expectedError == nil {
+			t.Errorf("expected no error, got (%v)", err)
+		}
+		if !reflect.DeepEqual(err.Error(), expectedError.Error()) {
+			t.Errorf("expected error (%v), got (%v)", expectedError, err)
+		}
 	}
 }
