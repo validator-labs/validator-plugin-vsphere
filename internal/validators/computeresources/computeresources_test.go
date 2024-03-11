@@ -2,7 +2,6 @@ package computeresources
 
 import (
 	"context"
-	"errors"
 	"reflect"
 	"testing"
 
@@ -73,7 +72,7 @@ func TestComputeResourcesValidationService_ReconcileComputeResourceValidationRul
 		},
 		{
 			name:        "cluster CPU not available",
-			expectedErr: errors.New("Rule not satisfied"),
+			expectedErr: errInsufficientComputeResources,
 			rule: v1alpha1.ComputeResourceRule{
 				Name:        "Test Resource Validation rule",
 				ClusterName: "DC0_C0",
@@ -109,7 +108,7 @@ func TestComputeResourcesValidationService_ReconcileComputeResourceValidationRul
 		},
 		{
 			name:        "cluster Memory not available",
-			expectedErr: errors.New("Rule not satisfied"),
+			expectedErr: errInsufficientComputeResources,
 			rule: v1alpha1.ComputeResourceRule{
 				Name:        "Test Resource Validation rule",
 				ClusterName: "DC0_C0",
@@ -145,7 +144,7 @@ func TestComputeResourcesValidationService_ReconcileComputeResourceValidationRul
 		},
 		{
 			name:        "cluster Disk not available",
-			expectedErr: errors.New("Rule not satisfied"),
+			expectedErr: errInsufficientComputeResources,
 			rule: v1alpha1.ComputeResourceRule{
 				Name:        "Test Resource Validation rule",
 				ClusterName: "DC0_C0",
@@ -215,7 +214,7 @@ func TestComputeResourcesValidationService_ReconcileComputeResourceValidationRul
 		},
 		{
 			name:        "Host CPU not available",
-			expectedErr: errors.New("Rule not satisfied"),
+			expectedErr: errInsufficientComputeResources,
 			rule: v1alpha1.ComputeResourceRule{
 				Name:       "Test Host Resource Validation rule",
 				Scope:      "host",
@@ -250,7 +249,7 @@ func TestComputeResourcesValidationService_ReconcileComputeResourceValidationRul
 		},
 		{
 			name:        "Host Memory not available",
-			expectedErr: errors.New("Rule not satisfied"),
+			expectedErr: errInsufficientComputeResources,
 			rule: v1alpha1.ComputeResourceRule{
 				Name:       "Test Host Resource Validation rule",
 				Scope:      "host",
@@ -285,7 +284,7 @@ func TestComputeResourcesValidationService_ReconcileComputeResourceValidationRul
 		},
 		{
 			name:        "Host Disk not available",
-			expectedErr: errors.New("Rule not satisfied"),
+			expectedErr: errInsufficientComputeResources,
 			rule: v1alpha1.ComputeResourceRule{
 				Name:       "Test Host Resource Validation rule",
 				Scope:      "host",
@@ -355,7 +354,7 @@ func TestComputeResourcesValidationService_ReconcileComputeResourceValidationRul
 		},
 		{
 			name:        "Resourcepool CPU not available",
-			expectedErr: errors.New("Rule not satisfied"),
+			expectedErr: errInsufficientComputeResources,
 			rule: v1alpha1.ComputeResourceRule{
 				Name:        "Test Host Resource Validation rule",
 				Scope:       "resourcepool",
@@ -391,7 +390,7 @@ func TestComputeResourcesValidationService_ReconcileComputeResourceValidationRul
 		},
 		{
 			name:        "Resourcepool Memory not available",
-			expectedErr: errors.New("Rule not satisfied"),
+			expectedErr: errInsufficientComputeResources,
 			rule: v1alpha1.ComputeResourceRule{
 				Name:        "Test Resourcepool Resource Validation rule",
 				Scope:       "resourcepool",
@@ -427,7 +426,7 @@ func TestComputeResourcesValidationService_ReconcileComputeResourceValidationRul
 		},
 		{
 			name:        "Resourcepool Disk not available",
-			expectedErr: errors.New("Rule not satisfied"),
+			expectedErr: errInsufficientComputeResources,
 			rule: v1alpha1.ComputeResourceRule{
 				Name:        "Test Resourcepool Resource Validation rule",
 				Scope:       "resourcepool",
