@@ -21,7 +21,7 @@ import (
 	vapi "github.com/spectrocloud-labs/validator/api/v1alpha1"
 	vapiconstants "github.com/spectrocloud-labs/validator/pkg/constants"
 	"github.com/spectrocloud-labs/validator/pkg/types"
-	"github.com/spectrocloud-labs/validator/pkg/util/ptr"
+	"github.com/spectrocloud-labs/validator/pkg/util"
 )
 
 var GetResourcePoolAndVMs = getResourcePoolAndVMs
@@ -47,7 +47,7 @@ type resourceRequirement struct {
 func buildValidationResult(rule v1alpha1.ComputeResourceRule, validationType string) *types.ValidationResult {
 	state := vapi.ValidationSucceeded
 	latestCondition := vapi.DefaultValidationCondition()
-	latestCondition.Message = fmt.Sprintf("All required compute resources were satisfied")
+	latestCondition.Message = "All required compute resources were satisfied"
 	latestCondition.ValidationRule = fmt.Sprintf("%s-%s-%s", vapiconstants.ValidationRulePrefix, rule.Scope, rule.EntityName)
 	latestCondition.ValidationType = validationType
 
@@ -150,6 +150,9 @@ func (c *ComputeResourcesValidationService) ReconcileComputeResourceValidationRu
 			inventoryPath = fmt.Sprintf("/%s/host/%s/%s", driver.Datacenter, rule.ClusterName, rule.EntityName)
 		}
 		resourcePool, virtualMachines, err := GetResourcePoolAndVMs(ctx, inventoryPath, finder)
+		if err != nil {
+			return nil, err
+		}
 		res.CPU.Capacity += *resourcePool.Config.CpuAllocation.Limit
 		res.Memory.Capacity += *resourcePool.Config.MemoryAllocation.Limit << 20
 
@@ -182,7 +185,7 @@ func (c *ComputeResourcesValidationService) ReconcileComputeResourceValidationRu
 
 		var datastores []mo.Datastore
 
-		obj, err := finder.HostSystem(ctx, fmt.Sprintf("%s", rule.EntityName))
+		obj, err := finder.HostSystem(ctx, rule.EntityName)
 		if err != nil {
 			return nil, err
 		}
@@ -229,12 +232,12 @@ func (c *ComputeResourcesValidationService) ReconcileComputeResourceValidationRu
 	diskCapacityAvailable := requestedQuantityAvailable(freeStorage, resourceReq.DiskSpace)
 
 	if !cpuCapacityAvailable || !memoryCapacityAvailable || !diskCapacityAvailable {
-		vr.State = ptr.Ptr(vapi.ValidationFailed)
+		vr.State = util.Ptr(vapi.ValidationFailed)
 		vr.Condition.Failures = append(vr.Condition.Failures, fmt.Sprintf("Not enough resources available. CPU available: %t, Memory available: %t, Storage available: %t", cpuCapacityAvailable, memoryCapacityAvailable, diskCapacityAvailable))
 		vr.Condition.Message = "One or more resource requirements were not satisfied"
 		vr.Condition.Status = corev1.ConditionFalse
 
-		return vr, errors.New("Rule not satisfied")
+		return vr, errors.New("compute resources rule not satisfied")
 	}
 
 	return vr, nil
@@ -272,7 +275,7 @@ func getDatastoreInfo(datastores []mo.Datastore) (capacity int64, freeSpace int6
 	for _, datastore := range datastores {
 		// skip host local storage
 		shared := datastore.Summary.MultipleHostAccess
-		if shared != nil && *shared == false {
+		if shared != nil && !*shared {
 			continue
 		}
 

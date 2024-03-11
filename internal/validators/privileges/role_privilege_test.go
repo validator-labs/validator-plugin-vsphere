@@ -15,7 +15,7 @@ import (
 	"github.com/spectrocloud-labs/validator-plugin-vsphere/pkg/vsphere"
 	vapi "github.com/spectrocloud-labs/validator/api/v1alpha1"
 	"github.com/spectrocloud-labs/validator/pkg/types"
-	"github.com/spectrocloud-labs/validator/pkg/util/ptr"
+	"github.com/spectrocloud-labs/validator/pkg/util"
 )
 
 func TestRolePrivilegeValidationService_ReconcileRolePrivilegesRule(t *testing.T) {
@@ -67,7 +67,7 @@ func TestRolePrivilegeValidationService_ReconcileRolePrivilegesRule(t *testing.T
 				Failures:       nil,
 				Status:         corev1.ConditionTrue,
 			},
-				State: ptr.Ptr(vapi.ValidationSucceeded),
+				State: util.Ptr(vapi.ValidationSucceeded),
 			},
 		},
 		{
@@ -84,7 +84,7 @@ func TestRolePrivilegeValidationService_ReconcileRolePrivilegesRule(t *testing.T
 				Failures:       []string{"Privilege: Cns.Searchable, was not found in the user's privileges"},
 				Status:         corev1.ConditionFalse,
 			},
-				State: ptr.Ptr(vapi.ValidationFailed),
+				State: util.Ptr(vapi.ValidationFailed),
 			},
 		},
 	}

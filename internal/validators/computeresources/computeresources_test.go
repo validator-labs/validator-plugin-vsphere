@@ -16,7 +16,7 @@ import (
 	"github.com/spectrocloud-labs/validator-plugin-vsphere/internal/vcsim"
 	vapi "github.com/spectrocloud-labs/validator/api/v1alpha1"
 	"github.com/spectrocloud-labs/validator/pkg/types"
-	"github.com/spectrocloud-labs/validator/pkg/util/ptr"
+	"github.com/spectrocloud-labs/validator/pkg/util"
 )
 
 func TestComputeResourcesValidationService_ReconcileComputeResourceValidationRule(t *testing.T) {
@@ -68,7 +68,7 @@ func TestComputeResourcesValidationService_ReconcileComputeResourceValidationRul
 				Failures:       nil,
 				Status:         corev1.ConditionTrue,
 			},
-				State: ptr.Ptr(vapi.ValidationSucceeded),
+				State: util.Ptr(vapi.ValidationSucceeded),
 			},
 		},
 		{
@@ -104,7 +104,7 @@ func TestComputeResourcesValidationService_ReconcileComputeResourceValidationRul
 				Failures:       []string{"Not enough resources available. CPU available: false, Memory available: true, Storage available: true"},
 				Status:         corev1.ConditionFalse,
 			},
-				State: ptr.Ptr(vapi.ValidationFailed),
+				State: util.Ptr(vapi.ValidationFailed),
 			},
 		},
 		{
@@ -140,7 +140,7 @@ func TestComputeResourcesValidationService_ReconcileComputeResourceValidationRul
 				Failures:       []string{"Not enough resources available. CPU available: true, Memory available: false, Storage available: true"},
 				Status:         corev1.ConditionFalse,
 			},
-				State: ptr.Ptr(vapi.ValidationFailed),
+				State: util.Ptr(vapi.ValidationFailed),
 			},
 		},
 		{
@@ -176,7 +176,7 @@ func TestComputeResourcesValidationService_ReconcileComputeResourceValidationRul
 				Failures:       []string{"Not enough resources available. CPU available: true, Memory available: true, Storage available: false"},
 				Status:         corev1.ConditionFalse,
 			},
-				State: ptr.Ptr(vapi.ValidationFailed),
+				State: util.Ptr(vapi.ValidationFailed),
 			},
 		},
 		{
@@ -210,7 +210,7 @@ func TestComputeResourcesValidationService_ReconcileComputeResourceValidationRul
 				Failures:       nil,
 				Status:         corev1.ConditionTrue,
 			},
-				State: ptr.Ptr(vapi.ValidationSucceeded),
+				State: util.Ptr(vapi.ValidationSucceeded),
 			},
 		},
 		{
@@ -245,7 +245,7 @@ func TestComputeResourcesValidationService_ReconcileComputeResourceValidationRul
 				Failures:       []string{"Not enough resources available. CPU available: false, Memory available: true, Storage available: true"},
 				Status:         corev1.ConditionFalse,
 			},
-				State: ptr.Ptr(vapi.ValidationFailed),
+				State: util.Ptr(vapi.ValidationFailed),
 			},
 		},
 		{
@@ -280,7 +280,7 @@ func TestComputeResourcesValidationService_ReconcileComputeResourceValidationRul
 				Failures:       []string{"Not enough resources available. CPU available: true, Memory available: false, Storage available: true"},
 				Status:         corev1.ConditionFalse,
 			},
-				State: ptr.Ptr(vapi.ValidationFailed),
+				State: util.Ptr(vapi.ValidationFailed),
 			},
 		},
 		{
@@ -315,7 +315,7 @@ func TestComputeResourcesValidationService_ReconcileComputeResourceValidationRul
 				Failures:       []string{"Not enough resources available. CPU available: true, Memory available: true, Storage available: false"},
 				Status:         corev1.ConditionFalse,
 			},
-				State: ptr.Ptr(vapi.ValidationFailed),
+				State: util.Ptr(vapi.ValidationFailed),
 			},
 		},
 		{
@@ -350,7 +350,7 @@ func TestComputeResourcesValidationService_ReconcileComputeResourceValidationRul
 				Failures:       nil,
 				Status:         corev1.ConditionTrue,
 			},
-				State: ptr.Ptr(vapi.ValidationSucceeded),
+				State: util.Ptr(vapi.ValidationSucceeded),
 			},
 		},
 		{
@@ -386,7 +386,7 @@ func TestComputeResourcesValidationService_ReconcileComputeResourceValidationRul
 				Failures:       []string{"Not enough resources available. CPU available: false, Memory available: true, Storage available: true"},
 				Status:         corev1.ConditionFalse,
 			},
-				State: ptr.Ptr(vapi.ValidationFailed),
+				State: util.Ptr(vapi.ValidationFailed),
 			},
 		},
 		{
@@ -422,7 +422,7 @@ func TestComputeResourcesValidationService_ReconcileComputeResourceValidationRul
 				Failures:       []string{"Not enough resources available. CPU available: true, Memory available: false, Storage available: true"},
 				Status:         corev1.ConditionFalse,
 			},
-				State: ptr.Ptr(vapi.ValidationFailed),
+				State: util.Ptr(vapi.ValidationFailed),
 			},
 		},
 		{
@@ -458,7 +458,7 @@ func TestComputeResourcesValidationService_ReconcileComputeResourceValidationRul
 				Failures:       []string{"Not enough resources available. CPU available: true, Memory available: true, Storage available: false"},
 				Status:         corev1.ConditionFalse,
 			},
-				State: ptr.Ptr(vapi.ValidationFailed),
+				State: util.Ptr(vapi.ValidationFailed),
 			},
 		},
 	}
@@ -519,7 +519,7 @@ func CheckTestCase(t *testing.T, res *types.ValidationResult, expectedResult typ
 	if !reflect.DeepEqual(res.Condition.Status, expectedResult.Condition.Status) {
 		t.Errorf("expected status (%s), got (%s)", expectedResult.Condition.Status, res.Condition.Status)
 	}
-	if !reflect.DeepEqual(err, expectedError) {
+	if !reflect.DeepEqual(err.Error(), expectedError.Error()) {
 		t.Errorf("expected error (%v), got (%v)", expectedError, err)
 	}
 }

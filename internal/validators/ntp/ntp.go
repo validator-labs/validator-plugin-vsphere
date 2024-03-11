@@ -15,7 +15,7 @@ import (
 	vapi "github.com/spectrocloud-labs/validator/api/v1alpha1"
 	vapiconstants "github.com/spectrocloud-labs/validator/pkg/constants"
 	"github.com/spectrocloud-labs/validator/pkg/types"
-	"github.com/spectrocloud-labs/validator/pkg/util/ptr"
+	"github.com/spectrocloud-labs/validator/pkg/util"
 )
 
 type NTPValidationService struct {
@@ -55,7 +55,7 @@ func (n *NTPValidationService) ReconcileNTPRule(rule v1alpha1.NTPValidationRule,
 	}
 
 	if len(vr.Condition.Failures) > 0 {
-		vr.State = ptr.Ptr(vapi.ValidationFailed)
+		vr.State = util.Ptr(vapi.ValidationFailed)
 		vr.Condition.Message = fmt.Sprintf("One or more NTP rules were not satisfied for rule: %s", rule.Name)
 		vr.Condition.Status = corev1.ConditionFalse
 		err = fmt.Errorf("one or more NTP rules were not satisfied for rule: %s", rule.Name)
