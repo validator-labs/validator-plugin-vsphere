@@ -2,7 +2,6 @@ package computeresources
 
 import (
 	"context"
-	"reflect"
 	"testing"
 
 	"github.com/go-logr/logr"
@@ -33,7 +32,7 @@ func TestComputeResourcesValidationService_ReconcileComputeResourceValidationRul
 		name           string
 		expectedErr    error
 		rule           v1alpha1.ComputeResourceRule
-		expectedResult types.ValidationResult
+		expectedResult types.ValidationRuleResult
 	}{
 		{
 			name: "All Resources available",
@@ -59,7 +58,7 @@ func TestComputeResourcesValidationService_ReconcileComputeResourceValidationRul
 					},
 				},
 			},
-			expectedResult: types.ValidationResult{Condition: &vapi.ValidationCondition{
+			expectedResult: types.ValidationRuleResult{Condition: &vapi.ValidationCondition{
 				ValidationType: "vsphere-compute-resources",
 				ValidationRule: "validation-cluster-DC0_C0",
 				Message:        "All required compute resources were satisfied",
@@ -95,7 +94,7 @@ func TestComputeResourcesValidationService_ReconcileComputeResourceValidationRul
 					},
 				},
 			},
-			expectedResult: types.ValidationResult{Condition: &vapi.ValidationCondition{
+			expectedResult: types.ValidationRuleResult{Condition: &vapi.ValidationCondition{
 				ValidationType: "vsphere-compute-resources",
 				ValidationRule: "validation-cluster-DC0_C0",
 				Message:        "One or more resource requirements were not satisfied",
@@ -131,7 +130,7 @@ func TestComputeResourcesValidationService_ReconcileComputeResourceValidationRul
 					},
 				},
 			},
-			expectedResult: types.ValidationResult{Condition: &vapi.ValidationCondition{
+			expectedResult: types.ValidationRuleResult{Condition: &vapi.ValidationCondition{
 				ValidationType: "vsphere-compute-resources",
 				ValidationRule: "validation-cluster-DC0_C0",
 				Message:        "One or more resource requirements were not satisfied",
@@ -167,7 +166,7 @@ func TestComputeResourcesValidationService_ReconcileComputeResourceValidationRul
 					},
 				},
 			},
-			expectedResult: types.ValidationResult{Condition: &vapi.ValidationCondition{
+			expectedResult: types.ValidationRuleResult{Condition: &vapi.ValidationCondition{
 				ValidationType: "vsphere-compute-resources",
 				ValidationRule: "validation-cluster-DC0_C0",
 				Message:        "One or more resource requirements were not satisfied",
@@ -201,7 +200,7 @@ func TestComputeResourcesValidationService_ReconcileComputeResourceValidationRul
 					},
 				},
 			},
-			expectedResult: types.ValidationResult{Condition: &vapi.ValidationCondition{
+			expectedResult: types.ValidationRuleResult{Condition: &vapi.ValidationCondition{
 				ValidationType: "vsphere-compute-resources",
 				ValidationRule: "validation-host-DC0_C0_H0",
 				Message:        "All required compute resources were satisfied",
@@ -236,7 +235,7 @@ func TestComputeResourcesValidationService_ReconcileComputeResourceValidationRul
 					},
 				},
 			},
-			expectedResult: types.ValidationResult{Condition: &vapi.ValidationCondition{
+			expectedResult: types.ValidationRuleResult{Condition: &vapi.ValidationCondition{
 				ValidationType: "vsphere-compute-resources",
 				ValidationRule: "validation-host-DC0_C0_H0",
 				Message:        "One or more resource requirements were not satisfied",
@@ -271,7 +270,7 @@ func TestComputeResourcesValidationService_ReconcileComputeResourceValidationRul
 					},
 				},
 			},
-			expectedResult: types.ValidationResult{Condition: &vapi.ValidationCondition{
+			expectedResult: types.ValidationRuleResult{Condition: &vapi.ValidationCondition{
 				ValidationType: "vsphere-compute-resources",
 				ValidationRule: "validation-host-DC0_C0_H0",
 				Message:        "One or more resource requirements were not satisfied",
@@ -306,7 +305,7 @@ func TestComputeResourcesValidationService_ReconcileComputeResourceValidationRul
 					},
 				},
 			},
-			expectedResult: types.ValidationResult{Condition: &vapi.ValidationCondition{
+			expectedResult: types.ValidationRuleResult{Condition: &vapi.ValidationCondition{
 				ValidationType: "vsphere-compute-resources",
 				ValidationRule: "validation-host-DC0_C0_H0",
 				Message:        "One or more resource requirements were not satisfied",
@@ -341,7 +340,7 @@ func TestComputeResourcesValidationService_ReconcileComputeResourceValidationRul
 					},
 				},
 			},
-			expectedResult: types.ValidationResult{Condition: &vapi.ValidationCondition{
+			expectedResult: types.ValidationRuleResult{Condition: &vapi.ValidationCondition{
 				ValidationType: "vsphere-compute-resources",
 				ValidationRule: "validation-resourcepool-DC0_C0_RP0",
 				Message:        "All required compute resources were satisfied",
@@ -377,7 +376,7 @@ func TestComputeResourcesValidationService_ReconcileComputeResourceValidationRul
 					},
 				},
 			},
-			expectedResult: types.ValidationResult{Condition: &vapi.ValidationCondition{
+			expectedResult: types.ValidationRuleResult{Condition: &vapi.ValidationCondition{
 				ValidationType: "vsphere-compute-resources",
 				ValidationRule: "validation-resourcepool-DC0_C0_RP0",
 				Message:        "One or more resource requirements were not satisfied",
@@ -413,7 +412,7 @@ func TestComputeResourcesValidationService_ReconcileComputeResourceValidationRul
 					},
 				},
 			},
-			expectedResult: types.ValidationResult{Condition: &vapi.ValidationCondition{
+			expectedResult: types.ValidationRuleResult{Condition: &vapi.ValidationCondition{
 				ValidationType: "vsphere-compute-resources",
 				ValidationRule: "validation-resourcepool-DC0_C0_RP0",
 				Message:        "One or more resource requirements were not satisfied",
@@ -449,7 +448,7 @@ func TestComputeResourcesValidationService_ReconcileComputeResourceValidationRul
 					},
 				},
 			},
-			expectedResult: types.ValidationResult{Condition: &vapi.ValidationCondition{
+			expectedResult: types.ValidationRuleResult{Condition: &vapi.ValidationCondition{
 				ValidationType: "vsphere-compute-resources",
 				ValidationRule: "validation-resourcepool-DC0_C0_RP0",
 				Message:        "One or more resource requirements were not satisfied",
@@ -491,39 +490,6 @@ func TestComputeResourcesValidationService_ReconcileComputeResourceValidationRul
 
 	for _, tc := range testCases {
 		vr, err := validationService.ReconcileComputeResourceValidationRule(tc.rule, finder, vcSim.Driver)
-		CheckTestCase(t, vr, tc.expectedResult, err, tc.expectedErr)
-	}
-
-}
-
-func CheckTestCase(t *testing.T, res *types.ValidationResult, expectedResult types.ValidationResult, err, expectedError error) {
-	if !reflect.DeepEqual(res.State, expectedResult.State) {
-		t.Errorf("expected state (%+v), got (%+v)", expectedResult.State, res.State)
-	}
-	if !reflect.DeepEqual(res.Condition.ValidationType, expectedResult.Condition.ValidationType) {
-		t.Errorf("expected validation type (%s), got (%s)", expectedResult.Condition.ValidationType, res.Condition.ValidationType)
-	}
-	if !reflect.DeepEqual(res.Condition.ValidationRule, expectedResult.Condition.ValidationRule) {
-		t.Errorf("expected validation rule (%s), got (%s)", expectedResult.Condition.ValidationRule, res.Condition.ValidationRule)
-	}
-	if !reflect.DeepEqual(res.Condition.Message, expectedResult.Condition.Message) {
-		t.Errorf("expected message (%s), got (%s)", expectedResult.Condition.Message, res.Condition.Message)
-	}
-	if !reflect.DeepEqual(res.Condition.Details, expectedResult.Condition.Details) {
-		t.Errorf("expected details (%s), got (%s)", expectedResult.Condition.Details, res.Condition.Details)
-	}
-	if !reflect.DeepEqual(res.Condition.Failures, expectedResult.Condition.Failures) {
-		t.Errorf("expected failures (%s), got (%s)", expectedResult.Condition.Failures, res.Condition.Failures)
-	}
-	if !reflect.DeepEqual(res.Condition.Status, expectedResult.Condition.Status) {
-		t.Errorf("expected status (%s), got (%s)", expectedResult.Condition.Status, res.Condition.Status)
-	}
-	if err != nil {
-		if expectedError == nil {
-			t.Errorf("expected no error, got (%v)", err)
-		}
-		if !reflect.DeepEqual(err.Error(), expectedError.Error()) {
-			t.Errorf("expected error (%v), got (%v)", expectedError, err)
-		}
+		util.CheckTestCase(t, vr, tc.expectedResult, err, tc.expectedErr)
 	}
 }

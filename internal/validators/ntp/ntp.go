@@ -32,17 +32,17 @@ func NewNTPValidationService(log logr.Logger, driver *vsphere.VSphereCloudDriver
 	}
 }
 
-func buildValidationResult(rule v1alpha1.NTPValidationRule, validationType string) *types.ValidationResult {
+func buildValidationResult(rule v1alpha1.NTPValidationRule, validationType string) *types.ValidationRuleResult {
 	state := vapi.ValidationSucceeded
 	latestCondition := vapi.DefaultValidationCondition()
 	latestCondition.Message = fmt.Sprintf("All required NTP rules were satisfied")
 	latestCondition.ValidationRule = fmt.Sprintf("%s-%s", vapiconstants.ValidationRulePrefix, strings.ReplaceAll(rule.Name, " ", "-"))
 	latestCondition.ValidationType = validationType
 
-	return &types.ValidationResult{Condition: &latestCondition, State: &state}
+	return &types.ValidationRuleResult{Condition: &latestCondition, State: &state}
 }
 
-func (n *NTPValidationService) ReconcileNTPRule(rule v1alpha1.NTPValidationRule, finder *find.Finder) (*types.ValidationResult, error) {
+func (n *NTPValidationService) ReconcileNTPRule(rule v1alpha1.NTPValidationRule, finder *find.Finder) (*types.ValidationRuleResult, error) {
 	var err error
 	vr := buildValidationResult(rule, constants.ValidationTypeNTP)
 

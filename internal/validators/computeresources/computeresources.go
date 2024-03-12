@@ -47,14 +47,14 @@ type resourceRequirement struct {
 	DiskSpace resource.Quantity
 }
 
-func buildValidationResult(rule v1alpha1.ComputeResourceRule, validationType string) *types.ValidationResult {
+func buildValidationResult(rule v1alpha1.ComputeResourceRule, validationType string) *types.ValidationRuleResult {
 	state := vapi.ValidationSucceeded
 	latestCondition := vapi.DefaultValidationCondition()
 	latestCondition.Message = "All required compute resources were satisfied"
 	latestCondition.ValidationRule = fmt.Sprintf("%s-%s-%s", vapiconstants.ValidationRulePrefix, rule.Scope, rule.EntityName)
 	latestCondition.ValidationType = validationType
 
-	return &types.ValidationResult{Condition: &latestCondition, State: &state}
+	return &types.ValidationRuleResult{Condition: &latestCondition, State: &state}
 }
 
 func ghz(val int64) string {
@@ -95,7 +95,7 @@ type Usage struct {
 	Storage ResourceUsage
 }
 
-func (c *ComputeResourcesValidationService) ReconcileComputeResourceValidationRule(rule v1alpha1.ComputeResourceRule, finder *find.Finder, driver *vsphere.VSphereCloudDriver) (*types.ValidationResult, error) {
+func (c *ComputeResourcesValidationService) ReconcileComputeResourceValidationRule(rule v1alpha1.ComputeResourceRule, finder *find.Finder, driver *vsphere.VSphereCloudDriver) (*types.ValidationRuleResult, error) {
 	var res Usage
 
 	vr := buildValidationResult(rule, constants.ValidationTypeComputeResources)

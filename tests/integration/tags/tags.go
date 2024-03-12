@@ -3,17 +3,18 @@ package tags
 import (
 	"github.com/go-logr/logr"
 	log "github.com/sirupsen/logrus"
+	"github.com/vmware/govmomi/find"
+	_ "github.com/vmware/govmomi/vapi/simulator"
+	vtags "github.com/vmware/govmomi/vapi/tags"
+	"github.com/vmware/govmomi/vim25/mo"
+	v1 "k8s.io/api/core/v1"
+
 	"github.com/spectrocloud-labs/validator-plugin-vsphere/api/v1alpha1"
 	tags "github.com/spectrocloud-labs/validator-plugin-vsphere/internal/validators/tags"
 	"github.com/spectrocloud-labs/validator-plugin-vsphere/internal/vcsim"
 	"github.com/spectrocloud-labs/validator-plugin-vsphere/pkg/vsphere"
 	"github.com/spectrocloud-labs/validator-plugin-vsphere/tests/utils/test"
 	"github.com/spectrocloud-labs/validator/pkg/types"
-	"github.com/vmware/govmomi/find"
-	_ "github.com/vmware/govmomi/vapi/simulator"
-	vtags "github.com/vmware/govmomi/vapi/tags"
-	"github.com/vmware/govmomi/vim25/mo"
-	v1 "k8s.io/api/core/v1"
 )
 
 var categories = []vtags.Category{
@@ -164,7 +165,7 @@ func (t *TagValidationTest) testTagsOnObjects(ctx *test.TestContext) (tr *test.T
 	testCases := []struct {
 		name             string
 		expectedErr      bool
-		validationResult types.ValidationResult
+		validationResult types.ValidationRuleResult
 		categories       []vtags.Category
 		attachedTags     []vtags.AttachedTags
 		expectedStatus   v1.ConditionStatus
@@ -172,7 +173,7 @@ func (t *TagValidationTest) testTagsOnObjects(ctx *test.TestContext) (tr *test.T
 		{
 			name:             "DataCenter and Cluster tags Exist",
 			expectedErr:      false,
-			validationResult: types.ValidationResult{},
+			validationResult: types.ValidationRuleResult{},
 			categories:       categories,
 			attachedTags:     attachedTags,
 			expectedStatus:   v1.ConditionTrue,
@@ -180,7 +181,7 @@ func (t *TagValidationTest) testTagsOnObjects(ctx *test.TestContext) (tr *test.T
 		{
 			name:             "Empty categories and attachedTags",
 			expectedErr:      true,
-			validationResult: types.ValidationResult{},
+			validationResult: types.ValidationRuleResult{},
 			categories:       []vtags.Category{},
 			attachedTags:     []vtags.AttachedTags{},
 			expectedStatus:   v1.ConditionFalse,
