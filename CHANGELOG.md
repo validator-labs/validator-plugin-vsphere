@@ -1,5 +1,18 @@
 # Changelog
 
+## [0.0.19](https://github.com/spectrocloud-labs/validator-plugin-vsphere/compare/v0.0.18...v0.0.19) (2024-03-13)
+
+
+### Other
+
+* **deps:** update google-github-actions/release-please-action digest to a37ac6e ([#214](https://github.com/spectrocloud-labs/validator-plugin-vsphere/issues/214)) ([d038990](https://github.com/spectrocloud-labs/validator-plugin-vsphere/commit/d0389903f47d3fd9ce4b0f82efeaeac63ab6aa5e))
+* **deps:** update softprops/action-gh-release digest to 3198ee1 ([#213](https://github.com/spectrocloud-labs/validator-plugin-vsphere/issues/213)) ([77f1867](https://github.com/spectrocloud-labs/validator-plugin-vsphere/commit/77f18676653a02b99cc19510b7bdbe13fa87433d))
+
+
+### Refactoring
+
+* use patch helpers ([#219](https://github.com/spectrocloud-labs/validator-plugin-vsphere/issues/219)) ([5f3b8db](https://github.com/spectrocloud-labs/validator-plugin-vsphere/commit/5f3b8db4e8b3fbec6fc7d5f6b8ce9a991def7c5b))
+
 ## [0.0.18](https://github.com/spectrocloud-labs/validator-plugin-vsphere/compare/v0.0.17...v0.0.18) (2024-03-11)
 
 
