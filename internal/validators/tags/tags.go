@@ -35,7 +35,7 @@ func NewTagsValidationService(log logr.Logger) *TagsValidationService {
 	}
 }
 
-func (s *TagsValidationService) ReconcileTagRules(tagsManager *tags.Manager, finder *find.Finder, driver *vsphere.VSphereCloudDriver, tagValidationRule v1alpha1.TagValidationRule) (*types.ValidationResult, error) {
+func (s *TagsValidationService) ReconcileTagRules(tagsManager *tags.Manager, finder *find.Finder, driver *vsphere.VSphereCloudDriver, tagValidationRule v1alpha1.TagValidationRule) (*types.ValidationRuleResult, error) {
 	vr := buildValidationResult(tagValidationRule, constants.ValidationTypeTag)
 
 	valid, err := tagIsValid(tagsManager, finder, driver.Datacenter, tagValidationRule.ClusterName, tagValidationRule.EntityType, tagValidationRule.EntityName, tagValidationRule.Tag)
@@ -51,13 +51,13 @@ func (s *TagsValidationService) ReconcileTagRules(tagsManager *tags.Manager, fin
 	return vr, nil
 }
 
-func buildValidationResult(rule v1alpha1.TagValidationRule, validationType string) *types.ValidationResult {
+func buildValidationResult(rule v1alpha1.TagValidationRule, validationType string) *types.ValidationRuleResult {
 	state := vapi.ValidationSucceeded
 	latestCondition := vapi.DefaultValidationCondition()
 	latestCondition.Message = "Required entity tags were found"
 	latestCondition.ValidationRule = fmt.Sprintf("%s-%s-%s-%s", vapiconstants.ValidationRulePrefix, "tag", rule.EntityType, rule.Tag)
 	latestCondition.ValidationType = validationType
-	validationResult := &vapitypes.ValidationResult{Condition: &latestCondition, State: &state}
+	validationResult := &vapitypes.ValidationRuleResult{Condition: &latestCondition, State: &state}
 
 	return validationResult
 }

@@ -47,7 +47,7 @@ func TestRolePrivilegeValidationService_ReconcileEntityPrivilegeRule(t *testing.
 		name           string
 		expectedErr    error
 		rule           v1alpha1.EntityPrivilegeValidationRule
-		expectedResult types.ValidationResult
+		expectedResult types.ValidationRuleResult
 	}{
 		{
 			name: "All privileges available",
@@ -61,7 +61,7 @@ func TestRolePrivilegeValidationService_ReconcileEntityPrivilegeRule(t *testing.
 					"VirtualMachine.Config.AddExistingDisk",
 				},
 			},
-			expectedResult: types.ValidationResult{Condition: &vapi.ValidationCondition{
+			expectedResult: types.ValidationRuleResult{Condition: &vapi.ValidationCondition{
 				ValidationType: "vsphere-entity-privileges",
 				ValidationRule: "validation-cluster-DC0_C0",
 				Message:        fmt.Sprintf("All required vsphere-entity-privileges permissions were found for account: %s", userName),
@@ -84,21 +84,22 @@ func TestRolePrivilegeValidationService_ReconcileEntityPrivilegeRule(t *testing.
 					"VirtualMachine.Config.DestroyExistingDisk",
 				},
 			},
-			expectedResult: types.ValidationResult{Condition: &vapi.ValidationCondition{
+			expectedResult: types.ValidationRuleResult{Condition: &vapi.ValidationCondition{
 				ValidationType: "vsphere-entity-privileges",
 				ValidationRule: "validation-cluster-DC0_C0",
-				Message:        "One or more required privileges was not found, or a condition was not met",
+				Message:        fmt.Sprintf("One or more required privileges was not found, or a condition was not met for account: %s", userName),
 				Details:        []string{},
 				Failures:       []string{"user: admin2@vsphere.local does not have privilege: VirtualMachine.Config.DestroyExistingDisk on entity type: cluster with name: DC0_C0"},
 				Status:         corev1.ConditionFalse,
 			},
 				State: util.Ptr(vapi.ValidationFailed),
 			},
+			expectedErr: ErrRequiredEntityPrivilegesNotFound,
 		},
 	}
 
 	for _, tc := range testCases {
 		vr, err := validationService.ReconcileEntityPrivilegeRule(tc.rule, finder)
-		CheckTestCase(t, vr, tc.expectedResult, err, tc.expectedErr)
+		util.CheckTestCase(t, vr, tc.expectedResult, err, tc.expectedErr)
 	}
 }

@@ -3,7 +3,6 @@ package privileges
 import (
 	"context"
 	"fmt"
-	"reflect"
 	"testing"
 
 	"github.com/go-logr/logr"
@@ -51,7 +50,7 @@ func TestRolePrivilegeValidationService_ReconcileRolePrivilegesRule(t *testing.T
 		name           string
 		expectedErr    error
 		rule           v1alpha1.GenericRolePrivilegeValidationRule
-		expectedResult types.ValidationResult
+		expectedResult types.ValidationRuleResult
 	}{
 		{
 			name: "All privileges available",
@@ -59,7 +58,7 @@ func TestRolePrivilegeValidationService_ReconcileRolePrivilegesRule(t *testing.T
 				Username:   userName,
 				Privileges: []string{"Datastore.AllocateSpace"},
 			},
-			expectedResult: types.ValidationResult{Condition: &vapi.ValidationCondition{
+			expectedResult: types.ValidationRuleResult{Condition: &vapi.ValidationCondition{
 				ValidationType: "vsphere-role-privileges",
 				ValidationRule: fmt.Sprintf("validation-%s", userName),
 				Message:        "All required vsphere-role-privileges permissions were found",
@@ -76,46 +75,22 @@ func TestRolePrivilegeValidationService_ReconcileRolePrivilegesRule(t *testing.T
 				Username:   userName,
 				Privileges: []string{"Cns.Searchable"},
 			},
-			expectedResult: types.ValidationResult{Condition: &vapi.ValidationCondition{
+			expectedResult: types.ValidationRuleResult{Condition: &vapi.ValidationCondition{
 				ValidationType: "vsphere-role-privileges",
 				ValidationRule: fmt.Sprintf("validation-%s", userName),
-				Message:        "One or more required privileges was not found, or a condition was not met",
+				Message:        fmt.Sprintf("One or more required privileges was not found, or a condition was not met for account: %s", userName),
 				Details:        []string{},
 				Failures:       []string{"Privilege: Cns.Searchable, was not found in the user's privileges"},
 				Status:         corev1.ConditionFalse,
 			},
 				State: util.Ptr(vapi.ValidationFailed),
 			},
+			expectedErr: ErrRequiredRolePrivilegesNotFound,
 		},
 	}
 
 	for _, tc := range testCases {
 		vr, err := validationService.ReconcileRolePrivilegesRule(tc.rule, vcSim.Driver, authManager)
-		CheckTestCase(t, vr, tc.expectedResult, err, tc.expectedErr)
-	}
-
-}
-
-func CheckTestCase(t *testing.T, res *types.ValidationResult, expectedResult types.ValidationResult, err, expectedError error) {
-	if !reflect.DeepEqual(res.State, expectedResult.State) {
-		t.Errorf("expected state (%+v), got (%+v)", expectedResult.State, res.State)
-	}
-	if !reflect.DeepEqual(res.Condition.ValidationType, expectedResult.Condition.ValidationType) {
-		t.Errorf("expected validation type (%s), got (%s)", expectedResult.Condition.ValidationType, res.Condition.ValidationType)
-	}
-	if !reflect.DeepEqual(res.Condition.ValidationRule, expectedResult.Condition.ValidationRule) {
-		t.Errorf("expected validation rule (%s), got (%s)", expectedResult.Condition.ValidationRule, res.Condition.ValidationRule)
-	}
-	if !reflect.DeepEqual(res.Condition.Message, expectedResult.Condition.Message) {
-		t.Errorf("expected message (%s), got (%s)", expectedResult.Condition.Message, res.Condition.Message)
-	}
-	if !reflect.DeepEqual(res.Condition.Details, expectedResult.Condition.Details) {
-		t.Errorf("expected details (%s), got (%s)", expectedResult.Condition.Details, res.Condition.Details)
-	}
-	if !reflect.DeepEqual(res.Condition.Failures, expectedResult.Condition.Failures) {
-		t.Errorf("expected failures (%s), got (%s)", expectedResult.Condition.Failures, res.Condition.Failures)
-	}
-	if !reflect.DeepEqual(res.Condition.Status, expectedResult.Condition.Status) {
-		t.Errorf("expected status (%s), got (%s)", expectedResult.Condition.Status, res.Condition.Status)
+		util.CheckTestCase(t, vr, tc.expectedResult, err, tc.expectedErr)
 	}
 }

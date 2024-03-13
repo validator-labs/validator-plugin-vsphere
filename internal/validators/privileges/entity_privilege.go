@@ -2,6 +2,7 @@ package privileges
 
 import (
 	"context"
+	"errors"
 	"fmt"
 
 	"github.com/vmware/govmomi/find"
@@ -15,17 +16,19 @@ import (
 	"github.com/spectrocloud-labs/validator/pkg/util"
 )
 
-func buildEntityPrivilegeValidationResult(rule v1alpha1.EntityPrivilegeValidationRule, validationType string) *types.ValidationResult {
+var ErrRequiredEntityPrivilegesNotFound = errors.New("one or more required entity privileges was not found")
+
+func buildEntityPrivilegeValidationResult(rule v1alpha1.EntityPrivilegeValidationRule, validationType string) *types.ValidationRuleResult {
 	state := vapi.ValidationSucceeded
 	latestCondition := vapi.DefaultValidationCondition()
 	latestCondition.Message = fmt.Sprintf("All required %s permissions were found for account: %s", validationType, rule.Username)
 	latestCondition.ValidationRule = fmt.Sprintf("%s-%s-%s", vapiconstants.ValidationRulePrefix, rule.EntityType, rule.EntityName)
 	latestCondition.ValidationType = validationType
 
-	return &types.ValidationResult{Condition: &latestCondition, State: &state}
+	return &types.ValidationRuleResult{Condition: &latestCondition, State: &state}
 }
 
-func (s *PrivilegeValidationService) ReconcileEntityPrivilegeRule(rule v1alpha1.EntityPrivilegeValidationRule, finder *find.Finder) (*types.ValidationResult, error) {
+func (s *PrivilegeValidationService) ReconcileEntityPrivilegeRule(rule v1alpha1.EntityPrivilegeValidationRule, finder *find.Finder) (*types.ValidationRuleResult, error) {
 	var err error
 	vr := buildEntityPrivilegeValidationResult(rule, constants.ValidationTypeEntityPrivileges)
 
@@ -39,9 +42,9 @@ func (s *PrivilegeValidationService) ReconcileEntityPrivilegeRule(rule v1alpha1.
 
 	if len(vr.Condition.Failures) > 0 {
 		vr.State = util.Ptr(vapi.ValidationFailed)
-		vr.Condition.Message = "One or more required privileges was not found, or a condition was not met"
+		vr.Condition.Message = fmt.Sprintf("One or more required privileges was not found, or a condition was not met for account: %s", rule.Username)
 		vr.Condition.Status = corev1.ConditionFalse
-		err = fmt.Errorf("one or more required entity privileges was not found for account: %s", rule.Username)
+		err = ErrRequiredEntityPrivilegesNotFound
 	}
 
 	return vr, err

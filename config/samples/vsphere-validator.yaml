@@ -28,7 +28,6 @@ spec:
 #          memory: 8Gi
 #          diskSpace: 100Gi
   auth:
-    implicit: false
     secretName: validator-secret
 #  entityPrivilegeValidationRules:
 #    - name: "Deploy VM to vapp test-vapp"
