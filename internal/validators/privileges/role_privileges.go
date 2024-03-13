@@ -2,6 +2,7 @@ package privileges
 
 import (
 	"context"
+	"errors"
 	"fmt"
 	"net/url"
 	"os"
@@ -22,7 +23,10 @@ import (
 	"github.com/spectrocloud-labs/validator/pkg/util"
 )
 
-var GetUserAndGroupPrincipals = getUserAndGroupPrincipals
+var (
+	GetUserAndGroupPrincipals         = getUserAndGroupPrincipals
+	ErrRequiredRolePrivilegesNotFound = errors.New("one or more required role privileges was not found for account")
+)
 
 func buildValidationResult(rule v1alpha1.GenericRolePrivilegeValidationRule, validationType string) *types.ValidationRuleResult {
 	state := vapi.ValidationSucceeded
@@ -61,9 +65,9 @@ func (s *PrivilegeValidationService) ReconcileRolePrivilegesRule(rule v1alpha1.G
 
 	if len(vr.Condition.Failures) > 0 {
 		vr.State = util.Ptr(vapi.ValidationFailed)
-		vr.Condition.Message = "One or more required privileges was not found, or a condition was not met"
+		vr.Condition.Message = fmt.Sprintf("One or more required privileges was not found, or a condition was not met for account: %s", rule.Username)
 		vr.Condition.Status = corev1.ConditionFalse
-		err = fmt.Errorf("one or more required privileges was not found for account: %s", rule.Username)
+		err = ErrRequiredRolePrivilegesNotFound
 	}
 
 	return vr, err

@@ -87,13 +87,14 @@ func TestRolePrivilegeValidationService_ReconcileEntityPrivilegeRule(t *testing.
 			expectedResult: types.ValidationRuleResult{Condition: &vapi.ValidationCondition{
 				ValidationType: "vsphere-entity-privileges",
 				ValidationRule: "validation-cluster-DC0_C0",
-				Message:        "One or more required privileges was not found, or a condition was not met",
+				Message:        fmt.Sprintf("One or more required privileges was not found, or a condition was not met for account: %s", userName),
 				Details:        []string{},
 				Failures:       []string{"user: admin2@vsphere.local does not have privilege: VirtualMachine.Config.DestroyExistingDisk on entity type: cluster with name: DC0_C0"},
 				Status:         corev1.ConditionFalse,
 			},
 				State: util.Ptr(vapi.ValidationFailed),
 			},
+			expectedErr: ErrRequiredEntityPrivilegesNotFound,
 		},
 	}
 

@@ -78,13 +78,14 @@ func TestRolePrivilegeValidationService_ReconcileRolePrivilegesRule(t *testing.T
 			expectedResult: types.ValidationRuleResult{Condition: &vapi.ValidationCondition{
 				ValidationType: "vsphere-role-privileges",
 				ValidationRule: fmt.Sprintf("validation-%s", userName),
-				Message:        "One or more required privileges was not found, or a condition was not met",
+				Message:        fmt.Sprintf("One or more required privileges was not found, or a condition was not met for account: %s", userName),
 				Details:        []string{},
 				Failures:       []string{"Privilege: Cns.Searchable, was not found in the user's privileges"},
 				Status:         corev1.ConditionFalse,
 			},
 				State: util.Ptr(vapi.ValidationFailed),
 			},
+			expectedErr: ErrRequiredRolePrivilegesNotFound,
 		},
 	}
 
