@@ -1,4 +1,4 @@
-module github.com/spectrocloud-labs/validator-plugin-vsphere
+module github.com/validator-labs/validator-plugin-vsphere
 
 go 1.21.6
 
@@ -9,7 +9,7 @@ require (
 	github.com/onsi/gomega v1.32.0
 	github.com/pkg/errors v0.9.1
 	github.com/sirupsen/logrus v1.9.3
-	github.com/spectrocloud-labs/validator v0.0.38
+	github.com/validator-labs/validator v0.0.39
 	github.com/vmware/govmomi v0.36.1
 	golang.org/x/exp v0.0.0-20240318143956-a85f2c67cd81
 	k8s.io/api v0.29.3
@@ -58,10 +58,10 @@ require (
 	github.com/spf13/pflag v1.0.5 // indirect
 	go.uber.org/multierr v1.11.0 // indirect
 	go.uber.org/zap v1.26.0 // indirect
-	golang.org/x/net v0.22.0 // indirect
+	golang.org/x/net v0.24.0 // indirect
 	golang.org/x/oauth2 v0.14.0 // indirect
-	golang.org/x/sys v0.18.0 // indirect
-	golang.org/x/term v0.18.0 // indirect
+	golang.org/x/sys v0.19.0 // indirect
+	golang.org/x/term v0.19.0 // indirect
 	golang.org/x/text v0.14.0 // indirect
 	golang.org/x/time v0.3.0 // indirect
 	golang.org/x/tools v0.19.0 // indirect

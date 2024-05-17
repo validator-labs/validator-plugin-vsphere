@@ -1,6 +1,6 @@
 
 # Image URL to use all building/pushing image targets
-IMG ?= quay.io/spectrocloud-labs/validator-plugin-vsphere:latest
+IMG ?= quay.io/validator-labs/validator-plugin-vsphere:latest
 # ENVTEST_K8S_VERSION refers to the version of kubebuilder assets to be downloaded by envtest binary.
 ENVTEST_K8S_VERSION = 1.27.1
 GOARCH ?= $(shell go env GOARCH)
@@ -68,7 +68,7 @@ test: manifests generate fmt vet envtest setup-validator ## Run tests.
 .PHONY: setup-validator
 setup-validator:
 	@if [ ! -d ../validator ]; then \
-		git clone https://github.com/spectrocloud-labs/validator ../validator; \
+		git clone https://github.com/validator-labs/validator ../validator; \
 	fi
 
 ##@ Build

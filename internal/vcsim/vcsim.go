@@ -16,7 +16,7 @@ import (
 	"github.com/vmware/govmomi/simulator"
 	_ "github.com/vmware/govmomi/vapi/simulator"
 
-	"github.com/spectrocloud-labs/validator-plugin-vsphere/pkg/vsphere"
+	"github.com/validator-labs/validator-plugin-vsphere/pkg/vsphere"
 )
 
 var sig chan os.Signal

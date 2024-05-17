@@ -1,12 +1,12 @@
-[![Contributions Welcome](https://img.shields.io/badge/contributions-welcome-brightgreen.svg?style=flat)](https://github.com/spectrocloud-labs/validator-plugin-vsphere/issues)
+[![Contributions Welcome](https://img.shields.io/badge/contributions-welcome-brightgreen.svg?style=flat)](https://github.com/validator-labs/validator-plugin-vsphere/issues)
 [![License](https://img.shields.io/badge/License-Apache%202.0-blue.svg)](https://opensource.org/licenses/Apache-2.0)
-![Test](https://github.com/spectrocloud-labs/validator-plugin-vsphere/actions/workflows/test.yaml/badge.svg)
-[![Go Report Card](https://goreportcard.com/badge/github.com/spectrocloud-labs/validator-plugin-vsphere)](https://goreportcard.com/report/github.com/spectrocloud-labs/validator-plugin-vsphere)
-[![codecov](https://codecov.io/gh/spectrocloud-labs/validator-plugin-vsphere/graph/badge.svg?token=QHR08U8SEQ)](https://codecov.io/gh/spectrocloud-labs/validator-plugin-vsphere)
-[![Go Reference](https://pkg.go.dev/badge/github.com/spectrocloud-labs/validator-plugin-vsphere.svg)](https://pkg.go.dev/github.com/spectrocloud-labs/validator-plugin-vsphere)
+![Test](https://github.com/validator-labs/validator-plugin-vsphere/actions/workflows/test.yaml/badge.svg)
+[![Go Report Card](https://goreportcard.com/badge/github.com/validator-labs/validator-plugin-vsphere)](https://goreportcard.com/report/github.com/validator-labs/validator-plugin-vsphere)
+[![codecov](https://codecov.io/gh/validator-labs/validator-plugin-vsphere/graph/badge.svg?token=QHR08U8SEQ)](https://codecov.io/gh/validator-labs/validator-plugin-vsphere)
+[![Go Reference](https://pkg.go.dev/badge/github.com/validator-labs/validator-plugin-vsphere.svg)](https://pkg.go.dev/github.com/validator-labs/validator-plugin-vsphere)
 
 # validator-plugin-vsphere
-The vSphere [validator](https://github.com/spectrocloud-labs/validator) plugin ensures that your vSphere environment matches a user-configurable expected state.
+The vSphere [validator](https://github.com/validator-labs/validator) plugin ensures that your vSphere environment matches a user-configurable expected state.
 
 ## Description
 The vSphere validator plugin reconciles `VsphereValidator` custom resources to perform the following validations against your vSphere environment:
@@ -19,7 +19,7 @@ The vSphere validator plugin reconciles `VsphereValidator` custom resources to p
 
 Each `VsphereValidator` CR is (re)-processed every two minutes to continuously ensure that your vSphere environment matches the expected state.
 
-See the [samples](https://github.com/spectrocloud-labs/validator-plugin-vsphere/tree/main/config/samples) directory for example `VsphereValidator` configurations.
+See the [samples](https://github.com/validator-labs/validator-plugin-vsphere/tree/main/config/samples) directory for example `VsphereValidator` configurations.
 
 > [!NOTE]
 > This plugin currently require a user with administrator role to perform all of the validations specified above. Further information on fine-grained permissions required by each validation will be updated in the future.
