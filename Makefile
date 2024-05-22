@@ -171,4 +171,5 @@ $(ENVTEST): $(LOCALBIN)
 
 .PHONY: dev
 dev:
-	devspace dev -n validator
+	devspace dev -n validator-plugin-vsphere-system -b
+
