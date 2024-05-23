@@ -1,5 +1,13 @@
 # Changelog
 
+## [0.0.21](https://github.com/validator-labs/validator-plugin-vsphere/compare/v0.0.20...v0.0.21) (2024-05-23)
+
+
+### Other
+
+* ensure validation results are updated when role privilege rules fail ([#247](https://github.com/validator-labs/validator-plugin-vsphere/issues/247)) ([cd77e69](https://github.com/validator-labs/validator-plugin-vsphere/commit/cd77e69dc48e0695eb15b129a4bb157cef07dec4))
+* setup devspace ([#246](https://github.com/validator-labs/validator-plugin-vsphere/issues/246)) ([e384de2](https://github.com/validator-labs/validator-plugin-vsphere/commit/e384de25d33ea2969ca429db61f1974b455c4def))
+
 ## [0.0.20](https://github.com/validator-labs/validator-plugin-vsphere/compare/v0.0.19...v0.0.20) (2024-05-17)
 
 
