@@ -100,10 +100,7 @@ func (c *ComputeResourcesValidationService) ReconcileComputeResourceValidationRu
 
 	vr := buildValidationResult(rule, constants.ValidationTypeComputeResources)
 
-	resourceReq, err := getResourceRequirements(rule.NodepoolResourceRequirements)
-	if err != nil {
-		return nil, err
-	}
+	resourceReq := getResourceRequirements(rule.NodepoolResourceRequirements)
 	ctx, cancel := context.WithCancel(context.Background())
 	defer cancel()
 
@@ -304,7 +301,7 @@ func convertStringToQuantity(resourceStr string) resource.Quantity {
 	return resource.MustParse(resourceStr)
 }
 
-func getResourceRequirements(requirements []v1alpha1.NodepoolResourceRequirement) (*resourceRequirement, error) {
+func getResourceRequirements(requirements []v1alpha1.NodepoolResourceRequirement) *resourceRequirement {
 	var finalCPU, finalMemory, finalDisk resource.Quantity
 	for _, requirement := range requirements {
 		requiredCPU := sanitizeStrUnits(requirement.CPU, "cpu")
@@ -322,7 +319,7 @@ func getResourceRequirements(requirements []v1alpha1.NodepoolResourceRequirement
 		CPU:       finalCPU,
 		Memory:    finalMemory,
 		DiskSpace: finalDisk,
-	}, nil
+	}
 }
 
 func sanitizeStrUnits(resource string, resourceType string) string {

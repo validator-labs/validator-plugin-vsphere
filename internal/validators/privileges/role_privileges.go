@@ -38,6 +38,13 @@ func buildValidationResult(rule v1alpha1.GenericRolePrivilegeValidationRule, val
 	return &types.ValidationRuleResult{Condition: &latestCondition, State: &state}
 }
 
+func setFailureStatus(vr *types.ValidationRuleResult, msg string) {
+	vr.State = util.Ptr(vapi.ValidationFailed)
+	vr.Condition.Message = msg
+	vr.Condition.Status = corev1.ConditionFalse
+	return
+}
+
 func (s *PrivilegeValidationService) ReconcileRolePrivilegesRule(rule v1alpha1.GenericRolePrivilegeValidationRule, driver *vsphere.VSphereCloudDriver, authManager *object.AuthorizationManager) (*types.ValidationRuleResult, error) {
 	var err error
 
@@ -46,14 +53,19 @@ func (s *PrivilegeValidationService) ReconcileRolePrivilegesRule(rule v1alpha1.G
 
 	vr := buildValidationResult(rule, constants.ValidationTypeRolePrivileges)
 
+	failMsg := fmt.Sprintf("One or more required privileges was not found, or a condition was not met for account: %s", rule.Username)
 	userPrincipal, groupPrincipals, err := GetUserAndGroupPrincipals(ctx, rule.Username, driver)
 	if err != nil {
-		return nil, err
+		vr.Condition.Failures = append(vr.Condition.Failures, fmt.Sprintf("Failed to get user and group principles due to error: %s", err))
+		setFailureStatus(vr, failMsg)
+		return vr, err
 	}
 
 	privileges, err := vsphere.GetVmwareUserPrivileges(userPrincipal, groupPrincipals, authManager)
 	if err != nil {
-		return nil, err
+		vr.Condition.Failures = append(vr.Condition.Failures, fmt.Sprintf("Failed to get VMWare user priviliges due to error: %s", err))
+		setFailureStatus(vr, failMsg)
+		return vr, err
 	}
 
 	for _, privilege := range rule.Privileges {
@@ -64,9 +76,7 @@ func (s *PrivilegeValidationService) ReconcileRolePrivilegesRule(rule v1alpha1.G
 	}
 
 	if len(vr.Condition.Failures) > 0 {
-		vr.State = util.Ptr(vapi.ValidationFailed)
-		vr.Condition.Message = fmt.Sprintf("One or more required privileges was not found, or a condition was not met for account: %s", rule.Username)
-		vr.Condition.Status = corev1.ConditionFalse
+		setFailureStatus(vr, failMsg)
 		err = ErrRequiredRolePrivilegesNotFound
 	}
 
