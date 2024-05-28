@@ -1,5 +1,12 @@
 # Changelog
 
+## [0.0.22](https://github.com/validator-labs/validator-plugin-vsphere/compare/v0.0.21...v0.0.22) (2024-05-28)
+
+
+### Features
+
+* add support for validating role privileges on your own non admin account ([#249](https://github.com/validator-labs/validator-plugin-vsphere/issues/249)) ([ca4a80a](https://github.com/validator-labs/validator-plugin-vsphere/commit/ca4a80ac06930e94e9aacdb3ee9212d1f8589c34))
+
 ## [0.0.21](https://github.com/validator-labs/validator-plugin-vsphere/compare/v0.0.20...v0.0.21) (2024-05-23)
 
 
