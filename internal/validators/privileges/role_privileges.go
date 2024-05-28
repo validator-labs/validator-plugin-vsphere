@@ -144,19 +144,13 @@ func getPrivileges(ctx context.Context, driver *vsphere.VSphereCloudDriver, auth
 		return nil, err
 	}
 
-	groupPrincipals := make([]string, 0)
 	if isAdmin {
 		userPrincipal, groupPrincipals, err := GetUserAndGroupPrincipals(ctx, username, driver)
 		if err != nil {
 			return nil, err
 		}
 
-		privileges, err := vsphere.GetVmwareUserPrivileges(ctx, userPrincipal, groupPrincipals, authManager)
-		if err != nil {
-			return nil, err
-		}
-
-		return privileges, nil
+		return vsphere.GetVmwareUserPrivileges(ctx, userPrincipal, groupPrincipals, authManager)
 	}
 
 	userPrincipal, err := driver.GetCurrentVmwareUser(ctx)
@@ -168,12 +162,8 @@ func getPrivileges(ctx context.Context, driver *vsphere.VSphereCloudDriver, auth
 		return nil, errors.New("Not authorized to get privileges for another user from non-admin account")
 	}
 
-	privileges, err := vsphere.GetVmwareUserPrivileges(ctx, userPrincipal, groupPrincipals, authManager)
-	if err != nil {
-		return nil, err
-	}
-
-	return privileges, nil
+	groupPrincipals := make([]string, 0)
+	return vsphere.GetVmwareUserPrivileges(ctx, userPrincipal, groupPrincipals, authManager)
 }
 
 // checks if a user principle (VSPHERE.LOCAL\username) matches the username (username@vsphere.local)
