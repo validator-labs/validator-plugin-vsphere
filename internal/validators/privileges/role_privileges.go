@@ -24,6 +24,7 @@ import (
 )
 
 var (
+	IsAdminAccount                    = isAdminAccount
 	GetUserAndGroupPrincipals         = getUserAndGroupPrincipals
 	ErrRequiredRolePrivilegesNotFound = errors.New("one or more required role privileges was not found for account")
 )
@@ -52,18 +53,11 @@ func (s *PrivilegeValidationService) ReconcileRolePrivilegesRule(rule v1alpha1.G
 	defer cancel()
 
 	vr := buildValidationResult(rule, constants.ValidationTypeRolePrivileges)
-
 	failMsg := fmt.Sprintf("One or more required privileges was not found, or a condition was not met for account: %s", rule.Username)
-	userPrincipal, groupPrincipals, err := GetUserAndGroupPrincipals(ctx, rule.Username, driver)
-	if err != nil {
-		vr.Condition.Failures = append(vr.Condition.Failures, fmt.Sprintf("Failed to get user and group principles due to error: %s", err))
-		setFailureStatus(vr, failMsg)
-		return vr, err
-	}
 
-	privileges, err := vsphere.GetVmwareUserPrivileges(userPrincipal, groupPrincipals, authManager)
+	privileges, err := getPrivileges(ctx, driver, authManager, rule.Username)
 	if err != nil {
-		vr.Condition.Failures = append(vr.Condition.Failures, fmt.Sprintf("Failed to get VMWare user priviliges due to error: %s", err))
+		vr.Condition.Failures = append(vr.Condition.Failures, fmt.Sprintf("Failed to get user privileges for %s due to error: %s", rule.Username, err))
 		setFailureStatus(vr, failMsg)
 		return vr, err
 	}
@@ -87,13 +81,11 @@ func isValidRule(privilege string, privileges map[string]bool) bool {
 	return privileges[privilege]
 }
 
-func getUserAndGroupPrincipals(ctx context.Context, username string, driver *vsphere.VSphereCloudDriver) (string, []string, error) {
-	var groups []string
+func configureSSOClient(ctx context.Context, driver *vsphere.VSphereCloudDriver) (*ssoadmin.Client, error) {
 	vc := driver.Client.Client
-
 	ssoClient, err := ssoadmin.NewClient(ctx, vc)
 	if err != nil {
-		return "", nil, err
+		return nil, err
 	}
 
 	token := os.Getenv("SSO_LOGIN_TOKEN")
@@ -106,7 +98,7 @@ func getUserAndGroupPrincipals(ctx context.Context, username string, driver *vsp
 	if token == "" {
 		tokens, cerr := sts.NewClient(ctx, vc)
 		if cerr != nil {
-			return "", nil, cerr
+			return nil, cerr
 		}
 
 		userInfo := url.UserPassword(driver.VCenterUsername, driver.VCenterPassword)
@@ -117,11 +109,81 @@ func getUserAndGroupPrincipals(ctx context.Context, username string, driver *vsp
 
 		header.Security, cerr = tokens.Issue(ctx, req)
 		if cerr != nil {
-			return "", nil, cerr
+			return nil, cerr
 		}
 	}
 
 	if err = ssoClient.Login(ssoClient.WithHeader(ctx, header)); err != nil {
+		return nil, err
+	}
+
+	return ssoClient, nil
+}
+
+func isAdminAccount(ctx context.Context, driver *vsphere.VSphereCloudDriver) (bool, error) {
+	ssoClient, err := configureSSOClient(ctx, driver)
+	if err != nil {
+		return false, err
+	}
+	defer ssoClient.Logout(ctx)
+
+	_, err = ssoClient.FindUser(ctx, driver.VCenterUsername)
+	if err != nil {
+		if strings.Contains(err.Error(), "NoPermission") {
+			return false, nil
+		}
+		return false, err
+	}
+
+	return true, nil
+}
+
+func getPrivileges(ctx context.Context, driver *vsphere.VSphereCloudDriver, authManager *object.AuthorizationManager, username string) (map[string]bool, error) {
+	isAdmin, err := IsAdminAccount(ctx, driver)
+	if err != nil {
+		return nil, err
+	}
+
+	if isAdmin {
+		userPrincipal, groupPrincipals, err := GetUserAndGroupPrincipals(ctx, username, driver)
+		if err != nil {
+			return nil, err
+		}
+
+		return vsphere.GetVmwareUserPrivileges(ctx, userPrincipal, groupPrincipals, authManager)
+	}
+
+	userPrincipal, err := driver.GetCurrentVmwareUser(ctx)
+	if err != nil {
+		return nil, err
+	}
+
+	if !isSameUser(userPrincipal, username) {
+		return nil, errors.New("Not authorized to get privileges for another user from non-admin account")
+	}
+
+	groupPrincipals := make([]string, 0)
+	return vsphere.GetVmwareUserPrivileges(ctx, userPrincipal, groupPrincipals, authManager)
+}
+
+// checks if a user principle (VSPHERE.LOCAL\username) matches the username (username@vsphere.local)
+// it is only considered a match if the usernames on both are identical and the domains match
+func isSameUser(userPrincipal string, username string) bool {
+	userPrincipalParts := strings.Split(userPrincipal, `\`)
+	usernameParts := strings.Split(username, "@")
+
+	if len(userPrincipalParts) != 2 || len(usernameParts) != 2 {
+		return false
+	}
+
+	return strings.ToLower(userPrincipalParts[0]) == strings.ToLower(usernameParts[1]) && userPrincipalParts[1] == usernameParts[0]
+}
+
+func getUserAndGroupPrincipals(ctx context.Context, username string, driver *vsphere.VSphereCloudDriver) (string, []string, error) {
+	var groups []string
+
+	ssoClient, err := configureSSOClient(ctx, driver)
+	if err != nil {
 		return "", nil, err
 	}
 	defer ssoClient.Logout(ctx)
