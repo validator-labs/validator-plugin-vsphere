@@ -94,3 +94,52 @@ func TestRolePrivilegeValidationService_ReconcileRolePrivilegesRule(t *testing.T
 		util.CheckTestCase(t, vr, tc.expectedResult, err, tc.expectedErr)
 	}
 }
+
+func TestIsSameUser(t *testing.T) {
+	testCases := []struct {
+		name          string
+		userPrincipal string
+		username      string
+		expected      bool
+	}{
+		{
+			name:          "Valid match",
+			userPrincipal: "VSPHERE.LOCAL\\username",
+			username:      "username@vsphere.local",
+			expected:      true,
+		},
+		{
+			name:          "Different usernames",
+			userPrincipal: "VSPHERE.LOCAL\\username",
+			username:      "differentUsername@vsphere.local",
+			expected:      false,
+		},
+		{
+			name:          "Different domain",
+			userPrincipal: "VSPHERE.LOCAL\\username",
+			username:      "username@vsphere.notlocal",
+			expected:      false,
+		},
+		{
+			name:          "Invalid input - missing domain",
+			userPrincipal: "VSPHERE.LOCAL\\username",
+			username:      "username",
+			expected:      false,
+		},
+		{
+			name:          "Invalid input - missing username",
+			userPrincipal: "VSPHERE.LOCAL\\",
+			username:      "username@vsphere.local",
+			expected:      false,
+		},
+	}
+
+	for _, tc := range testCases {
+		t.Run(tc.name, func(t *testing.T) {
+			result := isSameUser(tc.userPrincipal, tc.username)
+			if result != tc.expected {
+				t.Errorf("Expected %v but got %v", tc.expected, result)
+			}
+		})
+	}
+}
