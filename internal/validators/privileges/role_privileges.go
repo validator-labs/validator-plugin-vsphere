@@ -80,9 +80,8 @@ func isValidRule(privilege string, privileges map[string]bool) bool {
 	return privileges[privilege]
 }
 
-func configureSSOClient(driver *vsphere.VSphereCloudDriver) (*ssoadmin.Client, error) {
+func configureSSOClient(ctx context.Context, driver *vsphere.VSphereCloudDriver) (*ssoadmin.Client, error) {
 	vc := driver.Client.Client
-	ctx := context.Background()
 	ssoClient, err := ssoadmin.NewClient(ctx, vc)
 	if err != nil {
 		return nil, err
@@ -121,7 +120,7 @@ func configureSSOClient(driver *vsphere.VSphereCloudDriver) (*ssoadmin.Client, e
 }
 
 func isAdminAccount(ctx context.Context, driver *vsphere.VSphereCloudDriver) (bool, error) {
-	ssoClient, err := configureSSOClient(driver)
+	ssoClient, err := configureSSOClient(ctx, driver)
 	defer ssoClient.Logout(ctx)
 
 	_, err = ssoClient.FindUser(ctx, driver.VCenterUsername)
@@ -189,7 +188,7 @@ func isSameUser(userPrincipal string, username string) bool {
 func getUserAndGroupPrincipals(ctx context.Context, username string, driver *vsphere.VSphereCloudDriver) (string, []string, error) {
 	var groups []string
 
-	ssoClient, err := configureSSOClient(driver)
+	ssoClient, err := configureSSOClient(ctx, driver)
 	if err != nil {
 		return "", nil, err
 	}
