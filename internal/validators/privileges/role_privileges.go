@@ -179,7 +179,7 @@ func getPrivileges(ctx context.Context, driver *vsphere.VSphereCloudDriver, auth
 // checks if a user principle (VSPHERE.LOCAL\username) matches the username (username@vsphere.local)
 // it is only considered a match if the usernames on both are identical and the domains match
 func isSameUser(userPrincipal string, username string) bool {
-	userPrincipalParts := strings.Split(userPrincipal, "\\")
+	userPrincipalParts := strings.Split(userPrincipal, `\`)
 	usernameParts := strings.Split(username, "@")
 
 	if len(userPrincipalParts) != 2 || len(usernameParts) != 2 {
@@ -214,23 +214,4 @@ func getUserAndGroupPrincipals(ctx context.Context, username string, driver *vsp
 	userPrincipal := fmt.Sprintf("%s\\%s", strings.ToUpper(user.Id.Domain), user.Id.Name)
 
 	return userPrincipal, groups, nil
-}
-
-func getAccountPrivileges(ctx context.Context, driver *vsphere.VSphereCloudDriver) (map[string]bool, error) {
-	authManager := object.NewAuthorizationManager(driver.Client.Client)
-	if authManager == nil {
-		return nil, fmt.Errorf("Error getting authorization manager")
-	}
-
-	userName, err := driver.GetCurrentVmwareUser(ctx)
-	if err != nil {
-		return nil, err
-	}
-
-	userPrivileges, err := vsphere.GetVmwareUserPrivileges(ctx, userName, []string{}, authManager)
-	if err != nil {
-		return nil, err
-	}
-
-	return userPrivileges, nil
 }

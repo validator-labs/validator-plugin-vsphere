@@ -107,33 +107,33 @@ func TestIsSameUser(t *testing.T) {
 		expected      bool
 	}{
 		{
-			name:          "Valid match",
-			userPrincipal: "VSPHERE.LOCAL\\username",
-			username:      "username@vsphere.local",
+			name:          `Valid match`,
+			userPrincipal: `VSPHERE.LOCAL\username`,
+			username:      `username@vsphere.local`,
 			expected:      true,
 		},
 		{
-			name:          "Different usernames",
-			userPrincipal: "VSPHERE.LOCAL\\username",
-			username:      "differentUsername@vsphere.local",
+			name:          `Different usernames`,
+			userPrincipal: `VSPHERE.LOCAL\username`,
+			username:      `differentUsername@vsphere.local`,
 			expected:      false,
 		},
 		{
-			name:          "Different domain",
-			userPrincipal: "VSPHERE.LOCAL\\username",
-			username:      "username@vsphere.notlocal",
+			name:          `Different domain`,
+			userPrincipal: `VSPHERE.LOCAL\username`,
+			username:      `username@vsphere.notlocal`,
 			expected:      false,
 		},
 		{
-			name:          "Invalid input - missing domain",
-			userPrincipal: "VSPHERE.LOCAL\\username",
-			username:      "username",
+			name:          `Invalid input - missing domain`,
+			userPrincipal: `VSPHERE.LOCAL\username`,
+			username:      `username`,
 			expected:      false,
 		},
 		{
-			name:          "Invalid input - missing username",
-			userPrincipal: "VSPHERE.LOCAL\\",
-			username:      "username@vsphere.local",
+			name:          `Invalid input - missing username`,
+			userPrincipal: `VSPHERE.LOCAL\`,
+			username:      `username@vsphere.local`,
 			expected:      false,
 		},
 	}
