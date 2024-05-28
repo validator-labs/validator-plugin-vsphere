@@ -24,6 +24,7 @@ import (
 )
 
 var (
+	IsAdminAccount                    = isAdminAccount
 	GetUserAndGroupPrincipals         = getUserAndGroupPrincipals
 	ErrRequiredRolePrivilegesNotFound = errors.New("one or more required role privileges was not found for account")
 )
@@ -121,6 +122,9 @@ func configureSSOClient(ctx context.Context, driver *vsphere.VSphereCloudDriver)
 
 func isAdminAccount(ctx context.Context, driver *vsphere.VSphereCloudDriver) (bool, error) {
 	ssoClient, err := configureSSOClient(ctx, driver)
+	if err != nil {
+		return false, err
+	}
 	defer ssoClient.Logout(ctx)
 
 	_, err = ssoClient.FindUser(ctx, driver.VCenterUsername)
@@ -135,7 +139,7 @@ func isAdminAccount(ctx context.Context, driver *vsphere.VSphereCloudDriver) (bo
 }
 
 func getPrivileges(ctx context.Context, driver *vsphere.VSphereCloudDriver, authManager *object.AuthorizationManager, username string) (map[string]bool, error) {
-	isAdmin, err := isAdminAccount(ctx, driver)
+	isAdmin, err := IsAdminAccount(ctx, driver)
 	if err != nil {
 		return nil, err
 	}

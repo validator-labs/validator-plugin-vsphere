@@ -28,9 +28,13 @@ func TestRolePrivilegeValidationService_ReconcileRolePrivilegesRule(t *testing.T
 
 	userPrivilegesMap["Cns.Searchable"] = true
 
-	// monkey-patch get user group and principals
+	// monkey-patch GetUserGroupAndPrincipals and IsAdminAccount
 	GetUserAndGroupPrincipals = func(ctx context.Context, username string, driver *vsphere.VSphereCloudDriver) (string, []string, error) {
 		return "admin", []string{"Administrators"}, nil
+	}
+
+	IsAdminAccount = func(ctx context.Context, driver *vsphere.VSphereCloudDriver) (bool, error) {
+		return true, nil
 	}
 
 	authManager := object.NewAuthorizationManager(vcSim.Driver.Client.Client)
