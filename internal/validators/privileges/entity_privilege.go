@@ -8,12 +8,12 @@ import (
 	"github.com/vmware/govmomi/find"
 	corev1 "k8s.io/api/core/v1"
 
-	"github.com/spectrocloud-labs/validator-plugin-vsphere/api/v1alpha1"
-	"github.com/spectrocloud-labs/validator-plugin-vsphere/internal/constants"
-	vapi "github.com/spectrocloud-labs/validator/api/v1alpha1"
-	vapiconstants "github.com/spectrocloud-labs/validator/pkg/constants"
-	"github.com/spectrocloud-labs/validator/pkg/types"
-	"github.com/spectrocloud-labs/validator/pkg/util"
+	"github.com/validator-labs/validator-plugin-vsphere/api/v1alpha1"
+	"github.com/validator-labs/validator-plugin-vsphere/internal/constants"
+	vapi "github.com/validator-labs/validator/api/v1alpha1"
+	vapiconstants "github.com/validator-labs/validator/pkg/constants"
+	"github.com/validator-labs/validator/pkg/types"
+	"github.com/validator-labs/validator/pkg/util"
 )
 
 var ErrRequiredEntityPrivilegesNotFound = errors.New("one or more required entity privileges was not found")
