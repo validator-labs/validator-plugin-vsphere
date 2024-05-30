@@ -4,7 +4,7 @@ import (
 	"github.com/go-logr/logr"
 	"github.com/vmware/govmomi/object"
 
-	"github.com/spectrocloud-labs/validator-plugin-vsphere/pkg/vsphere"
+	"github.com/validator-labs/validator-plugin-vsphere/pkg/vsphere"
 )
 
 type PrivilegeValidationService struct {
