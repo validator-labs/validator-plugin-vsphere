@@ -11,14 +11,14 @@ import (
 	"github.com/vmware/govmomi/vim25/mo"
 	corev1 "k8s.io/api/core/v1"
 
-	"github.com/spectrocloud-labs/validator-plugin-vsphere/api/v1alpha1"
-	"github.com/spectrocloud-labs/validator-plugin-vsphere/internal/constants"
-	"github.com/spectrocloud-labs/validator-plugin-vsphere/pkg/vsphere"
-	vapi "github.com/spectrocloud-labs/validator/api/v1alpha1"
-	vapiconstants "github.com/spectrocloud-labs/validator/pkg/constants"
-	"github.com/spectrocloud-labs/validator/pkg/types"
-	vapitypes "github.com/spectrocloud-labs/validator/pkg/types"
-	"github.com/spectrocloud-labs/validator/pkg/util"
+	"github.com/validator-labs/validator-plugin-vsphere/api/v1alpha1"
+	"github.com/validator-labs/validator-plugin-vsphere/internal/constants"
+	"github.com/validator-labs/validator-plugin-vsphere/pkg/vsphere"
+	vapi "github.com/validator-labs/validator/api/v1alpha1"
+	vapiconstants "github.com/validator-labs/validator/pkg/constants"
+	"github.com/validator-labs/validator/pkg/types"
+	vapitypes "github.com/validator-labs/validator/pkg/types"
+	"github.com/validator-labs/validator/pkg/util"
 )
 
 // to enable monkey patching in integration tests
