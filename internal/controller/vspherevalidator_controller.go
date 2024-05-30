@@ -36,17 +36,17 @@ import (
 	"sigs.k8s.io/controller-runtime/pkg/client"
 	"sigs.k8s.io/controller-runtime/pkg/reconcile"
 
-	"github.com/spectrocloud-labs/validator-plugin-vsphere/api/v1alpha1"
-	"github.com/spectrocloud-labs/validator-plugin-vsphere/internal/constants"
-	"github.com/spectrocloud-labs/validator-plugin-vsphere/internal/validators/computeresources"
-	"github.com/spectrocloud-labs/validator-plugin-vsphere/internal/validators/ntp"
-	"github.com/spectrocloud-labs/validator-plugin-vsphere/internal/validators/privileges"
-	"github.com/spectrocloud-labs/validator-plugin-vsphere/internal/validators/tags"
-	"github.com/spectrocloud-labs/validator-plugin-vsphere/pkg/vsphere"
-	vapi "github.com/spectrocloud-labs/validator/api/v1alpha1"
-	"github.com/spectrocloud-labs/validator/pkg/types"
-	"github.com/spectrocloud-labs/validator/pkg/util"
-	vres "github.com/spectrocloud-labs/validator/pkg/validationresult"
+	"github.com/validator-labs/validator-plugin-vsphere/api/v1alpha1"
+	"github.com/validator-labs/validator-plugin-vsphere/internal/constants"
+	"github.com/validator-labs/validator-plugin-vsphere/internal/validators/computeresources"
+	"github.com/validator-labs/validator-plugin-vsphere/internal/validators/ntp"
+	"github.com/validator-labs/validator-plugin-vsphere/internal/validators/privileges"
+	"github.com/validator-labs/validator-plugin-vsphere/internal/validators/tags"
+	"github.com/validator-labs/validator-plugin-vsphere/pkg/vsphere"
+	vapi "github.com/validator-labs/validator/api/v1alpha1"
+	"github.com/validator-labs/validator/pkg/types"
+	"github.com/validator-labs/validator/pkg/util"
+	vres "github.com/validator-labs/validator/pkg/validationresult"
 )
 
 var ErrSecretNameRequired = errors.New("auth.secretName is required")

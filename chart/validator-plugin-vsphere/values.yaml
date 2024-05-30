@@ -12,7 +12,7 @@ controllerManager:
         - ALL
     image:
       repository: gcr.io/kubebuilder/kube-rbac-proxy
-      tag: v0.15.0
+      tag: v0.16.0
     resources:
       limits:
         cpu: 500m
@@ -31,8 +31,8 @@ controllerManager:
         drop:
         - ALL
     image:
-      repository: quay.io/spectrocloud-labs/validator-plugin-vsphere
-      tag: v0.0.19  # x-release-please-version
+      repository: quay.io/validator-labs/validator-plugin-vsphere
+      tag: v0.0.22  # x-release-please-version
     resources:
       limits:
         cpu: 500m
@@ -53,5 +53,5 @@ metricsService:
   type: ClusterIP
 auth:
   # Specify the name of a secret in your cluster that contains vSphere credentials.
-  # E.g.: https://github.com/spectrocloud-labs/validator/blob/main/chart/validator/templates/plugin-secret-vsphere.yaml
+  # E.g.: https://github.com/validator-labs/validator/blob/main/chart/validator/templates/plugin-secret-vsphere.yaml
   secretName: vsphere-credentials

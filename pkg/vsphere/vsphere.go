@@ -324,7 +324,7 @@ func (v *VSphereCloudDriver) CreateVSphereVMFolder(ctx context.Context, datacent
 }
 
 func (v *VSphereCloudDriver) getFinderWithDatacenter(ctx context.Context, datacenter string) (*find.Finder, string, error) {
-	finder, err := v.getFinder(ctx)
+	finder, err := v.getFinder()
 	if err != nil {
 		return nil, "", err
 	}
@@ -338,7 +338,7 @@ func (v *VSphereCloudDriver) getFinderWithDatacenter(ctx context.Context, datace
 	return finder, dc.Name(), nil
 }
 
-func (v *VSphereCloudDriver) getFinder(ctx context.Context) (*find.Finder, error) {
+func (v *VSphereCloudDriver) getFinder() (*find.Finder, error) {
 	if v.Client == nil {
 		return nil, fmt.Errorf("failed to fetch govmomi client: %d", http.StatusBadRequest)
 	}
@@ -385,7 +385,7 @@ func (v *VSphereCloudDriver) GetFolderNameByID(ctx context.Context, datacenter, 
 }
 
 func (v *VSphereCloudDriver) GetFinderWithDatacenter(ctx context.Context, datacenter string) (*find.Finder, string, error) {
-	finder, err := v.getFinder(ctx)
+	finder, err := v.getFinder()
 	if err != nil {
 		return nil, "", err
 	}
@@ -399,14 +399,14 @@ func (v *VSphereCloudDriver) GetFinderWithDatacenter(ctx context.Context, datace
 	return finder, dc.Name(), nil
 }
 
-func GetVmwareUserPrivileges(userPrincipal string, groupPrincipals []string, authManager *object.AuthorizationManager) (map[string]bool, error) {
+func GetVmwareUserPrivileges(ctx context.Context, userPrincipal string, groupPrincipals []string, authManager *object.AuthorizationManager) (map[string]bool, error) {
 	groupPrincipalMap := make(map[string]bool)
 	for _, principal := range groupPrincipals {
 		groupPrincipalMap[principal] = true
 	}
 
 	// Get the current user's roles
-	authRoles, err := authManager.RoleList(context.TODO())
+	authRoles, err := authManager.RoleList(ctx)
 	if err != nil {
 		return nil, err
 	}
@@ -417,7 +417,7 @@ func GetVmwareUserPrivileges(userPrincipal string, groupPrincipals []string, aut
 	// Print the roles
 	for _, authRole := range authRoles {
 		// print permissions for every role
-		permissions, err := authManager.RetrieveRolePermissions(context.TODO(), authRole.RoleId)
+		permissions, err := authManager.RetrieveRolePermissions(ctx, authRole.RoleId)
 		if err != nil {
 			return nil, err
 		}
