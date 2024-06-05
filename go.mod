@@ -12,7 +12,7 @@ require (
 	github.com/pkg/errors v0.9.1
 	github.com/sirupsen/logrus v1.9.3
 	github.com/validator-labs/validator v0.0.41
-	github.com/vmware/govmomi v0.37.2
+	github.com/vmware/govmomi v0.37.3
 	golang.org/x/exp v0.0.0-20240604190554-fc45aab8b7f8
 	k8s.io/api v0.30.1
 	k8s.io/apimachinery v0.30.1
