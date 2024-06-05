@@ -179,7 +179,7 @@ func GetOrCreateSession(
 	if ok {
 		if refreshRestClient && restClientLoggedOut {
 			//Rest Client
-			restClient, err := createRestClientWithKeepAlive(ctx, sessionKey, username, password, currentSession.GovmomiClient)
+			restClient, err := createRestClientWithKeepAlive(ctx, username, password, currentSession.GovmomiClient)
 			if err != nil {
 				return currentSession, err
 			}
@@ -196,7 +196,7 @@ func GetOrCreateSession(
 	}
 
 	//Rest Client
-	restClient, err := createRestClientWithKeepAlive(ctx, sessionKey, username, password, govClient)
+	restClient, err := createRestClientWithKeepAlive(ctx, username, password, govClient)
 	if err != nil {
 		return currentSession, err
 	}
@@ -273,7 +273,7 @@ func getVCenterUrl(vCenterServer string, vCenterUsername string, vCenterPassword
 	return vCenterURL, nil
 }
 
-func createRestClientWithKeepAlive(ctx context.Context, sessionKey, username, password string, govClient *govmomi.Client) (*rest.Client, error) {
+func createRestClientWithKeepAlive(ctx context.Context, username, password string, govClient *govmomi.Client) (*rest.Client, error) {
 	// create RestClient for operations like get tags
 	restClient := rest.NewClient(govClient.Client)
 
