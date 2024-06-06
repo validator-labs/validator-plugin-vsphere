@@ -7,7 +7,6 @@ import (
 
 	"github.com/vmware/govmomi/find"
 	"github.com/vmware/govmomi/object"
-	ssoadmintypes "github.com/vmware/govmomi/ssoadmin/types"
 	"github.com/vmware/govmomi/vim25/types"
 )
 
@@ -127,10 +126,6 @@ func GetVmwareUserPrivileges(ctx context.Context, userPrincipal string, groupPri
 		}
 	}
 	return privileges, nil
-}
-
-func getUserPrincipalFromPrincipalID(id ssoadmintypes.PrincipalId) string {
-	return fmt.Sprintf("%s\\%s", strings.ToUpper(id.Domain), id.Name)
 }
 
 func getUserPrincipalFromUsername(username string) string {

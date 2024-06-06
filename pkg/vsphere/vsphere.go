@@ -13,11 +13,14 @@ import (
 	"github.com/pkg/errors"
 	"github.com/vmware/govmomi"
 	"github.com/vmware/govmomi/find"
+	"github.com/vmware/govmomi/object"
 	"github.com/vmware/govmomi/session"
 	"github.com/vmware/govmomi/session/keepalive"
 	"github.com/vmware/govmomi/vapi/rest"
+	"github.com/vmware/govmomi/vapi/tags"
 	"github.com/vmware/govmomi/vim25"
 	"github.com/vmware/govmomi/vim25/methods"
+	"github.com/vmware/govmomi/vim25/mo"
 	"github.com/vmware/govmomi/vim25/soap"
 )
 
@@ -32,6 +35,20 @@ var (
 	sessionMU           sync.Mutex
 	restClientLoggedOut = false
 )
+
+type VsphereDriver interface {
+	GetVSphereVMFolders(ctx context.Context, datacenter string) ([]string, error)
+	GetVSphereDatacenters(ctx context.Context) ([]string, error)
+	GetVSphereClusters(ctx context.Context, datacenter string) ([]string, error)
+	GetVSphereHostSystems(ctx context.Context, datacenter, cluster string) ([]VSphereHostSystem, error)
+	IsValidVSphereCredentials(ctx context.Context) (bool, error)
+	ValidateVsphereVersion(constraint string) error
+	GetHostClusterMapping(ctx context.Context) (map[string]string, error)
+	GetVSphereVms(ctx context.Context, dcName string) ([]VSphereVM, error)
+	GetResourcePools(ctx context.Context, datacenter string, cluster string) ([]*object.ResourcePool, error)
+	GetVapps(ctx context.Context) ([]mo.VirtualApp, error)
+	GetResourceTags(ctx context.Context, resourceType string) (map[string]tags.AttachedTags, error)
+}
 
 type VSphereCloudDriver struct {
 	VCenterServer   string

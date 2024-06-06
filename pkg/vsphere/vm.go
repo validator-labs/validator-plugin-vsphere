@@ -56,7 +56,7 @@ type SshInfo struct {
 	Username   string
 	Password   string
 	PublicKey  []string
-	Privatekey []string
+	PrivateKey []string
 }
 
 type AdditionalDisk struct {

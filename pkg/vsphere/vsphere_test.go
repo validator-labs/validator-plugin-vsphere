@@ -1,126 +1,68 @@
 package vsphere
 
 import (
-	"fmt"
-	"reflect"
 	"testing"
+
+	"github.com/stretchr/testify/assert"
 )
 
-func TestValidateHostNTPServers(t *testing.T) {
-	testCases := []struct {
-		name          string
-		expectedErr   error
-		hostsDateInfo []HostDateInfo
+func TestGetVCenterUrl(t *testing.T) {
+	tests := []struct {
+		name            string
+		vCenterServer   string
+		vCenterUsername string
+		vCenterPassword string
+		expectedURL     string
+		expectError     bool
 	}{
 		{
-			name:        "all valid case",
-			expectedErr: nil,
-			hostsDateInfo: []HostDateInfo{
-				{
-					HostName:   "host0",
-					NtpServers: []string{"ntp.a.com", "ntp.b.com", "ntp.c.com"},
-				},
-				{
-					HostName:   "host1",
-					NtpServers: []string{"ntp.e.com", "ntp.c.com", "ntp.z.com"},
-				},
-				{
-					HostName:   "host2",
-					NtpServers: []string{"ntp.c.com"},
-				},
-				{
-					HostName:   "host3",
-					NtpServers: []string{"ntp.x.com", "ntp.y.com", "ntp.c.com"},
-				},
-				{
-					HostName:   "host4",
-					NtpServers: []string{"ntp.l.com", "ntp.m.com", "ntp.c.com"},
-				},
-			},
+			name:            "Valid HTTPS URL",
+			vCenterServer:   "vcenter.example.com",
+			vCenterUsername: "admin",
+			vCenterPassword: "password",
+			expectedURL:     "https://admin:password@vcenter.example.com/sdk",
+			expectError:     false,
 		},
 		{
-			name:        "first server invalid",
-			expectedErr: fmt.Errorf("some of the hosts has differently configured NTP servers"),
-			hostsDateInfo: []HostDateInfo{
-				{
-					HostName:   "host0",
-					NtpServers: []string{"ntp.a.com", "ntp.b.com"},
-				},
-				{
-					HostName:   "host1",
-					NtpServers: []string{"ntp.e.com", "ntp.c.com", "ntp.z.com"},
-				},
-				{
-					HostName:   "host0",
-					NtpServers: []string{"ntp.c.com"},
-				},
-				{
-					HostName:   "host0",
-					NtpServers: []string{"ntp.x.com", "ntp.y.com", "ntp.c.com"},
-				},
-				{
-					HostName:   "host0",
-					NtpServers: []string{"ntp.l.com", "ntp.m.com", "ntp.c.com"},
-				},
-			},
+			name:            "Valid HTTP URL Converted to HTTPS",
+			vCenterServer:   "http://vcenter.example.com",
+			vCenterUsername: "admin",
+			vCenterPassword: "password",
+			expectedURL:     "https://admin:password@vcenter.example.com/sdk",
+			expectError:     false,
 		},
 		{
-			name:        "all invalid servers",
-			expectedErr: fmt.Errorf("some of the hosts has differently configured NTP servers"),
-			hostsDateInfo: []HostDateInfo{
-				{
-					HostName:   "host0",
-					NtpServers: []string{"ntp.a.com", "ntp.b.com"},
-				},
-				{
-					HostName:   "host1",
-					NtpServers: []string{"ntp.e.com"},
-				},
-				{
-					HostName:   "host0",
-					NtpServers: []string{"ntp.c.com"},
-				},
-				{
-					HostName:   "host0",
-					NtpServers: []string{"ntp.x.com"},
-				},
-				{
-					HostName:   "host0",
-					NtpServers: []string{"ntp.l.com"},
-				},
-			},
+			name:            "Invalid URL",
+			vCenterServer:   "not a url",
+			vCenterUsername: "admin",
+			vCenterPassword: "password",
+			expectedURL:     "",
+			expectError:     true,
 		},
 		{
-			name:        "last server invalid",
-			expectedErr: fmt.Errorf("some of the hosts has differently configured NTP servers"),
-			hostsDateInfo: []HostDateInfo{
-				{
-					HostName:   "host0",
-					NtpServers: []string{"ntp.a.com", "ntp.b.com", "ntp.c.com"},
-				},
-				{
-					HostName:   "host1",
-					NtpServers: []string{"ntp.e.com", "ntp.c.com", "ntp.z.com"},
-				},
-				{
-					HostName:   "host2",
-					NtpServers: []string{"ntp.c.com"},
-				},
-				{
-					HostName:   "host3",
-					NtpServers: []string{"ntp.x.com", "ntp.y.com", "ntp.c.com"},
-				},
-				{
-					HostName:   "host4",
-					NtpServers: []string{"ntp.l.com", "ntp.m.com", "ntp.n.com"},
-				},
-			},
+			name:            "Trailing Slash Removed",
+			vCenterServer:   "vcenter.example.com/",
+			vCenterUsername: "admin",
+			vCenterPassword: "password",
+			expectedURL:     "https://admin:password@vcenter.example.com/sdk",
+			expectError:     false,
 		},
 	}
-	for _, tc := range testCases {
-		err := validateHostNTPServers(tc.hostsDateInfo)
-		if !reflect.DeepEqual(err, tc.expectedErr) {
-			t.Errorf("expected error (%v), got (%v)", tc.expectedErr, err)
-		}
+
+	for _, tt := range tests {
+		t.Run(tt.name, func(t *testing.T) {
+			resultURL, err := getVCenterUrl(tt.vCenterServer, tt.vCenterUsername, tt.vCenterPassword)
+			if tt.expectError {
+				assert.Error(t, err)
+				assert.Nil(t, resultURL)
+			} else {
+				assert.NoError(t, err)
+				assert.NotNil(t, resultURL)
+				assert.Equal(t, tt.expectedURL, resultURL.String())
+				assert.Equal(t, tt.vCenterUsername, resultURL.User.Username())
+				password, _ := resultURL.User.Password()
+				assert.Equal(t, tt.vCenterPassword, password)
+			}
+		})
 	}
 }
