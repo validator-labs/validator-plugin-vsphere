@@ -7,6 +7,7 @@ toolchain go1.22.4
 require (
 	emperror.dev/errors v0.8.1
 	github.com/go-logr/logr v1.4.2
+	github.com/hashicorp/go-version v1.7.0
 	github.com/onsi/ginkgo/v2 v2.19.0
 	github.com/onsi/gomega v1.33.1
 	github.com/pkg/errors v0.9.1
