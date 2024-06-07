@@ -1,5 +1,49 @@
 # Changelog
 
+## [0.0.23](https://github.com/validator-labs/validator-plugin-vsphere/compare/v0.0.22...v0.0.23) (2024-06-07)
+
+
+### Features
+
+* expose new functions in vsphere driver ([#272](https://github.com/validator-labs/validator-plugin-vsphere/issues/272)) ([f3dbf24](https://github.com/validator-labs/validator-plugin-vsphere/commit/f3dbf24aae310846792fa83072b5c23cc3e99fca))
+
+
+### Bug Fixes
+
+* **deps:** update golang.org/x/exp digest to 404ba88 ([#260](https://github.com/validator-labs/validator-plugin-vsphere/issues/260)) ([a571144](https://github.com/validator-labs/validator-plugin-vsphere/commit/a5711447dfb7e431c85f4bb882e652891b943dce))
+* **deps:** update golang.org/x/exp digest to fc45aab ([#267](https://github.com/validator-labs/validator-plugin-vsphere/issues/267)) ([7249aca](https://github.com/validator-labs/validator-plugin-vsphere/commit/7249aca45071a710942d7f04ad49fcfb5cb791ea))
+* **deps:** update golang.org/x/exp digest to fd00a4e ([#266](https://github.com/validator-labs/validator-plugin-vsphere/issues/266)) ([ae890f7](https://github.com/validator-labs/validator-plugin-vsphere/commit/ae890f7aa6f111c5089a68cc454a9daba36f8dcc))
+* **deps:** update module github.com/go-logr/logr to v1.4.2 ([#261](https://github.com/validator-labs/validator-plugin-vsphere/issues/261)) ([9ccc44a](https://github.com/validator-labs/validator-plugin-vsphere/commit/9ccc44a20a3d01522a8fa9a7ec27bc9750b783ad))
+* **deps:** update module github.com/onsi/ginkgo/v2 to v2.17.3 ([#237](https://github.com/validator-labs/validator-plugin-vsphere/issues/237)) ([44917d6](https://github.com/validator-labs/validator-plugin-vsphere/commit/44917d600369b596af39bdb1462a204bece0fed3))
+* **deps:** update module github.com/onsi/ginkgo/v2 to v2.19.0 ([#256](https://github.com/validator-labs/validator-plugin-vsphere/issues/256)) ([50502df](https://github.com/validator-labs/validator-plugin-vsphere/commit/50502df6c98277c68c4f94ad142eb562b34ef87c))
+* **deps:** update module github.com/validator-labs/validator to v0.0.41 ([#263](https://github.com/validator-labs/validator-plugin-vsphere/issues/263)) ([d977189](https://github.com/validator-labs/validator-plugin-vsphere/commit/d9771892ffb53e85d8db2840655fc5fb72103128))
+* **deps:** update module github.com/validator-labs/validator to v0.0.42 ([#274](https://github.com/validator-labs/validator-plugin-vsphere/issues/274)) ([1a06968](https://github.com/validator-labs/validator-plugin-vsphere/commit/1a06968a121c8672a8f8f45b0f97fdc9fdb64ddf))
+* **deps:** update module github.com/vmware/govmomi to v0.37.2 ([#238](https://github.com/validator-labs/validator-plugin-vsphere/issues/238)) ([32b5dc6](https://github.com/validator-labs/validator-plugin-vsphere/commit/32b5dc6e4e72469862b55f9dedf5640c9e6af21d))
+* **deps:** update module github.com/vmware/govmomi to v0.37.3 ([#269](https://github.com/validator-labs/validator-plugin-vsphere/issues/269)) ([3aca407](https://github.com/validator-labs/validator-plugin-vsphere/commit/3aca4072400730c8737a14fe034a1b8483f6174a))
+* **deps:** update module sigs.k8s.io/controller-runtime to v0.18.2 ([#241](https://github.com/validator-labs/validator-plugin-vsphere/issues/241)) ([98b9f19](https://github.com/validator-labs/validator-plugin-vsphere/commit/98b9f194b43869c30e5248807b84a361c0f1b528))
+* **deps:** update module sigs.k8s.io/controller-runtime to v0.18.4 ([#271](https://github.com/validator-labs/validator-plugin-vsphere/issues/271)) ([ff2794b](https://github.com/validator-labs/validator-plugin-vsphere/commit/ff2794be13125b6b4165d653302aba6c78f41ef5))
+
+
+### Other
+
+* **deps:** bump golang.org/x/net from 0.22.0 to 0.23.0 ([#242](https://github.com/validator-labs/validator-plugin-vsphere/issues/242)) ([e0858b0](https://github.com/validator-labs/validator-plugin-vsphere/commit/e0858b0fbfb2b767b5af29bb723b20007dae8a08))
+* **deps:** pin googleapis/release-please-action action to f3969c0 ([#252](https://github.com/validator-labs/validator-plugin-vsphere/issues/252)) ([ce3c62f](https://github.com/validator-labs/validator-plugin-vsphere/commit/ce3c62f026eb618e33ca0f3718ff4456ca90a348))
+* **deps:** update actions/checkout digest to 0ad4b8f ([#244](https://github.com/validator-labs/validator-plugin-vsphere/issues/244)) ([340f1a2](https://github.com/validator-labs/validator-plugin-vsphere/commit/340f1a2812a9ecaa79b7f86429bd5b41562205d7))
+* **deps:** update actions/checkout digest to a5ac7e5 ([#253](https://github.com/validator-labs/validator-plugin-vsphere/issues/253)) ([cc074ee](https://github.com/validator-labs/validator-plugin-vsphere/commit/cc074ee7eacbc02ceec1b63f700a786ebe40e712))
+* **deps:** update actions/setup-go digest to cdcb360 ([#257](https://github.com/validator-labs/validator-plugin-vsphere/issues/257)) ([6b267d5](https://github.com/validator-labs/validator-plugin-vsphere/commit/6b267d52327661f16c5eebf26202a6c25b82c9d0))
+* **deps:** update anchore/sbom-action action to v0.15.11 ([#236](https://github.com/validator-labs/validator-plugin-vsphere/issues/236)) ([87e92ca](https://github.com/validator-labs/validator-plugin-vsphere/commit/87e92cae74ded9412dc796bb9988a95c2602f36b))
+* **deps:** update anchore/sbom-action action to v0.16.0 ([#255](https://github.com/validator-labs/validator-plugin-vsphere/issues/255)) ([ee50eb9](https://github.com/validator-labs/validator-plugin-vsphere/commit/ee50eb9882a27d39ec0e4c8f8efcecc8234eb98c))
+* **deps:** update azure/setup-helm digest to fe7b79c ([#243](https://github.com/validator-labs/validator-plugin-vsphere/issues/243)) ([b01c2bd](https://github.com/validator-labs/validator-plugin-vsphere/commit/b01c2bda1ac63c6f2c0893fb75fba9479b9ebc23))
+* **deps:** update codecov/codecov-action digest to 125fc84 ([#254](https://github.com/validator-labs/validator-plugin-vsphere/issues/254)) ([f2e7f45](https://github.com/validator-labs/validator-plugin-vsphere/commit/f2e7f454f79f8552dbef819ec1bfa5ee86831497))
+* **deps:** update codecov/codecov-action digest to 6d79887 ([#234](https://github.com/validator-labs/validator-plugin-vsphere/issues/234)) ([264c4c2](https://github.com/validator-labs/validator-plugin-vsphere/commit/264c4c205656b044ba397ccbd929d949655fff90))
+* **deps:** update dependency go to v1.22.4 ([#268](https://github.com/validator-labs/validator-plugin-vsphere/issues/268)) ([045458e](https://github.com/validator-labs/validator-plugin-vsphere/commit/045458ecc3f0a731f0e931656c7bcaedaa6e0679))
+* **deps:** update docker/login-action digest to 0d4c9c5 ([#258](https://github.com/validator-labs/validator-plugin-vsphere/issues/258)) ([1fbdb5e](https://github.com/validator-labs/validator-plugin-vsphere/commit/1fbdb5e6706d6d6871dbc608742cea9c6f329203))
+* **deps:** update docker/setup-buildx-action digest to d70bba7 ([#240](https://github.com/validator-labs/validator-plugin-vsphere/issues/240)) ([5557060](https://github.com/validator-labs/validator-plugin-vsphere/commit/555706061b043090568367853b1e0611bfaaca01))
+* **deps:** update gcr.io/kubebuilder/kube-rbac-proxy docker tag to v0.16.0 ([#239](https://github.com/validator-labs/validator-plugin-vsphere/issues/239)) ([205d85b](https://github.com/validator-labs/validator-plugin-vsphere/commit/205d85be5fb286eeb27b9cee5b91c77ff3269f19))
+* **deps:** update helm/kind-action action to v1.10.0 ([#264](https://github.com/validator-labs/validator-plugin-vsphere/issues/264)) ([9663041](https://github.com/validator-labs/validator-plugin-vsphere/commit/96630418bf612d6c18fc5848ed03dd0868c7ae2e))
+* **deps:** update softprops/action-gh-release digest to 69320db ([#259](https://github.com/validator-labs/validator-plugin-vsphere/issues/259)) ([80b1725](https://github.com/validator-labs/validator-plugin-vsphere/commit/80b1725284d48814a5dc1c8f50d508cb5ffbba95))
+* release 0.0.23 ([a91d7b3](https://github.com/validator-labs/validator-plugin-vsphere/commit/a91d7b34e3cf26b1292d15014bb5931a730f422e))
+
 ## [0.0.22](https://github.com/validator-labs/validator-plugin-vsphere/compare/v0.0.21...v0.0.22) (2024-05-28)
 
 
