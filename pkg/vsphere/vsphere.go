@@ -61,19 +61,19 @@ type VSphereCloudDriver struct {
 
 type VsphereCloudAccount struct {
 	// Insecure is a flag that controls whether to validate the vSphere server's certificate.
-	Insecure bool `json:"insecure"`
+	Insecure bool `json:"insecure" yaml:"insecure"`
 
 	// password
 	// Required: true
-	Password string `json:"password"`
+	Password string `json:"password" yaml:"password"`
 
 	// username
 	// Required: true
-	Username string `json:"username"`
+	Username string `json:"username" yaml:"username"`
 
 	// VcenterServer is the address of the vSphere endpoint
 	// Required: true
-	VcenterServer string `json:"vcenterServer"`
+	VcenterServer string `json:"vcenterServer" yaml:"vcenterServer"`
 }
 
 type Session struct {
