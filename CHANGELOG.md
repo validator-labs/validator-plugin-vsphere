@@ -1,5 +1,12 @@
 # Changelog
 
+## [0.0.24](https://github.com/validator-labs/validator-plugin-vsphere/compare/v0.0.23...v0.0.24) (2024-06-09)
+
+
+### Bug Fixes
+
+* add yaml struct tags to VsphereCloudAccount ([#276](https://github.com/validator-labs/validator-plugin-vsphere/issues/276)) ([923a14c](https://github.com/validator-labs/validator-plugin-vsphere/commit/923a14c76dc22938f3006840625a51deee7b7c27))
+
 ## [0.0.23](https://github.com/validator-labs/validator-plugin-vsphere/compare/v0.0.22...v0.0.23) (2024-06-07)
 
 
