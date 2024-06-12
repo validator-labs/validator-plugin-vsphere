@@ -20,6 +20,9 @@ type MockVsphereDriver struct {
 	ResourceTags       map[string]tags.AttachedTags
 }
 
+// ensure that MockVsphereDriver implements the VsphereDriver interface
+var _ VsphereDriver = &MockVsphereDriver{}
+
 func (d MockVsphereDriver) GetVSphereVMFolders(ctx context.Context, datacenter string) ([]string, error) {
 	return d.VMFolders, nil
 }
