@@ -1,5 +1,13 @@
 # Changelog
 
+## [0.0.26](https://github.com/validator-labs/validator-plugin-vsphere/compare/v0.0.25...v0.0.26) (2024-06-12)
+
+
+### Other
+
+* ensure that VSphereCloudDriver has IsAdminAccount function ([#284](https://github.com/validator-labs/validator-plugin-vsphere/issues/284)) ([ad92e4a](https://github.com/validator-labs/validator-plugin-vsphere/commit/ad92e4a9ced5c5f4aa175afc5bd7bf9c67657f5a))
+* ensure that VSphereCloudDriver implements the VsphereDriver interface ([#282](https://github.com/validator-labs/validator-plugin-vsphere/issues/282)) ([6ff5e3b](https://github.com/validator-labs/validator-plugin-vsphere/commit/6ff5e3b9281b2cb30cd2c9c57e2a841c0086d54f))
+
 ## [0.0.25](https://github.com/validator-labs/validator-plugin-vsphere/compare/v0.0.24...v0.0.25) (2024-06-12)
 
 
