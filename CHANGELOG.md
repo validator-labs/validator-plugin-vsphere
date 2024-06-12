@@ -1,5 +1,18 @@
 # Changelog
 
+## [0.0.25](https://github.com/validator-labs/validator-plugin-vsphere/compare/v0.0.24...v0.0.25) (2024-06-12)
+
+
+### Bug Fixes
+
+* **deps:** update kubernetes packages to v0.30.2 ([#280](https://github.com/validator-labs/validator-plugin-vsphere/issues/280)) ([d262e44](https://github.com/validator-labs/validator-plugin-vsphere/commit/d262e44e1fa39140b91441b322890ab4ab8e3538))
+* **deps:** update module sigs.k8s.io/cluster-api to v1.7.3 ([#278](https://github.com/validator-labs/validator-plugin-vsphere/issues/278)) ([c5e13f8](https://github.com/validator-labs/validator-plugin-vsphere/commit/c5e13f8ed5d37130ef96c63e6b31242ee3e34fe1))
+
+
+### Refactoring
+
+* move IsAdmin out from internal package ([#281](https://github.com/validator-labs/validator-plugin-vsphere/issues/281)) ([84ed6c4](https://github.com/validator-labs/validator-plugin-vsphere/commit/84ed6c4c762ae53ceac1d94c8e73dde86445ba79))
+
 ## [0.0.24](https://github.com/validator-labs/validator-plugin-vsphere/compare/v0.0.23...v0.0.24) (2024-06-09)
 
 
