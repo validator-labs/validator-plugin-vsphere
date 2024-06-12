@@ -48,6 +48,7 @@ type VsphereDriver interface {
 	GetResourcePools(ctx context.Context, datacenter string, cluster string) ([]*object.ResourcePool, error)
 	GetVapps(ctx context.Context) ([]mo.VirtualApp, error)
 	GetResourceTags(ctx context.Context, resourceType string) (map[string]tags.AttachedTags, error)
+	IsAdminAccount(ctx context.Context) (bool, error)
 }
 
 // ensure that VSphereCloudDriver implements the VsphereDriver interface
