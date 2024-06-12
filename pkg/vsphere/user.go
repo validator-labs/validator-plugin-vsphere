@@ -3,12 +3,19 @@ package vsphere
 import (
 	"context"
 	"fmt"
+	"net/url"
+	"os"
 	"strings"
 
 	"github.com/vmware/govmomi/find"
 	"github.com/vmware/govmomi/object"
+	"github.com/vmware/govmomi/ssoadmin"
+	"github.com/vmware/govmomi/sts"
+	"github.com/vmware/govmomi/vim25/soap"
 	"github.com/vmware/govmomi/vim25/types"
 )
+
+var IsAdminAccount = isAdminAccount
 
 func (v *VSphereCloudDriver) GetCurrentVmwareUser(ctx context.Context) (string, error) {
 	userSession, err := v.Client.SessionManager.UserSession(ctx)
@@ -131,4 +138,61 @@ func GetVmwareUserPrivileges(ctx context.Context, userPrincipal string, groupPri
 func getUserPrincipalFromUsername(username string) string {
 	splitStr := strings.Split(username, "@")
 	return fmt.Sprintf("%s\\%s", strings.ToUpper(splitStr[1]), splitStr[0])
+}
+
+func isAdminAccount(ctx context.Context, driver *VSphereCloudDriver) (bool, error) {
+	ssoClient, err := ConfigureSSOClient(ctx, driver)
+	if err != nil {
+		return false, err
+	}
+	defer ssoClient.Logout(ctx)
+
+	_, err = ssoClient.FindUser(ctx, driver.VCenterUsername)
+	if err != nil {
+		if strings.Contains(err.Error(), "NoPermission") {
+			return false, nil
+		}
+		return false, err
+	}
+
+	return true, nil
+}
+
+func ConfigureSSOClient(ctx context.Context, driver *VSphereCloudDriver) (*ssoadmin.Client, error) {
+	vc := driver.Client.Client
+	ssoClient, err := ssoadmin.NewClient(ctx, vc)
+	if err != nil {
+		return nil, err
+	}
+
+	token := os.Getenv("SSO_LOGIN_TOKEN")
+	header := soap.Header{
+		Security: &sts.Signer{
+			Certificate: vc.Certificate(),
+			Token:       token,
+		},
+	}
+	if token == "" {
+		tokens, cerr := sts.NewClient(ctx, vc)
+		if cerr != nil {
+			return nil, cerr
+		}
+
+		userInfo := url.UserPassword(driver.VCenterUsername, driver.VCenterPassword)
+		req := sts.TokenRequest{
+			Certificate: vc.Certificate(),
+			Userinfo:    userInfo,
+		}
+
+		header.Security, cerr = tokens.Issue(ctx, req)
+		if cerr != nil {
+			return nil, cerr
+		}
+	}
+
+	if err = ssoClient.Login(ssoClient.WithHeader(ctx, header)); err != nil {
+		return nil, err
+	}
+
+	return ssoClient, nil
 }

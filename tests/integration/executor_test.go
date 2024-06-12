@@ -9,9 +9,9 @@ import (
 	"github.com/validator-labs/validator-plugin-vsphere/tests/utils/test"
 )
 
-var _ = ginkgo.Describe("Palette CLI Integration Test Suite", func() {
+var _ = ginkgo.Describe("VSphere Validator Integration Test Suite", func() {
 
-	ginkgo.Context("Executing Palette CLI integration tests", func() {
+	ginkgo.Context("Executing VSphere Validator integration tests", func() {
 		ginkgo.It("should not error", func() {
 			testCtx := test.NewTestContext()
 			err := test.Flow(testCtx).

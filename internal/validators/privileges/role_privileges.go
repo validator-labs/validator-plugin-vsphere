@@ -4,14 +4,9 @@ import (
 	"context"
 	"errors"
 	"fmt"
-	"net/url"
-	"os"
 	"strings"
 
 	"github.com/vmware/govmomi/object"
-	"github.com/vmware/govmomi/ssoadmin"
-	"github.com/vmware/govmomi/sts"
-	"github.com/vmware/govmomi/vim25/soap"
 	corev1 "k8s.io/api/core/v1"
 
 	"github.com/validator-labs/validator-plugin-vsphere/api/v1alpha1"
@@ -24,7 +19,6 @@ import (
 )
 
 var (
-	IsAdminAccount                    = isAdminAccount
 	GetUserAndGroupPrincipals         = getUserAndGroupPrincipals
 	ErrRequiredRolePrivilegesNotFound = errors.New("one or more required role privileges was not found for account")
 )
@@ -81,65 +75,8 @@ func isValidRule(privilege string, privileges map[string]bool) bool {
 	return privileges[privilege]
 }
 
-func configureSSOClient(ctx context.Context, driver *vsphere.VSphereCloudDriver) (*ssoadmin.Client, error) {
-	vc := driver.Client.Client
-	ssoClient, err := ssoadmin.NewClient(ctx, vc)
-	if err != nil {
-		return nil, err
-	}
-
-	token := os.Getenv("SSO_LOGIN_TOKEN")
-	header := soap.Header{
-		Security: &sts.Signer{
-			Certificate: vc.Certificate(),
-			Token:       token,
-		},
-	}
-	if token == "" {
-		tokens, cerr := sts.NewClient(ctx, vc)
-		if cerr != nil {
-			return nil, cerr
-		}
-
-		userInfo := url.UserPassword(driver.VCenterUsername, driver.VCenterPassword)
-		req := sts.TokenRequest{
-			Certificate: vc.Certificate(),
-			Userinfo:    userInfo,
-		}
-
-		header.Security, cerr = tokens.Issue(ctx, req)
-		if cerr != nil {
-			return nil, cerr
-		}
-	}
-
-	if err = ssoClient.Login(ssoClient.WithHeader(ctx, header)); err != nil {
-		return nil, err
-	}
-
-	return ssoClient, nil
-}
-
-func isAdminAccount(ctx context.Context, driver *vsphere.VSphereCloudDriver) (bool, error) {
-	ssoClient, err := configureSSOClient(ctx, driver)
-	if err != nil {
-		return false, err
-	}
-	defer ssoClient.Logout(ctx)
-
-	_, err = ssoClient.FindUser(ctx, driver.VCenterUsername)
-	if err != nil {
-		if strings.Contains(err.Error(), "NoPermission") {
-			return false, nil
-		}
-		return false, err
-	}
-
-	return true, nil
-}
-
 func getPrivileges(ctx context.Context, driver *vsphere.VSphereCloudDriver, authManager *object.AuthorizationManager, username string) (map[string]bool, error) {
-	isAdmin, err := IsAdminAccount(ctx, driver)
+	isAdmin, err := vsphere.IsAdminAccount(ctx, driver)
 	if err != nil {
 		return nil, err
 	}
@@ -182,7 +119,7 @@ func isSameUser(userPrincipal string, username string) bool {
 func getUserAndGroupPrincipals(ctx context.Context, username string, driver *vsphere.VSphereCloudDriver) (string, []string, error) {
 	var groups []string
 
-	ssoClient, err := configureSSOClient(ctx, driver)
+	ssoClient, err := vsphere.ConfigureSSOClient(ctx, driver)
 	if err != nil {
 		return "", nil, err
 	}
