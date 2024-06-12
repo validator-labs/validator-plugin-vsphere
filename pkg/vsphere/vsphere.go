@@ -50,6 +50,9 @@ type VsphereDriver interface {
 	GetResourceTags(ctx context.Context, resourceType string) (map[string]tags.AttachedTags, error)
 }
 
+// ensure that VSphereCloudDriver implements the VsphereDriver interface
+var _ VsphereDriver = &VSphereCloudDriver{}
+
 type VSphereCloudDriver struct {
 	VCenterServer   string
 	VCenterUsername string
