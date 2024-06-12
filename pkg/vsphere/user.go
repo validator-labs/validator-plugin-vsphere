@@ -102,6 +102,10 @@ func (v *VSphereCloudDriver) ValidateUserPrivilegeOnEntities(ctx context.Context
 	return isValid, failures, nil
 }
 
+func (v *VSphereCloudDriver) IsAdminAccount(ctx context.Context) (bool, error) {
+	return IsAdminAccount(ctx, v)
+}
+
 func GetVmwareUserPrivileges(ctx context.Context, userPrincipal string, groupPrincipals []string, authManager *object.AuthorizationManager) (map[string]bool, error) {
 	groupPrincipalMap := make(map[string]bool)
 	for _, principal := range groupPrincipals {

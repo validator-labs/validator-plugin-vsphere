@@ -67,6 +67,10 @@ func (d MockVsphereDriver) GetResourceTags(ctx context.Context, resourceType str
 	return d.ResourceTags, nil
 }
 
+func (d MockVsphereDriver) IsAdminAccount(ctx context.Context) (bool, error) {
+	return true, nil
+}
+
 func concat(ss ...string) string {
 	return strings.Join(ss, "_")
 }
