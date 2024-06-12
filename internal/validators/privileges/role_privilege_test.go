@@ -33,7 +33,7 @@ func TestRolePrivilegeValidationService_ReconcileRolePrivilegesRule(t *testing.T
 		return "admin", []string{"Administrators"}, nil
 	}
 
-	IsAdminAccount = func(ctx context.Context, driver *vsphere.VSphereCloudDriver) (bool, error) {
+	vsphere.IsAdminAccount = func(ctx context.Context, driver *vsphere.VSphereCloudDriver) (bool, error) {
 		return true, nil
 	}
 

@@ -12,7 +12,7 @@ import (
 
 func Test(t *testing.T) {
 	gomega.RegisterFailHandler(ginkgo.Fail)
-	ginkgo.RunSpecs(t, "Palette CLI Suite")
+	ginkgo.RunSpecs(t, "VSphere Validator Suite")
 }
 
 var _ = ginkgo.BeforeSuite(func() {

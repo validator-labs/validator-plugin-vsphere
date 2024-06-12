@@ -204,7 +204,7 @@ func createGovmomiClientWithKeepAlive(ctx context.Context, sessionKey, server, u
 		return nil, err
 	}
 
-	vimClient.UserAgent = "spectro-palette"
+	vimClient.UserAgent = "vsphere-validator"
 
 	c := &govmomi.Client{
 		Client:         vimClient,
