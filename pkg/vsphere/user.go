@@ -99,7 +99,7 @@ func (v *VSphereCloudDriver) ValidateUserPrivilegeOnEntities(ctx context.Context
 		isValid = true
 	}
 
-	return isValid, failures, nil
+	return isValid, failures, err
 }
 
 func (v *VSphereCloudDriver) IsAdminAccount(ctx context.Context) (bool, error) {
@@ -149,7 +149,11 @@ func isAdminAccount(ctx context.Context, driver *VSphereCloudDriver) (bool, erro
 	if err != nil {
 		return false, err
 	}
-	defer ssoClient.Logout(ctx)
+	defer func() {
+		if err := ssoClient.Logout(ctx); err != nil {
+			driver.log.Error(err, "Failed to logout from SSO client")
+		}
+	}()
 
 	_, err = ssoClient.FindUser(ctx, driver.VCenterUsername)
 	if err != nil {

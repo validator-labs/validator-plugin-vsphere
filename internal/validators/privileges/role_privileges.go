@@ -6,6 +6,7 @@ import (
 	"fmt"
 	"strings"
 
+	"github.com/go-logr/logr"
 	"github.com/vmware/govmomi/object"
 	corev1 "k8s.io/api/core/v1"
 
@@ -37,7 +38,6 @@ func setFailureStatus(vr *types.ValidationRuleResult, msg string) {
 	vr.State = util.Ptr(vapi.ValidationFailed)
 	vr.Condition.Message = msg
 	vr.Condition.Status = corev1.ConditionFalse
-	return
 }
 
 func (s *PrivilegeValidationService) ReconcileRolePrivilegesRule(rule v1alpha1.GenericRolePrivilegeValidationRule, driver *vsphere.VSphereCloudDriver, authManager *object.AuthorizationManager) (*types.ValidationRuleResult, error) {
@@ -49,7 +49,7 @@ func (s *PrivilegeValidationService) ReconcileRolePrivilegesRule(rule v1alpha1.G
 	vr := buildValidationResult(rule, constants.ValidationTypeRolePrivileges)
 	failMsg := fmt.Sprintf("One or more required privileges was not found, or a condition was not met for account: %s", rule.Username)
 
-	privileges, err := getPrivileges(ctx, driver, authManager, rule.Username)
+	privileges, err := getPrivileges(ctx, driver, authManager, rule.Username, s.log)
 	if err != nil {
 		vr.Condition.Failures = append(vr.Condition.Failures, fmt.Sprintf("Failed to get user privileges for %s due to error: %s", rule.Username, err))
 		setFailureStatus(vr, failMsg)
@@ -75,14 +75,14 @@ func isValidRule(privilege string, privileges map[string]bool) bool {
 	return privileges[privilege]
 }
 
-func getPrivileges(ctx context.Context, driver *vsphere.VSphereCloudDriver, authManager *object.AuthorizationManager, username string) (map[string]bool, error) {
+func getPrivileges(ctx context.Context, driver *vsphere.VSphereCloudDriver, authManager *object.AuthorizationManager, username string, log logr.Logger) (map[string]bool, error) {
 	isAdmin, err := vsphere.IsAdminAccount(ctx, driver)
 	if err != nil {
 		return nil, err
 	}
 
 	if isAdmin {
-		userPrincipal, groupPrincipals, err := GetUserAndGroupPrincipals(ctx, username, driver)
+		userPrincipal, groupPrincipals, err := GetUserAndGroupPrincipals(ctx, username, driver, log)
 		if err != nil {
 			return nil, err
 		}
@@ -96,7 +96,7 @@ func getPrivileges(ctx context.Context, driver *vsphere.VSphereCloudDriver, auth
 	}
 
 	if !isSameUser(userPrincipal, username) {
-		return nil, errors.New("Not authorized to get privileges for another user from non-admin account")
+		return nil, errors.New("not authorized to get privileges for another user from non-admin account")
 	}
 
 	groupPrincipals := make([]string, 0)
@@ -112,18 +112,19 @@ func isSameUser(userPrincipal string, username string) bool {
 	if len(userPrincipalParts) != 2 || len(usernameParts) != 2 {
 		return false
 	}
-
-	return strings.ToLower(userPrincipalParts[0]) == strings.ToLower(usernameParts[1]) && userPrincipalParts[1] == usernameParts[0]
+	return strings.EqualFold(userPrincipalParts[0], usernameParts[1]) && userPrincipalParts[1] == usernameParts[0]
 }
 
-func getUserAndGroupPrincipals(ctx context.Context, username string, driver *vsphere.VSphereCloudDriver) (string, []string, error) {
-	var groups []string
-
+func getUserAndGroupPrincipals(ctx context.Context, username string, driver *vsphere.VSphereCloudDriver, log logr.Logger) (string, []string, error) {
 	ssoClient, err := vsphere.ConfigureSSOClient(ctx, driver)
 	if err != nil {
 		return "", nil, err
 	}
-	defer ssoClient.Logout(ctx)
+	defer func() {
+		if err := ssoClient.Logout(ctx); err != nil {
+			log.Error(err, "Failed to logout from SSO client")
+		}
+	}()
 
 	user, err := ssoClient.FindUser(ctx, username)
 	if err != nil {
@@ -134,6 +135,8 @@ func getUserAndGroupPrincipals(ctx context.Context, username string, driver *vsp
 	if err != nil {
 		return "", nil, err
 	}
+
+	groups := make([]string, 0, len(parentGroups))
 	for _, group := range parentGroups {
 		groups = append(groups, fmt.Sprintf("%s\\%s", strings.ToUpper(group.Domain), group.Name))
 	}

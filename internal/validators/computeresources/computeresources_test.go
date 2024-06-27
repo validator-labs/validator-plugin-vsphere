@@ -21,7 +21,7 @@ func TestComputeResourcesValidationService_ReconcileComputeResourceValidationRul
 	var log logr.Logger
 
 	userName := "admin@vsphere.local"
-	vcSim := vcsim.NewVCSim(userName)
+	vcSim := vcsim.NewVCSim(userName, log)
 
 	vcSim.Start()
 

@@ -19,9 +19,10 @@ import (
 
 func TestRolePrivilegeValidationService_ReconcileRolePrivilegesRule(t *testing.T) {
 	var log logr.Logger
+
 	userPrivilegesMap := make(map[string]bool)
 	userName := "admin@vsphere.local"
-	vcSim := vcsim.NewVCSim(userName)
+	vcSim := vcsim.NewVCSim(userName, log)
 
 	vcSim.Start()
 	defer vcSim.Shutdown()
@@ -29,7 +30,7 @@ func TestRolePrivilegeValidationService_ReconcileRolePrivilegesRule(t *testing.T
 	userPrivilegesMap["Cns.Searchable"] = true
 
 	// monkey-patch GetUserGroupAndPrincipals and IsAdminAccount
-	GetUserAndGroupPrincipals = func(ctx context.Context, username string, driver *vsphere.VSphereCloudDriver) (string, []string, error) {
+	GetUserAndGroupPrincipals = func(ctx context.Context, username string, driver *vsphere.VSphereCloudDriver, log logr.Logger) (string, []string, error) {
 		return "admin", []string{"Administrators"}, nil
 	}
 

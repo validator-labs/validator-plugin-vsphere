@@ -22,7 +22,7 @@ func TestRolePrivilegeValidationService_ReconcileEntityPrivilegeRule(t *testing.
 	userPrivilegesMap := make(map[string]bool)
 
 	userName := "admin2@vsphere.local"
-	vcSim := vcsim.NewVCSim(userName)
+	vcSim := vcsim.NewVCSim(userName, log)
 
 	vcSim.Start()
 	defer vcSim.Shutdown()

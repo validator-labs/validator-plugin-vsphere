@@ -8,12 +8,9 @@ const (
 	ValidationTypeComputeResources string = "vsphere-compute-resources"
 	ValidationTypeNTP              string = "vsphere-ntp"
 
-	DatacenterInventoryPath     = "%s"
-	ClusterInventoryPath        = "/%s/host/%s"
-	HostSystemInventoryPath     = "/%s/host/%s/%s"
-	VirtualMachineInventoryPath = "%s"
-	FolderInventoryPath         = "%s"
-	ResourcePoolInventoryPath   = "/%s/host/%s/Resources/%s"
+	ClusterInventoryPath      = "/%s/host/%s"
+	HostSystemInventoryPath   = "/%s/host/%s/%s"
+	ResourcePoolInventoryPath = "/%s/host/%s/Resources/%s"
 
 	ClusterDefaultResourcePoolName = "Resources"
 )

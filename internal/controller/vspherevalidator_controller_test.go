@@ -3,6 +3,7 @@ package controller
 import (
 	"context"
 
+	"github.com/go-logr/logr"
 	. "github.com/onsi/ginkgo/v2"
 	. "github.com/onsi/gomega"
 
@@ -58,7 +59,7 @@ var _ = Describe("VsphereValidator controller", Ordered, func() {
 	vr := &vapi.ValidationResult{}
 	vrKey := types.NamespacedName{Name: validationResultName(val), Namespace: validatorNamespace}
 
-	vcSim := vcsim.NewVCSim(username)
+	vcSim := vcsim.NewVCSim(username, logr.Logger{})
 	vcSim.Start()
 	cloudAccount := vcSim.GetTestVsphereAccount()
 

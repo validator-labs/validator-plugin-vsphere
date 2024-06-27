@@ -12,6 +12,7 @@ import (
 	"strconv"
 	"syscall"
 
+	"github.com/go-logr/logr"
 	"github.com/pkg/errors"
 	"github.com/vmware/govmomi/simulator"
 	_ "github.com/vmware/govmomi/vapi/simulator"
@@ -28,11 +29,13 @@ func init() {
 type VCSimulator struct {
 	cloudAccount *vsphere.VsphereCloudAccount
 	Driver       *vsphere.VSphereCloudDriver
+	log          logr.Logger
 }
 
-func NewVCSim(username string) *VCSimulator {
+func NewVCSim(username string, log logr.Logger) *VCSimulator {
 	return &VCSimulator{
 		cloudAccount: NewTestVsphereAccount(username),
+		log:          log,
 	}
 }
 
@@ -65,7 +68,10 @@ func (v *VCSimulator) Start() {
 		log.Fatalf("failed to create vCenter simulator: %s", err)
 	}
 
-	v.Driver, err = vsphere.NewVSphereDriver(v.cloudAccount.VcenterServer, v.cloudAccount.Username, v.cloudAccount.Password, "DC0")
+	v.Driver, err = vsphere.NewVSphereDriver(
+		v.cloudAccount.VcenterServer, v.cloudAccount.Username,
+		v.cloudAccount.Password, "DC0", v.log,
+	)
 	if err != nil {
 		log.Fatalf("failed to create driver for vCenter simulator: %s", err)
 	}
