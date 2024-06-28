@@ -3,14 +3,12 @@ package vsphere
 import (
 	"context"
 	"fmt"
-	"net/http"
 	"sort"
 	"strings"
 
 	"github.com/pkg/errors"
 	"github.com/vmware/govmomi/find"
 	"github.com/vmware/govmomi/object"
-	"github.com/vmware/govmomi/vim25/mo"
 )
 
 func (v *VSphereCloudDriver) GetClusterIfExists(ctx context.Context, finder *find.Finder, datacenter, clusterName string) (bool, *object.ClusterComputeResource, error) {
@@ -59,37 +57,6 @@ func (v *VSphereCloudDriver) GetVSphereClusters(ctx context.Context, datacenter 
 
 	sort.Strings(clusters)
 	return clusters, nil
-}
-
-func (v *VSphereCloudDriver) getClusterDatastores(ctx context.Context, finder *find.Finder, datacenter string, cluster mo.ClusterComputeResource) (datastores []string, err error) {
-	dsMobjRefs := cluster.Datastore
-
-	for i := range dsMobjRefs {
-		inventoryPath := ""
-		dsObjRef, err := finder.ObjectReference(ctx, dsMobjRefs[i])
-		if err != nil {
-			return nil, fmt.Errorf("error: %s, code: %d", err.Error(), http.StatusBadRequest)
-		}
-		if dsObjRef != nil {
-			ref := dsObjRef
-			switch ref.(type) {
-			case *object.Datastore:
-				n := dsObjRef.(*object.Datastore)
-				inventoryPath = n.InventoryPath
-			default:
-				continue
-			}
-
-			if inventoryPath != "" {
-				prefix := fmt.Sprintf("/%s/datastore/", datacenter)
-				datastore := strings.TrimPrefix(inventoryPath, prefix)
-				datastores = append(datastores, datastore)
-			}
-		}
-	}
-
-	sort.Strings(datastores)
-	return datastores, nil
 }
 
 func (v *VSphereCloudDriver) getClusterComputeResources(ctx context.Context, finder *find.Finder) ([]*object.ClusterComputeResource, error) {

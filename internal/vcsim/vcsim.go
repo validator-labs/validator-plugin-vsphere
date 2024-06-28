@@ -12,6 +12,7 @@ import (
 	"strconv"
 	"syscall"
 
+	"github.com/go-logr/logr"
 	"github.com/pkg/errors"
 	"github.com/vmware/govmomi/simulator"
 	_ "github.com/vmware/govmomi/vapi/simulator"
@@ -28,15 +29,17 @@ func init() {
 type VCSimulator struct {
 	cloudAccount *vsphere.VsphereCloudAccount
 	Driver       *vsphere.VSphereCloudDriver
+	log          logr.Logger
 }
 
-func NewVCSim(username string) *VCSimulator {
+func NewVCSim(username string, port int, log logr.Logger) *VCSimulator {
 	return &VCSimulator{
-		cloudAccount: NewTestVsphereAccount(username),
+		cloudAccount: NewTestVsphereAccount(username, port),
+		log:          log,
 	}
 }
 
-func NewTestVsphereAccount(username string) *vsphere.VsphereCloudAccount {
+func NewTestVsphereAccount(username string, port int) *vsphere.VsphereCloudAccount {
 	// Starting & stopping vcsim between test cases appears to work, but govmomi calls
 	// throw an auth error on the 2nd iteration unless a unique username is used
 	// each time the simulator is instantiated.
@@ -44,7 +47,7 @@ func NewTestVsphereAccount(username string) *vsphere.VsphereCloudAccount {
 		Insecure:      true,
 		Password:      "welcome123",
 		Username:      username,
-		VcenterServer: "127.0.0.1:8446",
+		VcenterServer: fmt.Sprintf("127.0.0.1:%d", port),
 	}
 }
 
@@ -65,7 +68,10 @@ func (v *VCSimulator) Start() {
 		log.Fatalf("failed to create vCenter simulator: %s", err)
 	}
 
-	v.Driver, err = vsphere.NewVSphereDriver(v.cloudAccount.VcenterServer, v.cloudAccount.Username, v.cloudAccount.Password, "DC0")
+	v.Driver, err = vsphere.NewVSphereDriver(
+		v.cloudAccount.VcenterServer, v.cloudAccount.Username,
+		v.cloudAccount.Password, "DC0", v.log,
+	)
 	if err != nil {
 		log.Fatalf("failed to create driver for vCenter simulator: %s", err)
 	}

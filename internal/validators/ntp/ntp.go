@@ -35,7 +35,7 @@ func NewNTPValidationService(log logr.Logger, driver *vsphere.VSphereCloudDriver
 func buildValidationResult(rule v1alpha1.NTPValidationRule, validationType string) *types.ValidationRuleResult {
 	state := vapi.ValidationSucceeded
 	latestCondition := vapi.DefaultValidationCondition()
-	latestCondition.Message = fmt.Sprintf("All required NTP rules were satisfied")
+	latestCondition.Message = "All required NTP rules were satisfied"
 	latestCondition.ValidationRule = fmt.Sprintf("%s-%s", vapiconstants.ValidationRulePrefix, strings.ReplaceAll(rule.Name, " ", "-"))
 	latestCondition.ValidationType = validationType
 

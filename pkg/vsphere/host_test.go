@@ -209,8 +209,11 @@ func TestValidateHostNTPServers(t *testing.T) {
 	}
 	for _, tc := range testCases {
 		err := validateHostNTPServers(tc.hostsDateInfo)
-		if !reflect.DeepEqual(err, tc.expectedErr) {
-			t.Errorf("expected error (%v), got (%v)", tc.expectedErr, err)
+		if err != nil && !reflect.DeepEqual(err.Error(), tc.expectedErr.Error()) {
+			t.Errorf("Expected %v but got %v", tc.expectedErr, err)
+		}
+		if err == nil && tc.expectedErr != nil {
+			t.Errorf("Expected error but got no error")
 		}
 	}
 }

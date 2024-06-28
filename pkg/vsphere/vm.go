@@ -200,7 +200,11 @@ func (v *VSphereCloudDriver) GetMetrics(ctx context.Context, c *vim25.Client, vm
 		return nil, err
 	}
 
-	defer v1.Destroy(ctx)
+	defer func() {
+		if err := v1.Destroy(ctx); err != nil {
+			v.log.Error(err, "failed to destroy view")
+		}
+	}()
 
 	vmsRefs, e := v1.Find(ctx, []string{"VirtualMachine"}, nil)
 	if e != nil {

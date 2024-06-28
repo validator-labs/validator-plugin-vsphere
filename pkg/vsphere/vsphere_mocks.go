@@ -2,10 +2,11 @@ package vsphere
 
 import (
 	"context"
+	"strings"
+
 	"github.com/vmware/govmomi/object"
 	"github.com/vmware/govmomi/vapi/tags"
 	"github.com/vmware/govmomi/vim25/mo"
-	"strings"
 )
 
 type MockVsphereDriver struct {

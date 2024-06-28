@@ -20,10 +20,9 @@ import (
 func TestComputeResourcesValidationService_ReconcileComputeResourceValidationRule(t *testing.T) {
 	var log logr.Logger
 
-	userName := "admin@vsphere.local"
-	vcSim := vcsim.NewVCSim(userName)
-
+	vcSim := vcsim.NewVCSim("admin@vsphere.local", 8447, log)
 	vcSim.Start()
+	defer vcSim.Shutdown()
 
 	finder := find.NewFinder(vcSim.Driver.Client.Client)
 

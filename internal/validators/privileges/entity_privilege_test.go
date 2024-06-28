@@ -19,15 +19,10 @@ import (
 
 func TestRolePrivilegeValidationService_ReconcileEntityPrivilegeRule(t *testing.T) {
 	var log logr.Logger
-	userPrivilegesMap := make(map[string]bool)
 
-	userName := "admin2@vsphere.local"
-	vcSim := vcsim.NewVCSim(userName)
-
+	vcSim := vcsim.NewVCSim("admin2@vsphere.local", 8448, log)
 	vcSim.Start()
 	defer vcSim.Shutdown()
-
-	userPrivilegesMap["Cns.Searchable"] = true
 
 	finder := find.NewFinder(vcSim.Driver.Client.Client)
 	authManager := object.NewAuthorizationManager(vcSim.Driver.Client.Client)
@@ -37,12 +32,14 @@ func TestRolePrivilegeValidationService_ReconcileEntityPrivilegeRule(t *testing.
 
 	ctx, cancel := context.WithCancel(context.Background())
 	defer cancel()
+
 	userName, err := vcSim.Driver.GetCurrentVmwareUser(ctx)
 	if err != nil {
 		t.Fatal("Error in getting current VMware user from username")
 	}
 
 	validationService := NewPrivilegeValidationService(log, vcSim.Driver, "DC0", authManager, userName)
+
 	testCases := []struct {
 		name           string
 		expectedErr    error

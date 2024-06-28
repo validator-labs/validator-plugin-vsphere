@@ -16,7 +16,6 @@ import (
 	"github.com/validator-labs/validator-plugin-vsphere/pkg/vsphere"
 	vapi "github.com/validator-labs/validator/api/v1alpha1"
 	vapiconstants "github.com/validator-labs/validator/pkg/constants"
-	"github.com/validator-labs/validator/pkg/types"
 	vapitypes "github.com/validator-labs/validator/pkg/types"
 	"github.com/validator-labs/validator/pkg/util"
 )
@@ -35,7 +34,7 @@ func NewTagsValidationService(log logr.Logger) *TagsValidationService {
 	}
 }
 
-func (s *TagsValidationService) ReconcileTagRules(tagsManager *tags.Manager, finder *find.Finder, driver *vsphere.VSphereCloudDriver, tagValidationRule v1alpha1.TagValidationRule) (*types.ValidationRuleResult, error) {
+func (s *TagsValidationService) ReconcileTagRules(tagsManager *tags.Manager, finder *find.Finder, driver *vsphere.VSphereCloudDriver, tagValidationRule v1alpha1.TagValidationRule) (*vapitypes.ValidationRuleResult, error) {
 	vr := buildValidationResult(tagValidationRule, constants.ValidationTypeTag)
 
 	valid, err := tagIsValid(tagsManager, finder, driver.Datacenter, tagValidationRule.ClusterName, tagValidationRule.EntityType, tagValidationRule.EntityName, tagValidationRule.Tag)
@@ -51,7 +50,7 @@ func (s *TagsValidationService) ReconcileTagRules(tagsManager *tags.Manager, fin
 	return vr, nil
 }
 
-func buildValidationResult(rule v1alpha1.TagValidationRule, validationType string) *types.ValidationRuleResult {
+func buildValidationResult(rule v1alpha1.TagValidationRule, validationType string) *vapitypes.ValidationRuleResult {
 	state := vapi.ValidationSucceeded
 	latestCondition := vapi.DefaultValidationCondition()
 	latestCondition.Message = "Required entity tags were found"
@@ -70,20 +69,18 @@ func tagIsValid(tagsManager *tags.Manager, finder *find.Finder, datacenterName, 
 	if err != nil {
 		return false, err
 	}
-	var categories []tags.Category
 	for _, category := range cats {
 		switch category.Name {
 		case tagKey:
 			categoryID = category.ID
-			categories = append(categories, category)
 		}
 	}
 
 	switch entityType {
 	case "datacenter":
-		inventoryPath = fmt.Sprintf(constants.DatacenterInventoryPath, entityName)
+		inventoryPath = entityName
 	case "folder":
-		inventoryPath = fmt.Sprintf(constants.FolderInventoryPath, entityName)
+		inventoryPath = entityName
 	case "cluster":
 		inventoryPath = fmt.Sprintf(constants.ClusterInventoryPath, datacenterName, entityName)
 	case "host":
@@ -94,7 +91,7 @@ func tagIsValid(tagsManager *tags.Manager, finder *find.Finder, datacenterName, 
 			inventoryPath = fmt.Sprintf("/%s/host/%s/%s", datacenterName, clusterName, entityName)
 		}
 	case "vm":
-		inventoryPath = fmt.Sprintf(constants.VirtualMachineInventoryPath, entityName)
+		inventoryPath = entityName
 	}
 
 	// check if object has tag

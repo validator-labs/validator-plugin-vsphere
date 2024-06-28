@@ -3,7 +3,6 @@ package vsphere
 import (
 	"context"
 	"fmt"
-	"net/http"
 	"path"
 	"sort"
 	"strings"
@@ -95,6 +94,13 @@ func (v *VSphereCloudDriver) CreateVSphereVMFolder(ctx context.Context, datacent
 
 	for _, folder := range folders {
 		folderExists, _, err := v.GetFolderIfExists(ctx, finder, datacenter, folder)
+		if err != nil {
+			if strings.HasSuffix(err.Error(), "not found") {
+				v.log.V(1).Info("folder does not exist; will create it", "path", folder)
+			} else {
+				return errors.Wrap(err, fmt.Sprintf("failed to check if folder %s exists", folder))
+			}
+		}
 		if folderExists {
 			continue
 		}
@@ -108,11 +114,11 @@ func (v *VSphereCloudDriver) CreateVSphereVMFolder(ctx context.Context, datacent
 
 		folder, err := finder.Folder(ctx, dir)
 		if err != nil {
-			return fmt.Errorf("error fetching folder: %s. Code:%d", err.Error(), http.StatusInternalServerError)
+			return fmt.Errorf("error fetching folder from directory %s: %w", dir, err)
 		}
 
 		if _, err := folder.CreateFolder(ctx, name); err != nil {
-			return fmt.Errorf("error creating folder: %s. Code:%d", err.Error(), http.StatusInternalServerError)
+			return fmt.Errorf("error creating folder %s: %w", name, err)
 		}
 	}
 

@@ -3,7 +3,6 @@ package vsphere
 import (
 	"context"
 	"fmt"
-	"golang.org/x/exp/slices"
 	"time"
 
 	"github.com/pkg/errors"
@@ -14,6 +13,7 @@ import (
 	"github.com/vmware/govmomi/view"
 	"github.com/vmware/govmomi/vim25/mo"
 	"github.com/vmware/govmomi/vim25/types"
+	"golang.org/x/exp/slices"
 )
 
 type VSphereHostSystem struct {
@@ -127,9 +127,9 @@ func getHostSystem(hostNameObj *types.ManagedObjectReference, hostSystems []mo.H
 }
 
 func (v *VSphereCloudDriver) ValidateHostNTPSettings(ctx context.Context, finder *find.Finder, datacenter, clusterName string, hosts []string) (bool, []string, error) {
-	var hostsDateInfo []HostDateInfo
 	var failures []string
 
+	hostsDateInfo := make([]HostDateInfo, 0, len(hosts))
 	for _, host := range hosts {
 		_, hostObj, err := v.GetHostIfExists(ctx, finder, datacenter, clusterName, host)
 		if err != nil {
@@ -197,7 +197,7 @@ func (v *VSphereCloudDriver) ValidateHostNTPSettings(ctx context.Context, finder
 
 	err := validateHostNTPServers(hostsDateInfo)
 	if err != nil {
-		failures = append(failures, fmt.Sprintf("%s", err.Error()))
+		failures = append(failures, err.Error())
 	}
 
 	if len(failures) > 0 {

@@ -19,17 +19,13 @@ import (
 
 func TestRolePrivilegeValidationService_ReconcileRolePrivilegesRule(t *testing.T) {
 	var log logr.Logger
-	userPrivilegesMap := make(map[string]bool)
-	userName := "admin@vsphere.local"
-	vcSim := vcsim.NewVCSim(userName)
 
+	vcSim := vcsim.NewVCSim("admin@vsphere.local", 8449, log)
 	vcSim.Start()
 	defer vcSim.Shutdown()
 
-	userPrivilegesMap["Cns.Searchable"] = true
-
 	// monkey-patch GetUserGroupAndPrincipals and IsAdminAccount
-	GetUserAndGroupPrincipals = func(ctx context.Context, username string, driver *vsphere.VSphereCloudDriver) (string, []string, error) {
+	GetUserAndGroupPrincipals = func(ctx context.Context, username string, driver *vsphere.VSphereCloudDriver, log logr.Logger) (string, []string, error) {
 		return "admin", []string{"Administrators"}, nil
 	}
 
@@ -44,12 +40,14 @@ func TestRolePrivilegeValidationService_ReconcileRolePrivilegesRule(t *testing.T
 
 	ctx, cancel := context.WithCancel(context.Background())
 	defer cancel()
+
 	userName, err := vcSim.Driver.GetCurrentVmwareUser(ctx)
 	if err != nil {
 		t.Fatal("Error in getting current VMware user from username")
 	}
 
 	validationService := NewPrivilegeValidationService(log, vcSim.Driver, "DC0", authManager, userName)
+
 	testCases := []struct {
 		name           string
 		expectedErr    error

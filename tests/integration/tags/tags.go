@@ -2,7 +2,6 @@ package tags
 
 import (
 	"github.com/go-logr/logr"
-	log "github.com/sirupsen/logrus"
 	"github.com/vmware/govmomi/find"
 	_ "github.com/vmware/govmomi/vapi/simulator"
 	vtags "github.com/vmware/govmomi/vapi/tags"
@@ -102,18 +101,18 @@ func Execute() error {
 
 type TagValidationTest struct {
 	*test.BaseTest
-	log *log.Entry
+	log logr.Logger
 }
 
 func NewTagValidationTest(description string) *TagValidationTest {
 	return &TagValidationTest{
-		log:      log.WithField("test", "tag-validation-integration-test"),
+		log:      logr.Logger{},
 		BaseTest: test.NewBaseTest("vsphere-plugin", description, nil),
 	}
 }
 
 func (t *TagValidationTest) Execute(ctx *test.TestContext) (tr *test.TestResult) {
-	t.log.Printf("Executing %s and %s", t.GetName(), t.GetDescription())
+	t.log.Info("Executing Test", "name", t.GetName(), "description", t.GetDescription())
 	if tr := t.PreRequisite(ctx); tr.IsFailed() {
 		return tr
 	}
@@ -129,7 +128,10 @@ func (t *TagValidationTest) testTagsOnObjects(ctx *test.TestContext) (tr *test.T
 	vcSim := ctx.Get("vcsim")
 	vsphereCloudAccount := vcSim.(*vcsim.VCSimulator).GetTestVsphereAccount()
 
-	vsphereCloudDriver, err := vsphere.NewVSphereDriver(vsphereCloudAccount.VcenterServer, vsphereCloudAccount.Username, vsphereCloudAccount.Password, "DC0")
+	vsphereCloudDriver, err := vsphere.NewVSphereDriver(
+		vsphereCloudAccount.VcenterServer, vsphereCloudAccount.Username,
+		vsphereCloudAccount.Password, "DC0", t.log,
+	)
 	if err != nil {
 		return tr
 	}
@@ -210,10 +212,10 @@ func (t *TagValidationTest) testTagsOnObjects(ctx *test.TestContext) (tr *test.T
 }
 
 func (t *TagValidationTest) PreRequisite(ctx *test.TestContext) (tr *test.TestResult) {
-	t.log.Printf("Executing ExecuteRequisite for %s and %s", t.GetName(), t.GetDescription())
+	t.log.Info("Executing PreRequisites", "name", t.GetName(), "description", t.GetDescription())
 
 	// setup vCenter simulator
-	vcSim := vcsim.NewVCSim("admin@vsphere.local")
+	vcSim := vcsim.NewVCSim("admin@vsphere.local", 8450, t.log)
 	vcSim.Start()
 	ctx.Put("vcsim", vcSim)
 
@@ -221,7 +223,7 @@ func (t *TagValidationTest) PreRequisite(ctx *test.TestContext) (tr *test.TestRe
 }
 
 func (t *TagValidationTest) TearDown(ctx *test.TestContext) {
-	t.log.Printf("Executing TearDown for %s and %s ", t.GetName(), t.GetDescription())
+	t.log.Info("Executing TearDown", "name", t.GetName(), "description", t.GetDescription())
 
 	// shut down vCenter simulator
 	vcSimulator := ctx.Get("vcsim")

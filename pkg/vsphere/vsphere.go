@@ -9,6 +9,7 @@ import (
 	"sync"
 	"time"
 
+	"github.com/go-logr/logr"
 	"github.com/hashicorp/go-version"
 	"github.com/pkg/errors"
 	"github.com/vmware/govmomi"
@@ -61,6 +62,7 @@ type VSphereCloudDriver struct {
 	Datacenter      string
 	Client          *govmomi.Client
 	RestClient      *rest.Client
+	log             logr.Logger
 }
 
 type VsphereCloudAccount struct {
@@ -85,7 +87,7 @@ type Session struct {
 	RestClient    *rest.Client
 }
 
-func NewVSphereDriver(VCenterServer, VCenterUsername, VCenterPassword, datacenter string) (*VSphereCloudDriver, error) {
+func NewVSphereDriver(VCenterServer, VCenterUsername, VCenterPassword, datacenter string, log logr.Logger) (*VSphereCloudDriver, error) {
 	session, err := GetOrCreateSession(context.TODO(), VCenterServer, VCenterUsername, VCenterPassword, true)
 	if err != nil {
 		return nil, err
@@ -98,6 +100,7 @@ func NewVSphereDriver(VCenterServer, VCenterUsername, VCenterPassword, datacente
 		Datacenter:      datacenter,
 		Client:          session.GovmomiClient,
 		RestClient:      session.RestClient,
+		log:             log,
 	}, nil
 }
 

@@ -92,7 +92,10 @@ func (r *VsphereValidatorReconciler) Reconcile(ctx context.Context, req ctrl.Req
 		}
 	}
 
-	vsphereCloudDriver, err := vsphere.NewVSphereDriver(vsphereCloudAccount.VcenterServer, vsphereCloudAccount.Username, vsphereCloudAccount.Password, validator.Spec.Datacenter)
+	vsphereCloudDriver, err := vsphere.NewVSphereDriver(
+		vsphereCloudAccount.VcenterServer, vsphereCloudAccount.Username,
+		vsphereCloudAccount.Password, validator.Spec.Datacenter, r.Log,
+	)
 	if err != nil {
 		return ctrl.Result{}, err
 	}
