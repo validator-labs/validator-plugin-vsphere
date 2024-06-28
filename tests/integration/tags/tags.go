@@ -215,7 +215,7 @@ func (t *TagValidationTest) PreRequisite(ctx *test.TestContext) (tr *test.TestRe
 	t.log.Info("Executing PreRequisites", "name", t.GetName(), "description", t.GetDescription())
 
 	// setup vCenter simulator
-	vcSim := vcsim.NewVCSim("admin@vsphere.local", t.log)
+	vcSim := vcsim.NewVCSim("admin@vsphere.local", 8450, t.log)
 	vcSim.Start()
 	ctx.Put("vcsim", vcSim)
 

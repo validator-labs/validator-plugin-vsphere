@@ -59,7 +59,7 @@ var _ = Describe("VsphereValidator controller", Ordered, func() {
 	vr := &vapi.ValidationResult{}
 	vrKey := types.NamespacedName{Name: validationResultName(val), Namespace: validatorNamespace}
 
-	vcSim := vcsim.NewVCSim(username, logr.Logger{})
+	vcSim := vcsim.NewVCSim(username, 8446, logr.Logger{})
 	vcSim.Start()
 	cloudAccount := vcSim.GetTestVsphereAccount()
 
