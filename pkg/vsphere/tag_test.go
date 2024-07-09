@@ -42,7 +42,7 @@ func TestIfTagHasCategory(t *testing.T) {
 
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
-			v := &VSphereCloudDriver{}
+			v := &CloudDriver{}
 			result := v.ifTagHasCategory(tt.tags, tt.categoryId)
 			assert.Equal(t, tt.expectedBool, result)
 		})

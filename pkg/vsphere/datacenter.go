@@ -10,7 +10,8 @@ import (
 	"github.com/vmware/govmomi/object"
 )
 
-func (v *VSphereCloudDriver) GetDatacenterIfExists(ctx context.Context, finder *find.Finder, datacenter string) (bool, *object.Datacenter, error) {
+// GetDatacenterIfExists returns a datacenter object if it exists
+func (v *CloudDriver) GetDatacenterIfExists(ctx context.Context, finder *find.Finder, datacenter string) (bool, *object.Datacenter, error) {
 	dc, err := finder.Datacenter(ctx, datacenter)
 	if err != nil {
 		return false, nil, err
@@ -18,7 +19,8 @@ func (v *VSphereCloudDriver) GetDatacenterIfExists(ctx context.Context, finder *
 	return true, dc, nil
 }
 
-func (v *VSphereCloudDriver) GetVSphereDatacenters(ctx context.Context) ([]string, error) {
+// GetVSphereDatacenters returns a sorted list of datacenters in the vSphere environment
+func (v *CloudDriver) GetVSphereDatacenters(ctx context.Context) ([]string, error) {
 	finder, err := v.getFinder()
 	if err != nil {
 		return nil, err
@@ -34,14 +36,14 @@ func (v *VSphereCloudDriver) GetVSphereDatacenters(ctx context.Context) ([]strin
 	}
 
 	client := dcs[0].Client()
-	tags, categoryId, err := v.getTagsAndCategory(ctx, client, "Datacenter", DatacenterTagCategory)
+	tags, categoryID, err := v.getTagsAndCategory(ctx, client, "Datacenter", DatacenterTagCategory)
 	if err != nil {
 		return nil, err
 	}
 
 	datacenters := make([]string, 0)
 	for _, dc := range dcs {
-		if v.ifTagHasCategory(tags[dc.Reference().Value].Tags, categoryId) {
+		if v.ifTagHasCategory(tags[dc.Reference().Value].Tags, categoryID) {
 			dcName := strings.TrimPrefix(dc.InventoryPath, "/")
 			datacenters = append(datacenters, dcName)
 		}

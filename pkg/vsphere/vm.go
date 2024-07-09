@@ -21,15 +21,15 @@ type VSphereVM struct {
 	Name           string
 	Type           string
 	Status         string
-	IpAddress      string
+	IPAddress      string
 	Host           string
-	Cpu            int32
+	CPU            int32
 	Memory         int32
 	RootDiskSize   int32
 	Network        []VSphereNetwork
-	LibvirtVmInfo  LibvirtVmInfo
-	VSphereVmInfo  VSphereVmInfo
-	SshInfo        SshInfo
+	LibvirtVMInfo  LibvirtVMInfo
+	VSphereVMInfo  VSphereVMInfo
+	SSHInfo        SSHInfo
 	AdditionalDisk []AdditionalDisk
 	Metrics        Metrics
 	Storage        []Datastore
@@ -43,13 +43,13 @@ type VSphereNetwork struct {
 }
 
 // LibvirtVmInfo defines a libvirt VM information
-type LibvirtVmInfo struct {
+type LibvirtVMInfo struct {
 	ImagePool string
 	DataPool  string
 }
 
 // VSphereVmInfo defines a vSphere VM information
-type VSphereVmInfo struct {
+type VSphereVMInfo struct {
 	Folder    string
 	Cluster   string
 	Datastore string
@@ -57,7 +57,7 @@ type VSphereVmInfo struct {
 }
 
 // SshInfo defines the SSH information
-type SshInfo struct {
+type SSHInfo struct {
 	Username   string
 	Password   string
 	PublicKey  []string
@@ -76,8 +76,8 @@ type AdditionalDisk struct {
 
 // Metrics defines the VM metrics
 type Metrics struct {
-	CpuCores        string
-	CpuUsage        string
+	CPUCores        string
+	CPUUsage        string
 	MemoryBytes     string
 	MemoryUsage     string
 	DiskUsage       string
@@ -87,11 +87,11 @@ type Metrics struct {
 // Datastore defines a datastore
 type Datastore struct {
 	Name string
-	Id   string
+	ID   string
 }
 
 // GetVMIfExists returns the VM if it exists
-func (v *VSphereCloudDriver) GetVMIfExists(ctx context.Context, finder *find.Finder, datacenter, cluster, vmName string) (bool, *object.VirtualMachine, error) {
+func (v *CloudDriver) GetVMIfExists(ctx context.Context, finder *find.Finder, cluster, vmName string) (bool, *object.VirtualMachine, error) {
 	vm, err := finder.VirtualMachine(ctx, vmName)
 	if err != nil {
 		return false, nil, err
@@ -100,8 +100,8 @@ func (v *VSphereCloudDriver) GetVMIfExists(ctx context.Context, finder *find.Fin
 }
 
 // GetVSphereVms returns a list of vSphere VMs
-func (v *VSphereCloudDriver) GetVSphereVms(ctx context.Context, dcName string) ([]VSphereVM, error) {
-	finder, v1, client, err := v.getVmClient(ctx, dcName)
+func (v *CloudDriver) GetVSphereVms(ctx context.Context, dcName string) ([]VSphereVM, error) {
+	finder, v1, client, err := v.getVMClient(ctx, dcName)
 	if err != nil {
 		return nil, err
 	}
@@ -111,10 +111,10 @@ func (v *VSphereCloudDriver) GetVSphereVms(ctx context.Context, dcName string) (
 		return nil, e
 	}
 
-	return v.getVmInfo(ctx, finder, client, v1, vms)
+	return v.getVMInfo(ctx, finder, client, v1, vms)
 }
 
-func (v *VSphereCloudDriver) getVmClient(ctx context.Context, dcName string) (*find.Finder, *view.ContainerView, *vim25.Client, error) {
+func (v *CloudDriver) getVMClient(ctx context.Context, dcName string) (*find.Finder, *view.ContainerView, *vim25.Client, error) {
 	finder, _, err := v.GetFinderWithDatacenter(ctx, dcName)
 	if err != nil {
 		return nil, nil, nil, err
@@ -135,7 +135,7 @@ func (v *VSphereCloudDriver) getVmClient(ctx context.Context, dcName string) (*f
 	return finder, v1, client, nil
 }
 
-func (v *VSphereCloudDriver) getVms(ctx context.Context, v1 *view.ContainerView, filter *property.Match) ([]mo.VirtualMachine, error) {
+func (v *CloudDriver) getVms(ctx context.Context, v1 *view.ContainerView, filter *property.Match) ([]mo.VirtualMachine, error) {
 	vms := make([]mo.VirtualMachine, 0)
 	var err error
 	kind := []string{"VirtualMachine"}
@@ -154,8 +154,8 @@ func (v *VSphereCloudDriver) getVms(ctx context.Context, v1 *view.ContainerView,
 	return vms, nil
 }
 
-func (v *VSphereCloudDriver) getVmInfo(ctx context.Context, finder *find.Finder, client *vim25.Client, v1 *view.ContainerView, vms []mo.VirtualMachine) ([]VSphereVM, error) {
-	metrics, err := v.GetMetrics(ctx, client, vms)
+func (v *CloudDriver) getVMInfo(ctx context.Context, finder *find.Finder, client *vim25.Client, v1 *view.ContainerView, vms []mo.VirtualMachine) ([]VSphereVM, error) {
+	metrics, err := v.GetMetrics(ctx, client)
 	if err != nil {
 		return nil, errors.Wrap(err, "failed to get view manager while fetching vSphere vms")
 	}
@@ -185,7 +185,7 @@ func (v *VSphereCloudDriver) getVmInfo(ctx context.Context, finder *find.Finder,
 		return nil, err
 	}
 
-	vmParentRefs, err := v.getVmParentRefs(ctx, v1)
+	vmParentRefs, err := v.getVMParentRefs(ctx, v1)
 	if err != nil {
 		return nil, err
 	}
@@ -193,7 +193,7 @@ func (v *VSphereCloudDriver) getVmInfo(ctx context.Context, finder *find.Finder,
 	return ToVSphereVMs(vms, metrics, networks, datastores, folders, hostSystems, ccrs, vmParentRefs), nil
 }
 
-func (v *VSphereCloudDriver) getVmParentRefs(ctx context.Context, v1 *view.ContainerView) ([]mo.VirtualMachine, error) {
+func (v *CloudDriver) getVMParentRefs(ctx context.Context, v1 *view.ContainerView) ([]mo.VirtualMachine, error) {
 	var vms []mo.VirtualMachine
 	err := v1.Retrieve(ctx, []string{"VirtualMachine"}, []string{"parent", "summary"}, &vms)
 	if err != nil {
@@ -203,7 +203,7 @@ func (v *VSphereCloudDriver) getVmParentRefs(ctx context.Context, v1 *view.Conta
 }
 
 // GetMetrics returns the metrics for the given VMs
-func (v *VSphereCloudDriver) GetMetrics(ctx context.Context, c *vim25.Client, vms []mo.VirtualMachine) ([]performance.EntityMetric, error) {
+func (v *CloudDriver) GetMetrics(ctx context.Context, c *vim25.Client) ([]performance.EntityMetric, error) {
 	m := view.NewManager(c)
 
 	v1, err := m.CreateContainerView(ctx, c.ServiceContent.RootFolder, nil, true)
@@ -264,24 +264,24 @@ func ToVSphereVM(param mo.VirtualMachine, metrics []performance.EntityMetric, ne
 		Name:          param.Summary.Config.Name,
 		Type:          param.Summary.Vm.Value,
 		Status:        string(param.Summary.OverallStatus),
-		IpAddress:     param.Guest.IpAddress,
+		IPAddress:     param.Guest.IpAddress,
 		Host:          getHostName(param, hostSystems),
-		Cpu:           param.Summary.Config.NumCpu,
+		CPU:           param.Summary.Config.NumCpu,
 		Memory:        param.Summary.Config.MemorySizeMB,
 		RootDiskSize:  param.Summary.Config.NumVirtualDisks,
-		LibvirtVmInfo: LibvirtVmInfo{},
+		LibvirtVMInfo: LibvirtVMInfo{},
 		Network:       getNetworks(param),
-		VSphereVmInfo: VSphereVmInfo{
+		VSphereVMInfo: VSphereVMInfo{
 			Folder:    getFolderName(param, parentsRef, folders),
 			Datastore: getDatastore(param.Datastore, dsNames),
 			Network:   getNetwork(networks, param.Network),
 			Cluster:   getClusterName(param, hostSystems, ccrs),
 		},
-		SshInfo: SshInfo{
+		SSHInfo: SSHInfo{
 			Username: param.Summary.Config.GuestId,
 		},
-		AdditionalDisk: getVmAdditionalDisks(param),
-		Metrics:        ToVmMetrics(param.Summary.Vm.Value, metrics),
+		AdditionalDisk: getVMAdditionalDisks(param),
+		Metrics:        ToVMMetrics(param.Summary.Vm.Value, metrics),
 		Storage:        getStorage(param.Datastore, dsNames),
 	}
 	return vm
@@ -368,7 +368,7 @@ func getClusterName(param mo.VirtualMachine, hostSystems []mo.HostSystem, ccrs [
 	if hostSystem == nil {
 		return ""
 	}
-	cluster := getVmCluster(hostSystem.ManagedEntity.Parent.Value, ccrs)
+	cluster := getVMCluster(hostSystem.ManagedEntity.Parent.Value, ccrs)
 	if cluster == nil {
 		return ""
 	}
@@ -376,7 +376,7 @@ func getClusterName(param mo.VirtualMachine, hostSystems []mo.HostSystem, ccrs [
 	return clusterName
 }
 
-func getVmAdditionalDisks(param mo.VirtualMachine) []AdditionalDisk {
+func getVMAdditionalDisks(param mo.VirtualMachine) []AdditionalDisk {
 	disks := []AdditionalDisk{}
 	if param.Config == nil {
 		return disks
@@ -409,7 +409,7 @@ func getStorage(ds []types.ManagedObjectReference, dsNames []*object.Datastore) 
 	for _, d := range ds {
 		if path, ok := dsMap[d.Value]; ok {
 			datastores = append(datastores, Datastore{
-				Id:   d.Value,
+				ID:   d.Value,
 				Name: getNameFromInventory(path),
 			})
 		}
@@ -418,7 +418,7 @@ func getStorage(ds []types.ManagedObjectReference, dsNames []*object.Datastore) 
 }
 
 // ToVmMetrics finds the EntityMetric with the provided name and converts it to Metrics
-func ToVmMetrics(name string, metrics []performance.EntityMetric) Metrics {
+func ToVMMetrics(name string, metrics []performance.EntityMetric) Metrics {
 	for _, metric := range metrics {
 		if metric.Entity.Value == name {
 			return ToVsphereMetrics(metric)
@@ -430,8 +430,8 @@ func ToVmMetrics(name string, metrics []performance.EntityMetric) Metrics {
 // ToVsphereMetrics converts the EntityMetric to Metrics
 func ToVsphereMetrics(metric performance.EntityMetric) Metrics {
 	return Metrics{
-		CpuCores:        getMetric("cpu.corecount.usage.average", metric.Value),
-		CpuUsage:        getPercentage(getMetric("cpu.usage.average", metric.Value)),
+		CPUCores:        getMetric("cpu.corecount.usage.average", metric.Value),
+		CPUUsage:        getPercentage(getMetric("cpu.usage.average", metric.Value)),
 		MemoryBytes:     getMetric("mem.active.average", metric.Value),
 		MemoryUsage:     getPercentage(getMetric("mem.usage.average", metric.Value)),
 		DiskUsage:       getMetric("disk.usage.average", metric.Value),
@@ -439,7 +439,7 @@ func ToVsphereMetrics(metric performance.EntityMetric) Metrics {
 	}
 }
 
-func getVmCluster(clusterName string, clusters []*object.ClusterComputeResource) *object.ClusterComputeResource {
+func getVMCluster(clusterName string, clusters []*object.ClusterComputeResource) *object.ClusterComputeResource {
 	for _, cluster := range clusters {
 		if cluster.ComputeResource.Reference().Value == clusterName {
 			return cluster

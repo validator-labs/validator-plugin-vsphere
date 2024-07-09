@@ -9,13 +9,13 @@ import (
 
 type PrivilegeValidationService struct {
 	log         logr.Logger
-	driver      *vsphere.VSphereCloudDriver
+	driver      *vsphere.CloudDriver
 	datacenter  string
 	authManager *object.AuthorizationManager
 	userName    string
 }
 
-func NewPrivilegeValidationService(log logr.Logger, driver *vsphere.VSphereCloudDriver, datacenter string, authManager *object.AuthorizationManager, userName string) *PrivilegeValidationService {
+func NewPrivilegeValidationService(log logr.Logger, driver *vsphere.CloudDriver, datacenter string, authManager *object.AuthorizationManager, userName string) *PrivilegeValidationService {
 	return &PrivilegeValidationService{
 		log:         log,
 		driver:      driver,

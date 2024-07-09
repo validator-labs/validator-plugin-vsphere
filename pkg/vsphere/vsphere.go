@@ -1,3 +1,4 @@
+// Package vsphere is used to interact with vSphere
 package vsphere
 
 import (
@@ -40,13 +41,13 @@ var (
 	restClientLoggedOut = false
 )
 
-// VsphereDriver is an interface that defines the functions to interact with vSphere
-type VsphereDriver interface {
+// Driver is an interface that defines the functions to interact with vSphere
+type Driver interface {
 	GetVSphereVMFolders(ctx context.Context, datacenter string) ([]string, error)
 	GetVSphereDatacenters(ctx context.Context) ([]string, error)
 	GetVSphereClusters(ctx context.Context, datacenter string) ([]string, error)
-	GetVSphereHostSystems(ctx context.Context, datacenter, cluster string) ([]VSphereHostSystem, error)
-	IsValidVSphereCredentials(ctx context.Context) (bool, error)
+	GetVSphereHostSystems(ctx context.Context, datacenter, cluster string) ([]HostSystem, error)
+	IsValidVSphereCredentials() (bool, error)
 	ValidateVsphereVersion(constraint string) error
 	GetHostClusterMapping(ctx context.Context) (map[string]string, error)
 	GetVSphereVms(ctx context.Context, dcName string) ([]VSphereVM, error)
@@ -56,11 +57,11 @@ type VsphereDriver interface {
 	IsAdminAccount(ctx context.Context) (bool, error)
 }
 
-// ensure that VSphereCloudDriver implements the VsphereDriver interface
-var _ VsphereDriver = &VSphereCloudDriver{}
+// ensure that CloudDriver implements the Driver interface
+var _ Driver = &CloudDriver{}
 
-// VSphereCloudDriver is a struct that implements the VsphereDriver interface
-type VSphereCloudDriver struct {
+// CloudDriver is a struct that implements the Driver interface
+type CloudDriver struct {
 	VCenterServer   string
 	VCenterUsername string
 	VCenterPassword string
@@ -70,8 +71,8 @@ type VSphereCloudDriver struct {
 	log             logr.Logger
 }
 
-// VsphereCloudAccount is a struct that contains the vSphere account details
-type VsphereCloudAccount struct {
+// CloudAccount is a struct that contains the vSphere account details
+type CloudAccount struct {
 	// Insecure is a flag that controls whether to validate the vSphere server's certificate.
 	Insecure bool `json:"insecure" yaml:"insecure"`
 
@@ -94,14 +95,14 @@ type Session struct {
 	RestClient    *rest.Client
 }
 
-// NewVSphereDriver creates a new instance of VSphereCloudDriver
-func NewVSphereDriver(VCenterServer, VCenterUsername, VCenterPassword, datacenter string, log logr.Logger) (*VSphereCloudDriver, error) {
+// NewVSphereDriver creates a new instance of CloudDriver
+func NewVSphereDriver(VCenterServer, VCenterUsername, VCenterPassword, datacenter string, log logr.Logger) (*CloudDriver, error) {
 	session, err := GetOrCreateSession(context.TODO(), VCenterServer, VCenterUsername, VCenterPassword, true)
 	if err != nil {
 		return nil, err
 	}
 
-	return &VSphereCloudDriver{
+	return &CloudDriver{
 		VCenterServer:   VCenterServer,
 		VCenterUsername: VCenterUsername,
 		VCenterPassword: VCenterPassword,
@@ -113,7 +114,7 @@ func NewVSphereDriver(VCenterServer, VCenterUsername, VCenterPassword, datacente
 }
 
 // IsValidVSphereCredentials checks if the vSphere credentials are valid
-func (v *VSphereCloudDriver) IsValidVSphereCredentials(ctx context.Context) (bool, error) {
+func (v *CloudDriver) IsValidVSphereCredentials() (bool, error) {
 	_, err := v.getFinder()
 	if err != nil {
 		return false, err
@@ -123,7 +124,7 @@ func (v *VSphereCloudDriver) IsValidVSphereCredentials(ctx context.Context) (boo
 }
 
 // ValidateVsphereVersion validates the vSphere version satisfies the given constraint
-func (v *VSphereCloudDriver) ValidateVsphereVersion(constraint string) error {
+func (v *CloudDriver) ValidateVsphereVersion(constraint string) error {
 	vsphereVersion := v.Client.ServiceContent.About.Version
 	vn, err := version.NewVersion(vsphereVersion)
 	if err != nil {
@@ -140,7 +141,7 @@ func (v *VSphereCloudDriver) ValidateVsphereVersion(constraint string) error {
 }
 
 // GetFinderWithDatacenter returns a finder and the datacenter name
-func (v *VSphereCloudDriver) GetFinderWithDatacenter(ctx context.Context, datacenter string) (*find.Finder, string, error) {
+func (v *CloudDriver) GetFinderWithDatacenter(ctx context.Context, datacenter string) (*find.Finder, string, error) {
 	finder, err := v.getFinder()
 	if err != nil {
 		return nil, "", err
@@ -155,7 +156,7 @@ func (v *VSphereCloudDriver) GetFinderWithDatacenter(ctx context.Context, datace
 	return finder, dc.Name(), nil
 }
 
-func (v *VSphereCloudDriver) getFinder() (*find.Finder, error) {
+func (v *CloudDriver) getFinder() (*find.Finder, error) {
 	if v.Client == nil {
 		return nil, fmt.Errorf("failed to fetch govmomi client: %d", http.StatusBadRequest)
 	}

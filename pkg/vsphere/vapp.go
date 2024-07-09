@@ -10,7 +10,7 @@ import (
 )
 
 // GetVAppIfExists returns the virtual app if it exists
-func (v *VSphereCloudDriver) GetVAppIfExists(ctx context.Context, finder *find.Finder, datacenter, vAppName string) (bool, *object.VirtualApp, error) {
+func (v *CloudDriver) GetVAppIfExists(ctx context.Context, finder *find.Finder, vAppName string) (bool, *object.VirtualApp, error) {
 	vapp, err := finder.VirtualApp(ctx, vAppName)
 	if err != nil {
 		return false, nil, err
@@ -19,7 +19,7 @@ func (v *VSphereCloudDriver) GetVAppIfExists(ctx context.Context, finder *find.F
 }
 
 // GetVapps returns a list of virtual apps
-func (v *VSphereCloudDriver) GetVapps(ctx context.Context) ([]mo.VirtualApp, error) {
+func (v *CloudDriver) GetVapps(ctx context.Context) ([]mo.VirtualApp, error) {
 	m := view.NewManager(v.Client.Client)
 
 	containerView, err := m.CreateContainerView(ctx, v.Client.Client.ServiceContent.RootFolder, []string{"VirtualApp"}, true)

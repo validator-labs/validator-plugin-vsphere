@@ -31,10 +31,10 @@ var (
 
 type ComputeResourcesValidationService struct {
 	log    logr.Logger
-	driver *vsphere.VSphereCloudDriver
+	driver *vsphere.CloudDriver
 }
 
-func NewComputeResourcesValidationService(log logr.Logger, driver *vsphere.VSphereCloudDriver) *ComputeResourcesValidationService {
+func NewComputeResourcesValidationService(log logr.Logger, driver *vsphere.CloudDriver) *ComputeResourcesValidationService {
 	return &ComputeResourcesValidationService{
 		log:    log,
 		driver: driver,
@@ -95,7 +95,7 @@ type Usage struct {
 	Storage ResourceUsage
 }
 
-func (c *ComputeResourcesValidationService) ReconcileComputeResourceValidationRule(rule v1alpha1.ComputeResourceRule, finder *find.Finder, driver *vsphere.VSphereCloudDriver) (*types.ValidationRuleResult, error) {
+func (c *ComputeResourcesValidationService) ReconcileComputeResourceValidationRule(rule v1alpha1.ComputeResourceRule, finder *find.Finder, driver *vsphere.CloudDriver) (*types.ValidationRuleResult, error) {
 	var res Usage
 
 	vr := buildValidationResult(rule, constants.ValidationTypeComputeResources)

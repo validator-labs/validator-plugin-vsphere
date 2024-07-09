@@ -128,9 +128,9 @@ func TestToVSphereVMs(t *testing.T) {
 					Name:         "TestVM",
 					Type:         "vm-123",
 					Status:       "green",
-					IpAddress:    "192.168.1.100",
+					IPAddress:    "192.168.1.100",
 					Host:         "",
-					Cpu:          2,
+					CPU:          2,
 					Memory:       4096,
 					RootDiskSize: 1,
 					Network: []VSphereNetwork{
@@ -139,19 +139,19 @@ func TestToVSphereVMs(t *testing.T) {
 							Interface: "",
 						},
 					},
-					VSphereVmInfo: VSphereVmInfo{
+					VSphereVMInfo: VSphereVMInfo{
 						Folder:    "",
 						Datastore: "",
 						Network:   "",
 						Cluster:   "",
 					},
-					SshInfo: SshInfo{
+					SSHInfo: SSHInfo{
 						Username: "",
 					},
 					AdditionalDisk: []AdditionalDisk{},
 					Metrics: Metrics{
-						CpuCores:        "3",
-						CpuUsage:        "1",
+						CPUCores:        "3",
+						CPUUsage:        "1",
 						MemoryBytes:     "3123",
 						MemoryUsage:     "0",
 						DiskUsage:       "9883",

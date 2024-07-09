@@ -20,9 +20,13 @@ import (
 	"github.com/validator-labs/validator/pkg/util"
 )
 
-// to enable monkey patching in integration tests
-var GetCategories = getCategories
-var GetAttachedTagsOnObjects = getAttachedTagsOnObjects
+var (
+	// GetCategories is defined to enable monkey patching the getCategories function in integration tests
+	GetCategories = getCategories
+
+	// GetAttachedTagsOnObjects is defined to enable monkey patching the getAttachedTagsOnObjects function in integration tests
+	GetAttachedTagsOnObjects = getAttachedTagsOnObjects
+)
 
 type TagsValidationService struct {
 	Log logr.Logger
@@ -34,7 +38,7 @@ func NewTagsValidationService(log logr.Logger) *TagsValidationService {
 	}
 }
 
-func (s *TagsValidationService) ReconcileTagRules(tagsManager *tags.Manager, finder *find.Finder, driver *vsphere.VSphereCloudDriver, tagValidationRule v1alpha1.TagValidationRule) (*vapitypes.ValidationRuleResult, error) {
+func (s *TagsValidationService) ReconcileTagRules(tagsManager *tags.Manager, finder *find.Finder, driver *vsphere.CloudDriver, tagValidationRule v1alpha1.TagValidationRule) (*vapitypes.ValidationRuleResult, error) {
 	vr := buildValidationResult(tagValidationRule, constants.ValidationTypeTag)
 
 	valid, err := tagIsValid(tagsManager, finder, driver.Datacenter, tagValidationRule.ClusterName, tagValidationRule.EntityType, tagValidationRule.EntityName, tagValidationRule.Tag)

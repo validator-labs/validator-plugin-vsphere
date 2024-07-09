@@ -20,11 +20,11 @@ import (
 
 type NTPValidationService struct {
 	log        logr.Logger
-	driver     *vsphere.VSphereCloudDriver
+	driver     *vsphere.CloudDriver
 	datacenter string
 }
 
-func NewNTPValidationService(log logr.Logger, driver *vsphere.VSphereCloudDriver, datacenter string) *NTPValidationService {
+func NewNTPValidationService(log logr.Logger, driver *vsphere.CloudDriver, datacenter string) *NTPValidationService {
 	return &NTPValidationService{
 		log:        log,
 		driver:     driver,

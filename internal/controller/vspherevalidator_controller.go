@@ -80,7 +80,7 @@ func (r *VsphereValidatorReconciler) Reconcile(ctx context.Context, req ctrl.Req
 	}
 
 	// Initialize Vsphere driver
-	var vsphereCloudAccount *vsphere.VsphereCloudAccount
+	var vsphereCloudAccount *vsphere.CloudAccount
 	var res *ctrl.Result
 	if validator.Spec.Auth.SecretName == "" {
 		l.Error(ErrSecretNameRequired, "failed to reconcile VsphereValidator with empty auth.secretName")
@@ -214,7 +214,7 @@ func (r *VsphereValidatorReconciler) Reconcile(ctx context.Context, req ctrl.Req
 	return ctrl.Result{RequeueAfter: 2 * time.Minute}, nil
 }
 
-func (r *VsphereValidatorReconciler) secretKeyAuth(req ctrl.Request, validator *v1alpha1.VsphereValidator) (*vsphere.VsphereCloudAccount, *reconcile.Result) {
+func (r *VsphereValidatorReconciler) secretKeyAuth(req ctrl.Request, validator *v1alpha1.VsphereValidator) (*vsphere.CloudAccount, *reconcile.Result) {
 	l := r.Log.V(0).WithValues("name", req.Name, "namespace", req.Namespace, "secretName", validator.Spec.Auth.SecretName)
 
 	authSecret := &corev1.Secret{}
@@ -265,7 +265,7 @@ func (r *VsphereValidatorReconciler) secretKeyAuth(req ctrl.Request, validator *
 		return nil, &ctrl.Result{RequeueAfter: time.Second * 120}
 	}
 
-	return &vsphere.VsphereCloudAccount{
+	return &vsphere.CloudAccount{
 		Insecure:      skipVerify,
 		Password:      string(password),
 		Username:      string(username),

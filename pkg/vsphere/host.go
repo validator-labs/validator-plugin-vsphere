@@ -16,8 +16,8 @@ import (
 	"golang.org/x/exp/slices"
 )
 
-// VSphereHostSystem defines a vSphere host system
-type VSphereHostSystem struct {
+// HostSystem defines a vSphere host system
+type HostSystem struct {
 	Name      string
 	Reference string
 }
@@ -34,7 +34,7 @@ type HostDateInfo struct {
 }
 
 // GetHostIfExists returns the host system if it exists
-func (v *VSphereCloudDriver) GetHostIfExists(ctx context.Context, finder *find.Finder, datacenter, clusterName, hostName string) (bool, *object.HostSystem, error) {
+func (v *CloudDriver) GetHostIfExists(ctx context.Context, finder *find.Finder, datacenter, clusterName, hostName string) (bool, *object.HostSystem, error) {
 	path := fmt.Sprintf("/%s/host/%s/%s", datacenter, clusterName, hostName)
 	// Handle datacenter level hosts
 	if clusterName == "" {
@@ -48,7 +48,7 @@ func (v *VSphereCloudDriver) GetHostIfExists(ctx context.Context, finder *find.F
 }
 
 // GetVSphereHostSystems returns the vSphere host systems
-func (v *VSphereCloudDriver) GetVSphereHostSystems(ctx context.Context, datacenter, cluster string) ([]VSphereHostSystem, error) {
+func (v *CloudDriver) GetVSphereHostSystems(ctx context.Context, datacenter, cluster string) ([]HostSystem, error) {
 	finder, _, err := v.GetFinderWithDatacenter(ctx, datacenter)
 	if err != nil {
 		return nil, err
@@ -67,9 +67,9 @@ func (v *VSphereCloudDriver) GetVSphereHostSystems(ctx context.Context, datacent
 		return nil, errors.New("No host systems found")
 	}
 
-	hostSystems := make([]VSphereHostSystem, 0)
+	hostSystems := make([]HostSystem, 0)
 	for _, hs := range hss {
-		hostSystems = append(hostSystems, VSphereHostSystem{
+		hostSystems = append(hostSystems, HostSystem{
 			Name:      hs.Name(),
 			Reference: hs.Reference().String(),
 		})
@@ -79,7 +79,7 @@ func (v *VSphereCloudDriver) GetVSphereHostSystems(ctx context.Context, datacent
 }
 
 // GetHostClusterMapping returns the host cluster mapping
-func (v *VSphereCloudDriver) GetHostClusterMapping(ctx context.Context) (map[string]string, error) {
+func (v *CloudDriver) GetHostClusterMapping(ctx context.Context) (map[string]string, error) {
 	m := view.NewManager(v.Client.Client)
 	pc := property.DefaultCollector(v.Client.Client)
 	var hostClusterMapping = make(map[string]string)
@@ -106,7 +106,7 @@ func (v *VSphereCloudDriver) GetHostClusterMapping(ctx context.Context) (map[str
 	return hostClusterMapping, nil
 }
 
-func (v *VSphereCloudDriver) getHostSystems(ctx context.Context, v1 *view.ContainerView) ([]mo.HostSystem, error) {
+func (v *CloudDriver) getHostSystems(ctx context.Context, v1 *view.ContainerView) ([]mo.HostSystem, error) {
 	var hs []mo.HostSystem
 	e := v1.Retrieve(ctx, []string{"HostSystem"}, []string{"summary", "name", "parent"}, &hs)
 	if e != nil {
@@ -132,7 +132,7 @@ func getHostSystem(hostNameObj *types.ManagedObjectReference, hostSystems []mo.H
 }
 
 // ValidateHostNTPSettings validates the NTP settings for the hosts
-func (v *VSphereCloudDriver) ValidateHostNTPSettings(ctx context.Context, finder *find.Finder, datacenter, clusterName string, hosts []string) (bool, []string, error) {
+func (v *CloudDriver) ValidateHostNTPSettings(ctx context.Context, finder *find.Finder, datacenter, clusterName string, hosts []string) (bool, []string, error) {
 	var failures []string
 
 	hostsDateInfo := make([]HostDateInfo, 0, len(hosts))
