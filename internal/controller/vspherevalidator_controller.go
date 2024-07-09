@@ -112,9 +112,9 @@ func (r *VsphereValidatorReconciler) Reconcile(ctx context.Context, req ctrl.Req
 	}
 
 	rolePrivilegeValidationService := privileges.NewPrivilegeValidationService(r.Log, vsphereCloudDriver, validator.Spec.Datacenter, authManager, userName)
-	tagValidationService := tags.NewTagsValidationService(r.Log)
-	computeResourceValidationService := computeresources.NewComputeResourcesValidationService(r.Log, vsphereCloudDriver)
-	ntpValidationService := ntp.NewNTPValidationService(r.Log, vsphereCloudDriver, validator.Spec.Datacenter)
+	tagValidationService := tags.NewValidationService(r.Log)
+	computeResourceValidationService := computeresources.NewValidationService(r.Log, vsphereCloudDriver)
+	ntpValidationService := ntp.NewValidationService(r.Log, vsphereCloudDriver, validator.Spec.Datacenter)
 
 	// Get the active validator's validation result
 	vr := &vapi.ValidationResult{}

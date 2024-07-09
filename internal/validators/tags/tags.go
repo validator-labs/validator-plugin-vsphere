@@ -29,20 +29,20 @@ var (
 	GetAttachedTagsOnObjects = getAttachedTagsOnObjects
 )
 
-// TagsValidationService is a service that validates tag rules
-type TagsValidationService struct {
+// ValidationService is a service that validates tag rules
+type ValidationService struct {
 	Log logr.Logger
 }
 
-// NewTagsValidationService creates a new TagsValidationService
-func NewTagsValidationService(log logr.Logger) *TagsValidationService {
-	return &TagsValidationService{
+// NewValidationService creates a new ValidationService
+func NewValidationService(log logr.Logger) *ValidationService {
+	return &ValidationService{
 		Log: log,
 	}
 }
 
 // ReconcileTagRules reconciles the tag rules
-func (s *TagsValidationService) ReconcileTagRules(tagsManager *tags.Manager, finder *find.Finder, driver *vsphere.CloudDriver, tagValidationRule v1alpha1.TagValidationRule) (*vapitypes.ValidationRuleResult, error) {
+func (s *ValidationService) ReconcileTagRules(tagsManager *tags.Manager, finder *find.Finder, driver *vsphere.CloudDriver, tagValidationRule v1alpha1.TagValidationRule) (*vapitypes.ValidationRuleResult, error) {
 	vr := buildValidationResult(tagValidationRule, constants.ValidationTypeTag)
 
 	valid, err := tagIsValid(tagsManager, finder, driver.Datacenter, tagValidationRule.ClusterName, tagValidationRule.EntityType, tagValidationRule.EntityName, tagValidationRule.Tag)

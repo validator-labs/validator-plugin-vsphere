@@ -19,16 +19,16 @@ import (
 	"github.com/validator-labs/validator/pkg/util"
 )
 
-// NTPValidationService is a service that validates NTP rules
-type NTPValidationService struct {
+// ValidationService is a service that validates NTP rules
+type ValidationService struct {
 	log        logr.Logger
 	driver     *vsphere.CloudDriver
 	datacenter string
 }
 
-// NewNTPValidationService creates a new NTPValidationService
-func NewNTPValidationService(log logr.Logger, driver *vsphere.CloudDriver, datacenter string) *NTPValidationService {
-	return &NTPValidationService{
+// NewValidationService creates a new ValidationService
+func NewValidationService(log logr.Logger, driver *vsphere.CloudDriver, datacenter string) *ValidationService {
+	return &ValidationService{
 		log:        log,
 		driver:     driver,
 		datacenter: datacenter,
@@ -46,7 +46,7 @@ func buildValidationResult(rule v1alpha1.NTPValidationRule, validationType strin
 }
 
 // ReconcileNTPRule reconciles the NTP rule
-func (n *NTPValidationService) ReconcileNTPRule(rule v1alpha1.NTPValidationRule, finder *find.Finder) (*types.ValidationRuleResult, error) {
+func (n *ValidationService) ReconcileNTPRule(rule v1alpha1.NTPValidationRule, finder *find.Finder) (*types.ValidationRuleResult, error) {
 	var err error
 	vr := buildValidationResult(rule, constants.ValidationTypeNTP)
 

@@ -31,15 +31,15 @@ var (
 	errInsufficientComputeResources = errors.New("compute resources rule not satisfied")
 )
 
-// ComputeResourcesValidationService is a service that validates compute resource rules
-type ComputeResourcesValidationService struct {
+// ValidationService is a service that validates compute resource rules
+type ValidationService struct {
 	log    logr.Logger
 	driver *vsphere.CloudDriver
 }
 
-// NewComputeResourcesValidationService creates a new ComputeResourcesValidationService
-func NewComputeResourcesValidationService(log logr.Logger, driver *vsphere.CloudDriver) *ComputeResourcesValidationService {
-	return &ComputeResourcesValidationService{
+// NewValidationService creates a new ValidationService
+func NewValidationService(log logr.Logger, driver *vsphere.CloudDriver) *ValidationService {
+	return &ValidationService{
 		log:    log,
 		driver: driver,
 	}
@@ -103,7 +103,7 @@ type Usage struct {
 }
 
 // ReconcileComputeResourceValidationRule reconciles the compute resource rule
-func (c *ComputeResourcesValidationService) ReconcileComputeResourceValidationRule(rule v1alpha1.ComputeResourceRule, finder *find.Finder, driver *vsphere.CloudDriver) (*types.ValidationRuleResult, error) {
+func (c *ValidationService) ReconcileComputeResourceValidationRule(rule v1alpha1.ComputeResourceRule, finder *find.Finder, driver *vsphere.CloudDriver) (*types.ValidationRuleResult, error) {
 	var res Usage
 
 	vr := buildValidationResult(rule, constants.ValidationTypeComputeResources)

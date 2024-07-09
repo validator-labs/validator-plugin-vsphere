@@ -140,7 +140,7 @@ func (t *TagValidationTest) testTagsOnObjects(ctx *test.TestContext) (tr *test.T
 	finder := find.NewFinder(vsphereCloudDriver.Client.Client)
 
 	var log logr.Logger
-	tagService := tags.NewTagsValidationService(log)
+	tagService := tags.NewValidationService(log)
 
 	rules := []v1alpha1.TagValidationRule{
 		{

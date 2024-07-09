@@ -26,7 +26,7 @@ func TestComputeResourcesValidationService_ReconcileComputeResourceValidationRul
 
 	finder := find.NewFinder(vcSim.Driver.Client.Client)
 
-	validationService := NewComputeResourcesValidationService(log, vcSim.Driver)
+	validationService := NewValidationService(log, vcSim.Driver)
 	testCases := []struct {
 		name           string
 		expectedErr    error
