@@ -1,3 +1,4 @@
+// Package ntp handles NTP validation rule reconciliation.
 package ntp
 
 import (
@@ -18,12 +19,14 @@ import (
 	"github.com/validator-labs/validator/pkg/util"
 )
 
+// NTPValidationService is a service that validates NTP rules
 type NTPValidationService struct {
 	log        logr.Logger
 	driver     *vsphere.CloudDriver
 	datacenter string
 }
 
+// NewNTPValidationService creates a new NTPValidationService
 func NewNTPValidationService(log logr.Logger, driver *vsphere.CloudDriver, datacenter string) *NTPValidationService {
 	return &NTPValidationService{
 		log:        log,
@@ -42,6 +45,7 @@ func buildValidationResult(rule v1alpha1.NTPValidationRule, validationType strin
 	return &types.ValidationRuleResult{Condition: &latestCondition, State: &state}
 }
 
+// ReconcileNTPRule reconciles the NTP rule
 func (n *NTPValidationService) ReconcileNTPRule(rule v1alpha1.NTPValidationRule, finder *find.Finder) (*types.ValidationRuleResult, error) {
 	var err error
 	vr := buildValidationResult(rule, constants.ValidationTypeNTP)

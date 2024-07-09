@@ -20,8 +20,9 @@ import (
 )
 
 var (
+	// GetUserAndGroupPrincipals is defined to enable monkey patching the getUserAndGroupPrincipals function in integration tests
 	GetUserAndGroupPrincipals         = getUserAndGroupPrincipals
-	ErrRequiredRolePrivilegesNotFound = errors.New("one or more required role privileges was not found for account")
+	errRequiredRolePrivilegesNotFound = errors.New("one or more required role privileges was not found for account")
 )
 
 func buildValidationResult(rule v1alpha1.GenericRolePrivilegeValidationRule, validationType string) *types.ValidationRuleResult {
@@ -40,6 +41,7 @@ func setFailureStatus(vr *types.ValidationRuleResult, msg string) {
 	vr.Condition.Status = corev1.ConditionFalse
 }
 
+// ReconcileRolePrivilegesRule reconciles the role privilege rule
 func (s *PrivilegeValidationService) ReconcileRolePrivilegesRule(rule v1alpha1.GenericRolePrivilegeValidationRule, driver *vsphere.CloudDriver, authManager *object.AuthorizationManager) (*types.ValidationRuleResult, error) {
 	var err error
 
@@ -65,7 +67,7 @@ func (s *PrivilegeValidationService) ReconcileRolePrivilegesRule(rule v1alpha1.G
 
 	if len(vr.Condition.Failures) > 0 {
 		setFailureStatus(vr, failMsg)
-		err = ErrRequiredRolePrivilegesNotFound
+		err = errRequiredRolePrivilegesNotFound
 	}
 
 	return vr, err

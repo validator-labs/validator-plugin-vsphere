@@ -49,7 +49,7 @@ import (
 	vres "github.com/validator-labs/validator/pkg/validationresult"
 )
 
-var ErrSecretNameRequired = errors.New("auth.secretName is required")
+var errSecretNameRequired = errors.New("auth.secretName is required")
 
 // VsphereValidatorReconciler reconciles a VsphereValidator object
 type VsphereValidatorReconciler struct {
@@ -83,13 +83,12 @@ func (r *VsphereValidatorReconciler) Reconcile(ctx context.Context, req ctrl.Req
 	var vsphereCloudAccount *vsphere.CloudAccount
 	var res *ctrl.Result
 	if validator.Spec.Auth.SecretName == "" {
-		l.Error(ErrSecretNameRequired, "failed to reconcile VsphereValidator with empty auth.secretName")
-		return ctrl.Result{}, ErrSecretNameRequired
-	} else {
-		vsphereCloudAccount, res = r.secretKeyAuth(req, validator)
-		if res != nil {
-			return *res, nil
-		}
+		l.Error(errSecretNameRequired, "failed to reconcile VsphereValidator with empty auth.secretName")
+		return ctrl.Result{}, errSecretNameRequired
+	}
+	vsphereCloudAccount, res = r.secretKeyAuth(req, validator)
+	if res != nil {
+		return *res, nil
 	}
 
 	vsphereCloudDriver, err := vsphere.NewVSphereDriver(

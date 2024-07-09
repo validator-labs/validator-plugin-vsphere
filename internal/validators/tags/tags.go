@@ -1,3 +1,4 @@
+// Package tags handles tag validation rule reconciliation.
 package tags
 
 import (
@@ -28,16 +29,19 @@ var (
 	GetAttachedTagsOnObjects = getAttachedTagsOnObjects
 )
 
+// TagsValidationService is a service that validates tag rules
 type TagsValidationService struct {
 	Log logr.Logger
 }
 
+// NewTagsValidationService creates a new TagsValidationService
 func NewTagsValidationService(log logr.Logger) *TagsValidationService {
 	return &TagsValidationService{
 		Log: log,
 	}
 }
 
+// ReconcileTagRules reconciles the tag rules
 func (s *TagsValidationService) ReconcileTagRules(tagsManager *tags.Manager, finder *find.Finder, driver *vsphere.CloudDriver, tagValidationRule v1alpha1.TagValidationRule) (*vapitypes.ValidationRuleResult, error) {
 	vr := buildValidationResult(tagValidationRule, constants.ValidationTypeTag)
 

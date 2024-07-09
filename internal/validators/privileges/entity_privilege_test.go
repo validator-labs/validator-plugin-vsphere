@@ -91,7 +91,7 @@ func TestRolePrivilegeValidationService_ReconcileEntityPrivilegeRule(t *testing.
 			},
 				State: util.Ptr(vapi.ValidationFailed),
 			},
-			expectedErr: ErrRequiredEntityPrivilegesNotFound,
+			expectedErr: errRequiredEntityPrivilegesNotFound,
 		},
 	}
 

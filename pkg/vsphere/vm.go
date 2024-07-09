@@ -16,8 +16,8 @@ import (
 	"github.com/vmware/govmomi/vim25/types"
 )
 
-// VSphereVM defines a vSphere virtual machine
-type VSphereVM struct {
+// VM defines a vSphere virtual machine
+type VM struct {
 	Name           string
 	Type           string
 	Status         string
@@ -26,37 +26,37 @@ type VSphereVM struct {
 	CPU            int32
 	Memory         int32
 	RootDiskSize   int32
-	Network        []VSphereNetwork
+	Network        []Network
 	LibvirtVMInfo  LibvirtVMInfo
-	VSphereVMInfo  VSphereVMInfo
+	VMInfo         VMInfo
 	SSHInfo        SSHInfo
 	AdditionalDisk []AdditionalDisk
 	Metrics        Metrics
 	Storage        []Datastore
 }
 
-// VSphereNetwork defines a vSphere network
-type VSphereNetwork struct {
+// Network defines a vSphere network
+type Network struct {
 	Type      string
-	Ip        string
+	IP        string
 	Interface string
 }
 
-// LibvirtVmInfo defines a libvirt VM information
+// LibvirtVMInfo defines a libvirt VM information
 type LibvirtVMInfo struct {
 	ImagePool string
 	DataPool  string
 }
 
-// VSphereVmInfo defines a vSphere VM information
-type VSphereVMInfo struct {
+// VMInfo defines a vSphere VM information
+type VMInfo struct {
 	Folder    string
 	Cluster   string
 	Datastore string
 	Network   string
 }
 
-// SshInfo defines the SSH information
+// SSHInfo defines the SSH information
 type SSHInfo struct {
 	Username   string
 	Password   string
@@ -91,7 +91,7 @@ type Datastore struct {
 }
 
 // GetVMIfExists returns the VM if it exists
-func (v *CloudDriver) GetVMIfExists(ctx context.Context, finder *find.Finder, cluster, vmName string) (bool, *object.VirtualMachine, error) {
+func (v *CloudDriver) GetVMIfExists(ctx context.Context, finder *find.Finder, vmName string) (bool, *object.VirtualMachine, error) {
 	vm, err := finder.VirtualMachine(ctx, vmName)
 	if err != nil {
 		return false, nil, err
@@ -100,7 +100,7 @@ func (v *CloudDriver) GetVMIfExists(ctx context.Context, finder *find.Finder, cl
 }
 
 // GetVSphereVms returns a list of vSphere VMs
-func (v *CloudDriver) GetVSphereVms(ctx context.Context, dcName string) ([]VSphereVM, error) {
+func (v *CloudDriver) GetVSphereVms(ctx context.Context, dcName string) ([]VM, error) {
 	finder, v1, client, err := v.getVMClient(ctx, dcName)
 	if err != nil {
 		return nil, err
@@ -154,7 +154,7 @@ func (v *CloudDriver) getVms(ctx context.Context, v1 *view.ContainerView, filter
 	return vms, nil
 }
 
-func (v *CloudDriver) getVMInfo(ctx context.Context, finder *find.Finder, client *vim25.Client, v1 *view.ContainerView, vms []mo.VirtualMachine) ([]VSphereVM, error) {
+func (v *CloudDriver) getVMInfo(ctx context.Context, finder *find.Finder, client *vim25.Client, v1 *view.ContainerView, vms []mo.VirtualMachine) ([]VM, error) {
 	metrics, err := v.GetMetrics(ctx, client)
 	if err != nil {
 		return nil, errors.Wrap(err, "failed to get view manager while fetching vSphere vms")
@@ -248,8 +248,8 @@ func (v *CloudDriver) GetMetrics(ctx context.Context, c *vim25.Client) ([]perfor
 }
 
 // ToVSphereVMs converts a list of VirtualMachines to a list of VSphereVMs
-func ToVSphereVMs(params []mo.VirtualMachine, metrics []performance.EntityMetric, networks []object.NetworkReference, dsNames []*object.Datastore, folders []*object.Folder, hostSystems []mo.HostSystem, ccrs []*object.ClusterComputeResource, parentsRef []mo.VirtualMachine) []VSphereVM {
-	vms := make([]VSphereVM, 0)
+func ToVSphereVMs(params []mo.VirtualMachine, metrics []performance.EntityMetric, networks []object.NetworkReference, dsNames []*object.Datastore, folders []*object.Folder, hostSystems []mo.HostSystem, ccrs []*object.ClusterComputeResource, parentsRef []mo.VirtualMachine) []VM {
+	vms := make([]VM, 0)
 	for _, param := range params {
 		vms = append(vms, ToVSphereVM(param, metrics, networks, dsNames, folders, hostSystems, ccrs, parentsRef))
 	}
@@ -259,8 +259,8 @@ func ToVSphereVMs(params []mo.VirtualMachine, metrics []performance.EntityMetric
 // ToVSphereVM converts a VirtualMachine to a VSphereVM
 func ToVSphereVM(param mo.VirtualMachine, metrics []performance.EntityMetric, networks []object.NetworkReference,
 	dsNames []*object.Datastore, folders []*object.Folder, hostSystems []mo.HostSystem,
-	ccrs []*object.ClusterComputeResource, parentsRef []mo.VirtualMachine) VSphereVM {
-	vm := VSphereVM{
+	ccrs []*object.ClusterComputeResource, parentsRef []mo.VirtualMachine) VM {
+	vm := VM{
 		Name:          param.Summary.Config.Name,
 		Type:          param.Summary.Vm.Value,
 		Status:        string(param.Summary.OverallStatus),
@@ -271,7 +271,7 @@ func ToVSphereVM(param mo.VirtualMachine, metrics []performance.EntityMetric, ne
 		RootDiskSize:  param.Summary.Config.NumVirtualDisks,
 		LibvirtVMInfo: LibvirtVMInfo{},
 		Network:       getNetworks(param),
-		VSphereVMInfo: VSphereVMInfo{
+		VMInfo: VMInfo{
 			Folder:    getFolderName(param, parentsRef, folders),
 			Datastore: getDatastore(param.Datastore, dsNames),
 			Network:   getNetwork(networks, param.Network),
@@ -296,18 +296,18 @@ func getHostName(param mo.VirtualMachine, hostSystems []mo.HostSystem) string {
 	return hostName
 }
 
-func getNetworks(params mo.VirtualMachine) []VSphereNetwork {
+func getNetworks(params mo.VirtualMachine) []Network {
 	if params.Guest == nil || params.Guest.Net == nil {
-		return []VSphereNetwork{}
+		return []Network{}
 	}
-	networks := make([]VSphereNetwork, 0)
+	networks := make([]Network, 0)
 	ipAddress := []string{}
 	for _, param := range params.Guest.Net {
 		ipAddress = append(ipAddress, param.IpAddress...)
 	}
 	for _, ipAddress := range ipAddress {
-		networks = append(networks, VSphereNetwork{
-			Ip: ipAddress,
+		networks = append(networks, Network{
+			IP: ipAddress,
 		})
 	}
 	return networks
@@ -417,7 +417,7 @@ func getStorage(ds []types.ManagedObjectReference, dsNames []*object.Datastore) 
 	return datastores
 }
 
-// ToVmMetrics finds the EntityMetric with the provided name and converts it to Metrics
+// ToVMMetrics finds the EntityMetric with the provided name and converts it to Metrics
 func ToVMMetrics(name string, metrics []performance.EntityMetric) Metrics {
 	for _, metric := range metrics {
 		if metric.Entity.Value == name {

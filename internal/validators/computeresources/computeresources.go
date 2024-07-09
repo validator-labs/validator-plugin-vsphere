@@ -1,3 +1,4 @@
+// Package computeresources handles compute resource rule reconciliation.
 package computeresources
 
 import (
@@ -25,15 +26,18 @@ import (
 )
 
 var (
+	// GetResourcePoolAndVMs is defined to enable monkey patching the getResourcePoolAndVMs function in integration tests
 	GetResourcePoolAndVMs           = getResourcePoolAndVMs
 	errInsufficientComputeResources = errors.New("compute resources rule not satisfied")
 )
 
+// ComputeResourcesValidationService is a service that validates compute resource rules
 type ComputeResourcesValidationService struct {
 	log    logr.Logger
 	driver *vsphere.CloudDriver
 }
 
+// NewComputeResourcesValidationService creates a new ComputeResourcesValidationService
 func NewComputeResourcesValidationService(log logr.Logger, driver *vsphere.CloudDriver) *ComputeResourcesValidationService {
 	return &ComputeResourcesValidationService{
 		log:    log,
@@ -74,6 +78,7 @@ func (r *ResourceUsage) summarize(f func(int64) string) {
 	r.Summary.Free = f(r.Free)
 }
 
+// ResourceUsageSummary provides a summary of resource usage
 type ResourceUsageSummary struct {
 	Used     string
 	Free     string
@@ -81,6 +86,7 @@ type ResourceUsageSummary struct {
 	Usage    string
 }
 
+// ResourceUsage provides resource usage information
 type ResourceUsage struct {
 	Used     int64
 	Free     int64
@@ -89,12 +95,14 @@ type ResourceUsage struct {
 	Summary  ResourceUsageSummary
 }
 
+// Usage provides memory cpu and storage usage information
 type Usage struct {
 	Memory  ResourceUsage
 	CPU     ResourceUsage
 	Storage ResourceUsage
 }
 
+// ReconcileComputeResourceValidationRule reconciles the compute resource rule
 func (c *ComputeResourcesValidationService) ReconcileComputeResourceValidationRule(rule v1alpha1.ComputeResourceRule, finder *find.Finder, driver *vsphere.CloudDriver) (*types.ValidationRuleResult, error) {
 	var res Usage
 

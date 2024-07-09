@@ -59,7 +59,7 @@ func (v *CloudDriver) ValidateUserPrivilegeOnEntities(ctx context.Context, authM
 		}
 		moID = vapp.Reference()
 	case "vm":
-		_, vm, err = v.GetVMIfExists(ctx, finder, clusterName, entityName)
+		_, vm, err = v.GetVMIfExists(ctx, finder, entityName)
 		if err != nil {
 			return false, failures, err
 		}

@@ -21,7 +21,7 @@ func TestToVSphereVMs(t *testing.T) {
 		hostSystems []mo.HostSystem
 		ccrs        []*object.ClusterComputeResource
 		parentsRef  []mo.VirtualMachine
-		expectedVMs []VSphereVM
+		expectedVMs []VM
 	}{
 		{
 			name: "VM Conversion",
@@ -123,7 +123,7 @@ func TestToVSphereVMs(t *testing.T) {
 					},
 				},
 			},
-			expectedVMs: []VSphereVM{
+			expectedVMs: []VM{
 				{
 					Name:         "TestVM",
 					Type:         "vm-123",
@@ -133,13 +133,13 @@ func TestToVSphereVMs(t *testing.T) {
 					CPU:          2,
 					Memory:       4096,
 					RootDiskSize: 1,
-					Network: []VSphereNetwork{
+					Network: []Network{
 						{
-							Ip:        "192.168.1.100",
+							IP:        "192.168.1.100",
 							Interface: "",
 						},
 					},
-					VSphereVMInfo: VSphereVMInfo{
+					VMInfo: VMInfo{
 						Folder:    "",
 						Datastore: "",
 						Network:   "",

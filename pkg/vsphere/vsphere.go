@@ -50,7 +50,7 @@ type Driver interface {
 	IsValidVSphereCredentials() (bool, error)
 	ValidateVsphereVersion(constraint string) error
 	GetHostClusterMapping(ctx context.Context) (map[string]string, error)
-	GetVSphereVms(ctx context.Context, dcName string) ([]VSphereVM, error)
+	GetVSphereVms(ctx context.Context, dcName string) ([]VM, error)
 	GetResourcePools(ctx context.Context, datacenter string, cluster string) ([]*object.ResourcePool, error)
 	GetVapps(ctx context.Context) ([]mo.VirtualApp, error)
 	GetResourceTags(ctx context.Context, resourceType string) (map[string]tags.AttachedTags, error)

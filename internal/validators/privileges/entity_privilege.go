@@ -16,7 +16,7 @@ import (
 	"github.com/validator-labs/validator/pkg/util"
 )
 
-var ErrRequiredEntityPrivilegesNotFound = errors.New("one or more required entity privileges was not found")
+var errRequiredEntityPrivilegesNotFound = errors.New("one or more required entity privileges was not found")
 
 func buildEntityPrivilegeValidationResult(rule v1alpha1.EntityPrivilegeValidationRule, validationType string) *types.ValidationRuleResult {
 	state := vapi.ValidationSucceeded
@@ -28,6 +28,7 @@ func buildEntityPrivilegeValidationResult(rule v1alpha1.EntityPrivilegeValidatio
 	return &types.ValidationRuleResult{Condition: &latestCondition, State: &state}
 }
 
+// ReconcileEntityPrivilegeRule  reconciles the entity privilege rule
 func (s *PrivilegeValidationService) ReconcileEntityPrivilegeRule(rule v1alpha1.EntityPrivilegeValidationRule, finder *find.Finder) (*types.ValidationRuleResult, error) {
 	var err error
 	vr := buildEntityPrivilegeValidationResult(rule, constants.ValidationTypeEntityPrivileges)
@@ -44,7 +45,7 @@ func (s *PrivilegeValidationService) ReconcileEntityPrivilegeRule(rule v1alpha1.
 		vr.State = util.Ptr(vapi.ValidationFailed)
 		vr.Condition.Message = fmt.Sprintf("One or more required privileges was not found, or a condition was not met for account: %s", rule.Username)
 		vr.Condition.Status = corev1.ConditionFalse
-		err = ErrRequiredEntityPrivilegesNotFound
+		err = errRequiredEntityPrivilegesNotFound
 	}
 
 	return vr, err

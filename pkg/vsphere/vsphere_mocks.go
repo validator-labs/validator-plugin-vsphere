@@ -13,7 +13,7 @@ import (
 type MockVsphereDriver struct {
 	Datacenters        []string
 	Clusters           []string
-	VMs                []VSphereVM
+	VMs                []VM
 	VMFolders          []string
 	HostSystems        map[string][]HostSystem
 	VApps              []mo.VirtualApp
@@ -61,7 +61,7 @@ func (d MockVsphereDriver) GetHostClusterMapping(_ context.Context) (map[string]
 }
 
 // GetVSphereVms returns a mocked response
-func (d MockVsphereDriver) GetVSphereVms(_ context.Context, _ string) ([]VSphereVM, error) {
+func (d MockVsphereDriver) GetVSphereVms(_ context.Context, _ string) ([]VM, error) {
 	return d.VMs, nil
 }
 
