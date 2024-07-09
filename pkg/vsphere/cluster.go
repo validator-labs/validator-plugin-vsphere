@@ -11,6 +11,7 @@ import (
 	"github.com/vmware/govmomi/object"
 )
 
+// GetClusterIfExists returns the cluster if it exists
 func (v *VSphereCloudDriver) GetClusterIfExists(ctx context.Context, finder *find.Finder, datacenter, clusterName string) (bool, *object.ClusterComputeResource, error) {
 	path := fmt.Sprintf("/%s/host/%s", datacenter, clusterName)
 	cluster, err := finder.ClusterComputeResource(ctx, path)
@@ -20,6 +21,7 @@ func (v *VSphereCloudDriver) GetClusterIfExists(ctx context.Context, finder *fin
 	return true, cluster, nil
 }
 
+// GetVSphereClusters returns a sorted list of vSphere clusters
 func (v *VSphereCloudDriver) GetVSphereClusters(ctx context.Context, datacenter string) ([]string, error) {
 	finder, dc, err := v.GetFinderWithDatacenter(ctx, datacenter)
 	if err != nil {

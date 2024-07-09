@@ -51,7 +51,7 @@ func TestGetVCenterUrl(t *testing.T) {
 
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
-			resultURL, err := getVCenterUrl(tt.vCenterServer, tt.vCenterUsername, tt.vCenterPassword)
+			resultURL, err := getVCenterURL(tt.vCenterServer, tt.vCenterUsername, tt.vCenterPassword)
 			if tt.expectError {
 				assert.Error(t, err)
 				assert.Nil(t, resultURL)

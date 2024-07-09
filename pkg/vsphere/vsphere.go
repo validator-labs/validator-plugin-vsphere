@@ -26,8 +26,11 @@ import (
 )
 
 const (
+	// KeepAliveIntervalInMinute is the interval in minutes for keep alive in the govmomi vim25 client
 	KeepAliveIntervalInMinute = 10
-	DatacenterTagCategory     = "k8s-region"
+	// DatacenterTagCategory is the tag category for datacenter
+	DatacenterTagCategory = "k8s-region"
+	// ComputeClusterTagCategory is the tag category for compute cluster
 	ComputeClusterTagCategory = "k8s-zone"
 )
 
@@ -37,6 +40,7 @@ var (
 	restClientLoggedOut = false
 )
 
+// VsphereDriver is an interface that defines the functions to interact with vSphere
 type VsphereDriver interface {
 	GetVSphereVMFolders(ctx context.Context, datacenter string) ([]string, error)
 	GetVSphereDatacenters(ctx context.Context) ([]string, error)
@@ -55,6 +59,7 @@ type VsphereDriver interface {
 // ensure that VSphereCloudDriver implements the VsphereDriver interface
 var _ VsphereDriver = &VSphereCloudDriver{}
 
+// VSphereCloudDriver is a struct that implements the VsphereDriver interface
 type VSphereCloudDriver struct {
 	VCenterServer   string
 	VCenterUsername string
@@ -65,6 +70,7 @@ type VSphereCloudDriver struct {
 	log             logr.Logger
 }
 
+// VsphereCloudAccount is a struct that contains the vSphere account details
 type VsphereCloudAccount struct {
 	// Insecure is a flag that controls whether to validate the vSphere server's certificate.
 	Insecure bool `json:"insecure" yaml:"insecure"`
@@ -82,11 +88,13 @@ type VsphereCloudAccount struct {
 	VcenterServer string `json:"vcenterServer" yaml:"vcenterServer"`
 }
 
+// Session is a struct that contains the govmomi and rest clients
 type Session struct {
 	GovmomiClient *govmomi.Client
 	RestClient    *rest.Client
 }
 
+// NewVSphereDriver creates a new instance of VSphereCloudDriver
 func NewVSphereDriver(VCenterServer, VCenterUsername, VCenterPassword, datacenter string, log logr.Logger) (*VSphereCloudDriver, error) {
 	session, err := GetOrCreateSession(context.TODO(), VCenterServer, VCenterUsername, VCenterPassword, true)
 	if err != nil {
@@ -104,6 +112,7 @@ func NewVSphereDriver(VCenterServer, VCenterUsername, VCenterPassword, datacente
 	}, nil
 }
 
+// IsValidVSphereCredentials checks if the vSphere credentials are valid
 func (v *VSphereCloudDriver) IsValidVSphereCredentials(ctx context.Context) (bool, error) {
 	_, err := v.getFinder()
 	if err != nil {
@@ -113,6 +122,7 @@ func (v *VSphereCloudDriver) IsValidVSphereCredentials(ctx context.Context) (boo
 	return true, nil
 }
 
+// ValidateVsphereVersion validates the vSphere version satisfies the given constraint
 func (v *VSphereCloudDriver) ValidateVsphereVersion(constraint string) error {
 	vsphereVersion := v.Client.ServiceContent.About.Version
 	vn, err := version.NewVersion(vsphereVersion)
@@ -129,6 +139,7 @@ func (v *VSphereCloudDriver) ValidateVsphereVersion(constraint string) error {
 	return nil
 }
 
+// GetFinderWithDatacenter returns a finder and the datacenter name
 func (v *VSphereCloudDriver) GetFinderWithDatacenter(ctx context.Context, datacenter string) (*find.Finder, string, error) {
 	finder, err := v.getFinder()
 	if err != nil {
@@ -153,6 +164,7 @@ func (v *VSphereCloudDriver) getFinder() (*find.Finder, error) {
 	return finder, nil
 }
 
+// GetOrCreateSession returns the session for the given server, username and password
 func GetOrCreateSession(
 	ctx context.Context,
 	server, username, password string, refreshRestClient bool) (Session, error) {
@@ -198,7 +210,7 @@ func GetOrCreateSession(
 
 func createGovmomiClientWithKeepAlive(ctx context.Context, sessionKey, server, username, password string) (*govmomi.Client, error) {
 	//get vcenter URL
-	vCenterURL, err := getVCenterUrl(server, username, password)
+	vCenterURL, err := getVCenterURL(server, username, password)
 	if err != nil {
 		return nil, err
 	}
@@ -243,7 +255,7 @@ func createGovmomiClientWithKeepAlive(ctx context.Context, sessionKey, server, u
 	return c, nil
 }
 
-func getVCenterUrl(vCenterServer string, vCenterUsername string, vCenterPassword string) (*url.URL, error) {
+func getVCenterURL(vCenterServer string, vCenterUsername string, vCenterPassword string) (*url.URL, error) {
 	// parse vcenter URL
 	for _, scheme := range []string{"http://", "https://"} {
 		vCenterServer = strings.TrimPrefix(vCenterServer, scheme)
@@ -272,6 +284,7 @@ func createRestClientWithKeepAlive(ctx context.Context, username, password strin
 	return restClient, nil
 }
 
+// ClearCache deletes the session from the session cache
 func ClearCache(sessionKey string) {
 	sessionMU.Lock()
 	defer sessionMU.Unlock()

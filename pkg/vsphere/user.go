@@ -15,8 +15,10 @@ import (
 	"github.com/vmware/govmomi/vim25/types"
 )
 
+// IsAdminAccount is defined to enable monkey patching the isAdminAccount function in integration tests
 var IsAdminAccount = isAdminAccount
 
+// GetCurrentVmwareUser returns the user name the VSphereCloudDriver is currently authenticated with
 func (v *VSphereCloudDriver) GetCurrentVmwareUser(ctx context.Context) (string, error) {
 	userSession, err := v.Client.SessionManager.UserSession(ctx)
 	if err != nil {
@@ -26,6 +28,7 @@ func (v *VSphereCloudDriver) GetCurrentVmwareUser(ctx context.Context) (string, 
 	return userSession.UserName, nil
 }
 
+// ValidateUserPrivilegeOnEntities validates the user privileges on the entities
 func (v *VSphereCloudDriver) ValidateUserPrivilegeOnEntities(ctx context.Context, authManager *object.AuthorizationManager, datacenter string, finder *find.Finder, entityName, entityType string, privileges []string, userName, clusterName string) (isValid bool, failures []string, err error) {
 	var folder *object.Folder
 	var cluster *object.ClusterComputeResource
@@ -102,10 +105,12 @@ func (v *VSphereCloudDriver) ValidateUserPrivilegeOnEntities(ctx context.Context
 	return isValid, failures, err
 }
 
+// IsAdminAccount checks if the current user is an admin account
 func (v *VSphereCloudDriver) IsAdminAccount(ctx context.Context) (bool, error) {
 	return IsAdminAccount(ctx, v)
 }
 
+// GetVmwareUserPrivileges returns a map of privileges for the user
 func GetVmwareUserPrivileges(ctx context.Context, userPrincipal string, groupPrincipals []string, authManager *object.AuthorizationManager) (map[string]bool, error) {
 	groupPrincipalMap := make(map[string]bool)
 	for _, principal := range groupPrincipals {
@@ -166,6 +171,7 @@ func isAdminAccount(ctx context.Context, driver *VSphereCloudDriver) (bool, erro
 	return true, nil
 }
 
+// ConfigureSSOClient configures the SSO client for the given driver
 func ConfigureSSOClient(ctx context.Context, driver *VSphereCloudDriver) (*ssoadmin.Client, error) {
 	vc := driver.Client.Client
 	ssoClient, err := ssoadmin.NewClient(ctx, vc)

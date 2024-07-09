@@ -9,6 +9,7 @@ import (
 	"github.com/vmware/govmomi/vim25/mo"
 )
 
+// GetVAppIfExists returns the virtual app if it exists
 func (v *VSphereCloudDriver) GetVAppIfExists(ctx context.Context, finder *find.Finder, datacenter, vAppName string) (bool, *object.VirtualApp, error) {
 	vapp, err := finder.VirtualApp(ctx, vAppName)
 	if err != nil {
@@ -17,6 +18,7 @@ func (v *VSphereCloudDriver) GetVAppIfExists(ctx context.Context, finder *find.F
 	return true, vapp, nil
 }
 
+// GetVapps returns a list of virtual apps
 func (v *VSphereCloudDriver) GetVapps(ctx context.Context) ([]mo.VirtualApp, error) {
 	m := view.NewManager(v.Client.Client)
 

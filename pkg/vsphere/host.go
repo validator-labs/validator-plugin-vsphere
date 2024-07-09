@@ -16,11 +16,13 @@ import (
 	"golang.org/x/exp/slices"
 )
 
+// VSphereHostSystem defines a vSphere host system
 type VSphereHostSystem struct {
 	Name      string
 	Reference string
 }
 
+// HostDateInfo defines the host date information
 type HostDateInfo struct {
 	HostName   string
 	NtpServers []string
@@ -31,6 +33,7 @@ type HostDateInfo struct {
 	ServiceStatus string
 }
 
+// GetHostIfExists returns the host system if it exists
 func (v *VSphereCloudDriver) GetHostIfExists(ctx context.Context, finder *find.Finder, datacenter, clusterName, hostName string) (bool, *object.HostSystem, error) {
 	path := fmt.Sprintf("/%s/host/%s/%s", datacenter, clusterName, hostName)
 	// Handle datacenter level hosts
@@ -44,6 +47,7 @@ func (v *VSphereCloudDriver) GetHostIfExists(ctx context.Context, finder *find.F
 	return true, host, nil
 }
 
+// GetVSphereHostSystems returns the vSphere host systems
 func (v *VSphereCloudDriver) GetVSphereHostSystems(ctx context.Context, datacenter, cluster string) ([]VSphereHostSystem, error) {
 	finder, _, err := v.GetFinderWithDatacenter(ctx, datacenter)
 	if err != nil {
@@ -74,6 +78,7 @@ func (v *VSphereCloudDriver) GetVSphereHostSystems(ctx context.Context, datacent
 	return hostSystems, nil
 }
 
+// GetHostClusterMapping returns the host cluster mapping
 func (v *VSphereCloudDriver) GetHostClusterMapping(ctx context.Context) (map[string]string, error) {
 	m := view.NewManager(v.Client.Client)
 	pc := property.DefaultCollector(v.Client.Client)
@@ -126,6 +131,7 @@ func getHostSystem(hostNameObj *types.ManagedObjectReference, hostSystems []mo.H
 	return nil
 }
 
+// ValidateHostNTPSettings validates the NTP settings for the hosts
 func (v *VSphereCloudDriver) ValidateHostNTPSettings(ctx context.Context, finder *find.Finder, datacenter, clusterName string, hosts []string) (bool, []string, error) {
 	var failures []string
 
