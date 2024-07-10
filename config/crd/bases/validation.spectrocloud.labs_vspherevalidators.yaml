@@ -40,35 +40,56 @@ spec:
             description: VsphereValidatorSpec defines the desired state of VsphereValidator
             properties:
               auth:
+                description: VsphereAuth defines authentication configuration for
+                  an VsphereValidator.
                 properties:
                   secretName:
+                    description: SecretName is the name of the secret containing the
+                      vSphere credentials
                     type: string
                 required:
                 - secretName
                 type: object
               computeResourceRules:
                 items:
+                  description: ComputeResourceRule defines the compute resource validation
+                    rule
                   properties:
                     clusterName:
                       description: ClusterName is required when the vCenter Entity
                         resides beneath a Cluster in the vCenter object hierarchy
                       type: string
                     entityName:
+                      description: EntityName is the name of the entity to validate
                       type: string
                     name:
+                      description: Name is the name of the compute resource validation
+                        rule
                       type: string
                     nodepoolResourceRequirements:
+                      description: NodepoolResourceRequirements is the list of nodepool
+                        resource requirements
                       items:
+                        description: NodepoolResourceRequirement defines the resource
+                          requirements for a nodepool
                         properties:
                           cpu:
+                            description: CPU is the CPU requirement for the nodepool
                             type: string
                           diskSpace:
+                            description: DiskSpace is the disk space requirement for
+                              the nodepool
                             type: string
                           memory:
+                            description: Memory is the memory requirement for the
+                              nodepool
                             type: string
                           name:
+                            description: Name is the name of the nodepool
                             type: string
                           numberOfNodes:
+                            description: NumberOfNodes is the number of nodes in the
+                              nodepool
                             type: integer
                         required:
                         - cpu
@@ -79,6 +100,8 @@ spec:
                         type: object
                       type: array
                     scope:
+                      description: Scope is the scope of the compute resource validation
+                        rule
                       type: string
                   required:
                   - entityName
@@ -91,22 +114,31 @@ spec:
                 type: string
               entityPrivilegeValidationRules:
                 items:
+                  description: EntityPrivilegeValidationRule defines the entity privilege
+                    validation rule
                   properties:
                     clusterName:
                       description: ClusterName is required when the vCenter Entity
                         resides beneath a Cluster in the vCenter object hierarchy
                       type: string
                     entityName:
+                      description: EntityName is the name of the entity to validate
                       type: string
                     entityType:
+                      description: EntityType is the type of the entity to validate
                       type: string
                     name:
+                      description: Name is the name of the entity privilege validation
+                        rule
                       type: string
                     privileges:
+                      description: Privileges is the list of privileges to validate
+                        that the user has
                       items:
                         type: string
                       type: array
                     username:
+                      description: Username is the username to validate against
                       type: string
                   required:
                   - entityName
@@ -118,16 +150,20 @@ spec:
                 type: array
               ntpValidationRules:
                 items:
+                  description: NTPValidationRule defines the NTP validation rule
                   properties:
                     clusterName:
                       description: ClusterName is required when the vCenter Host(s)
                         reside beneath a Cluster in the vCenter object hierarchy
                       type: string
                     hosts:
+                      description: Hosts is the list of vCenter Hosts to validate
+                        NTP configuration
                       items:
                         type: string
                       type: array
                     name:
+                      description: Name is the name of the NTP validation rule
                       type: string
                   required:
                   - hosts
@@ -136,12 +172,17 @@ spec:
                 type: array
               rolePrivilegeValidationRules:
                 items:
+                  description: GenericRolePrivilegeValidationRule defines the generic
+                    role privilege validation rule
                   properties:
                     privileges:
+                      description: Privileges is the list of privileges to validate
+                        that the user has
                       items:
                         type: string
                       type: array
                     username:
+                      description: Username is the username to validate against
                       type: string
                   required:
                   - privileges
@@ -150,18 +191,23 @@ spec:
                 type: array
               tagValidationRules:
                 items:
+                  description: TagValidationRule defines the tag validation rule
                   properties:
                     clusterName:
                       description: ClusterName is required when the vCenter Entity
                         resides beneath a Cluster in the vCenter object hierarchy
                       type: string
                     entityName:
+                      description: EntityName is the name of the entity to validate
                       type: string
                     entityType:
+                      description: EntityType is the type of the entity to validate
                       type: string
                     name:
+                      description: Name is the name of the tag validation rule
                       type: string
                     tag:
+                      description: Tag is the tag to validate on the entity
                       type: string
                   required:
                   - entityName

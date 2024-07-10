@@ -4,14 +4,8 @@ import (
 	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
 )
 
-// EDIT THIS FILE!  THIS IS SCAFFOLDING FOR YOU TO OWN!
-// NOTE: json tags are required.  Any new fields you add must have json tags for the fields to be serialized.
-
 // VsphereValidatorSpec defines the desired state of VsphereValidator
 type VsphereValidatorSpec struct {
-	// INSERT ADDITIONAL SPEC FIELDS - desired state of cluster
-	// Important: Run "make" to regenerate code after modifying this file
-
 	Auth                           VsphereAuth                          `json:"auth" yaml:"auth"`
 	Datacenter                     string                               `json:"datacenter" yaml:"datacenter"`
 	EntityPrivilegeValidationRules []EntityPrivilegeValidationRule      `json:"entityPrivilegeValidationRules,omitempty" yaml:"entityPrivilegeValidationRules,omitempty"`
@@ -21,63 +15,90 @@ type VsphereValidatorSpec struct {
 	NTPValidationRules             []NTPValidationRule                  `json:"ntpValidationRules,omitempty" yaml:"ntpValidationRules,omitempty"`
 }
 
+// VsphereAuth defines authentication configuration for an VsphereValidator.
 type VsphereAuth struct {
+	// SecretName is the name of the secret containing the vSphere credentials
 	SecretName string `json:"secretName" yaml:"secretName"`
 }
 
+// NTPValidationRule defines the NTP validation rule
 type NTPValidationRule struct {
+	// Name is the name of the NTP validation rule
 	Name string `json:"name" yaml:"name"`
 	// ClusterName is required when the vCenter Host(s) reside beneath a Cluster in the vCenter object hierarchy
-	ClusterName string   `json:"clusterName,omitempty" yaml:"clusterName,omitempty"`
-	Hosts       []string `json:"hosts" yaml:"hosts"`
+	ClusterName string `json:"clusterName,omitempty" yaml:"clusterName,omitempty"`
+	// Hosts is the list of vCenter Hosts to validate NTP configuration
+	Hosts []string `json:"hosts" yaml:"hosts"`
 }
 
+// ComputeResourceRule defines the compute resource validation rule
 type ComputeResourceRule struct {
-	Name string `json:"name" yaml:"name"`
-	// ClusterName is required when the vCenter Entity resides beneath a Cluster in the vCenter object hierarchy
-	ClusterName                  string                        `json:"clusterName,omitempty" yaml:"clusterName"`
-	Scope                        string                        `json:"scope" yaml:"scope"`
-	EntityName                   string                        `json:"entityName" yaml:"entityName"`
-	NodepoolResourceRequirements []NodepoolResourceRequirement `json:"nodepoolResourceRequirements" yaml:"nodepoolResourceRequirements"`
-}
-
-type EntityPrivilegeValidationRule struct {
-	Name     string `json:"name" yaml:"name"`
-	Username string `json:"username" yaml:"username"`
-	// ClusterName is required when the vCenter Entity resides beneath a Cluster in the vCenter object hierarchy
-	ClusterName string   `json:"clusterName,omitempty" yaml:"clusterName"`
-	EntityType  string   `json:"entityType" yaml:"entityType"`
-	EntityName  string   `json:"entityName" yaml:"entityName"`
-	Privileges  []string `json:"privileges" yaml:"privileges"`
-}
-
-type GenericRolePrivilegeValidationRule struct {
-	Username   string   `json:"username" yaml:"username"`
-	Privileges []string `json:"privileges" yaml:"privileges"`
-}
-
-type TagValidationRule struct {
+	// Name is the name of the compute resource validation rule
 	Name string `json:"name" yaml:"name"`
 	// ClusterName is required when the vCenter Entity resides beneath a Cluster in the vCenter object hierarchy
 	ClusterName string `json:"clusterName,omitempty" yaml:"clusterName"`
-	EntityType  string `json:"entityType" yaml:"entityType"`
-	EntityName  string `json:"entityName" yaml:"entityName"`
-	Tag         string `json:"tag" yaml:"tag"`
+	// Scope is the scope of the compute resource validation rule
+	Scope string `json:"scope" yaml:"scope"`
+	// EntityName is the name of the entity to validate
+	EntityName string `json:"entityName" yaml:"entityName"`
+	// NodepoolResourceRequirements is the list of nodepool resource requirements
+	NodepoolResourceRequirements []NodepoolResourceRequirement `json:"nodepoolResourceRequirements" yaml:"nodepoolResourceRequirements"`
 }
 
+// EntityPrivilegeValidationRule defines the entity privilege validation rule
+type EntityPrivilegeValidationRule struct {
+	// Name is the name of the entity privilege validation rule
+	Name string `json:"name" yaml:"name"`
+	// Username is the username to validate against
+	Username string `json:"username" yaml:"username"`
+	// ClusterName is required when the vCenter Entity resides beneath a Cluster in the vCenter object hierarchy
+	ClusterName string `json:"clusterName,omitempty" yaml:"clusterName"`
+	// EntityType is the type of the entity to validate
+	EntityType string `json:"entityType" yaml:"entityType"`
+	// EntityName is the name of the entity to validate
+	EntityName string `json:"entityName" yaml:"entityName"`
+	// Privileges is the list of privileges to validate that the user has
+	Privileges []string `json:"privileges" yaml:"privileges"`
+}
+
+// GenericRolePrivilegeValidationRule defines the generic role privilege validation rule
+type GenericRolePrivilegeValidationRule struct {
+	// Username is the username to validate against
+	Username string `json:"username" yaml:"username"`
+	// Privileges is the list of privileges to validate that the user has
+	Privileges []string `json:"privileges" yaml:"privileges"`
+}
+
+// TagValidationRule defines the tag validation rule
+type TagValidationRule struct {
+	// Name is the name of the tag validation rule
+	Name string `json:"name" yaml:"name"`
+	// ClusterName is required when the vCenter Entity resides beneath a Cluster in the vCenter object hierarchy
+	ClusterName string `json:"clusterName,omitempty" yaml:"clusterName"`
+	// EntityType is the type of the entity to validate
+	EntityType string `json:"entityType" yaml:"entityType"`
+	// EntityName is the name of the entity to validate
+	EntityName string `json:"entityName" yaml:"entityName"`
+	// Tag is the tag to validate on the entity
+	Tag string `json:"tag" yaml:"tag"`
+}
+
+// NodepoolResourceRequirement defines the resource requirements for a nodepool
 type NodepoolResourceRequirement struct {
-	Name          string `json:"name" yaml:"name"`
-	NumberOfNodes int    `json:"numberOfNodes" yaml:"numberOfNodes"`
-	CPU           string `json:"cpu" yaml:"cpu"`
-	Memory        string `json:"memory" yaml:"memory"`
-	DiskSpace     string `json:"diskSpace" yaml:"diskSpace"`
+	// Name is the name of the nodepool
+	Name string `json:"name" yaml:"name"`
+	// NumberOfNodes is the number of nodes in the nodepool
+	NumberOfNodes int `json:"numberOfNodes" yaml:"numberOfNodes"`
+	// CPU is the CPU requirement for the nodepool
+	CPU string `json:"cpu" yaml:"cpu"`
+	// Memory is the memory requirement for the nodepool
+	Memory string `json:"memory" yaml:"memory"`
+	// DiskSpace is the disk space requirement for the nodepool
+	DiskSpace string `json:"diskSpace" yaml:"diskSpace"`
 }
 
 // VsphereValidatorStatus defines the observed state of VsphereValidator
-type VsphereValidatorStatus struct {
-	// INSERT ADDITIONAL STATUS FIELD - define observed state of cluster
-	// Important: Run "make" to regenerate code after modifying this file
-}
+type VsphereValidatorStatus struct{}
 
 //+kubebuilder:object:root=true
 //+kubebuilder:subresource:status
@@ -91,6 +112,7 @@ type VsphereValidator struct {
 	Status VsphereValidatorStatus `json:"status,omitempty"`
 }
 
+// ResultCount returns the number of validation results expected for an VsphereValidatorSpec.
 func (s VsphereValidatorSpec) ResultCount() int {
 	return len(s.RolePrivilegeValidationRules) + len(s.EntityPrivilegeValidationRules) + len(s.ComputeResourceRules) +
 		len(s.TagValidationRules) + len(s.NTPValidationRules)

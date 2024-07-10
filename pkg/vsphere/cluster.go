@@ -11,7 +11,8 @@ import (
 	"github.com/vmware/govmomi/object"
 )
 
-func (v *VSphereCloudDriver) GetClusterIfExists(ctx context.Context, finder *find.Finder, datacenter, clusterName string) (bool, *object.ClusterComputeResource, error) {
+// GetClusterIfExists returns the cluster if it exists
+func (v *CloudDriver) GetClusterIfExists(ctx context.Context, finder *find.Finder, datacenter, clusterName string) (bool, *object.ClusterComputeResource, error) {
 	path := fmt.Sprintf("/%s/host/%s", datacenter, clusterName)
 	cluster, err := finder.ClusterComputeResource(ctx, path)
 	if err != nil {
@@ -20,7 +21,8 @@ func (v *VSphereCloudDriver) GetClusterIfExists(ctx context.Context, finder *fin
 	return true, cluster, nil
 }
 
-func (v *VSphereCloudDriver) GetVSphereClusters(ctx context.Context, datacenter string) ([]string, error) {
+// GetVSphereClusters returns a sorted list of vSphere clusters
+func (v *CloudDriver) GetVSphereClusters(ctx context.Context, datacenter string) ([]string, error) {
 	finder, dc, err := v.GetFinderWithDatacenter(ctx, datacenter)
 	if err != nil {
 		return nil, err
@@ -37,14 +39,14 @@ func (v *VSphereCloudDriver) GetVSphereClusters(ctx context.Context, datacenter 
 
 	client := ccrs[0].Client()
 
-	tags, categoryId, err := v.getTagsAndCategory(ctx, client, "ClusterComputeResource", ComputeClusterTagCategory)
+	tags, categoryID, err := v.getTagsAndCategory(ctx, client, "ClusterComputeResource", ComputeClusterTagCategory)
 	if err != nil {
 		return nil, err
 	}
 
 	clusters := make([]string, 0)
 	for _, ccr := range ccrs {
-		if v.ifTagHasCategory(tags[ccr.Reference().Value].Tags, categoryId) {
+		if v.ifTagHasCategory(tags[ccr.Reference().Value].Tags, categoryID) {
 			prefix := fmt.Sprintf("/%s/host/", dc)
 			cluster := strings.TrimPrefix(ccr.InventoryPath, prefix)
 			clusters = append(clusters, cluster)
@@ -59,7 +61,7 @@ func (v *VSphereCloudDriver) GetVSphereClusters(ctx context.Context, datacenter 
 	return clusters, nil
 }
 
-func (v *VSphereCloudDriver) getClusterComputeResources(ctx context.Context, finder *find.Finder) ([]*object.ClusterComputeResource, error) {
+func (v *CloudDriver) getClusterComputeResources(ctx context.Context, finder *find.Finder) ([]*object.ClusterComputeResource, error) {
 	ccrs, err := finder.ClusterComputeResourceList(ctx, "*")
 	if err != nil {
 		return nil, fmt.Errorf("failed to get compute cluster resources: %s", err.Error())

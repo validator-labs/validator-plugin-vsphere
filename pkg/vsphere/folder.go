@@ -12,14 +12,16 @@ import (
 	"github.com/vmware/govmomi/object"
 )
 
-func (v *VSphereCloudDriver) FolderExists(ctx context.Context, finder *find.Finder, datacenter, folderName string) (bool, error) {
+// FolderExists checks if a folder exists in the vSphere inventory
+func (v *CloudDriver) FolderExists(ctx context.Context, finder *find.Finder, folderName string) (bool, error) {
 	if _, err := finder.Folder(ctx, folderName); err != nil {
 		return false, nil
 	}
 	return true, nil
 }
 
-func (v *VSphereCloudDriver) GetFolderIfExists(ctx context.Context, finder *find.Finder, datacenter, folderName string) (bool, *object.Folder, error) {
+// GetFolderIfExists returns the folder if it exists
+func (v *CloudDriver) GetFolderIfExists(ctx context.Context, finder *find.Finder, folderName string) (bool, *object.Folder, error) {
 	folder, err := finder.Folder(ctx, folderName)
 	if err != nil {
 		return false, nil, err
@@ -27,7 +29,8 @@ func (v *VSphereCloudDriver) GetFolderIfExists(ctx context.Context, finder *find
 	return true, folder, nil
 }
 
-func (v *VSphereCloudDriver) GetVSphereVMFolders(ctx context.Context, datacenter string) ([]string, error) {
+// GetVSphereVMFolders returns a list of vSphere VM folders
+func (v *CloudDriver) GetVSphereVMFolders(ctx context.Context, datacenter string) ([]string, error) {
 	finder, dc, err := v.GetFinderWithDatacenter(ctx, datacenter)
 	if err != nil {
 		return nil, err
@@ -57,7 +60,8 @@ func (v *VSphereCloudDriver) GetVSphereVMFolders(ctx context.Context, datacenter
 	return folders, nil
 }
 
-func (v *VSphereCloudDriver) GetFolderNameByID(ctx context.Context, datacenter, id string) (string, error) {
+// GetFolderNameByID returns the folder name by ID
+func (v *CloudDriver) GetFolderNameByID(ctx context.Context, datacenter, id string) (string, error) {
 	finder, dc, err := v.GetFinderWithDatacenter(ctx, datacenter)
 	if err != nil {
 		return "", err
@@ -86,14 +90,15 @@ func (v *VSphereCloudDriver) GetFolderNameByID(ctx context.Context, datacenter, 
 	return "", fmt.Errorf("unable to find folder with id: %s", id)
 }
 
-func (v *VSphereCloudDriver) CreateVSphereVMFolder(ctx context.Context, datacenter string, folders []string) error {
+// CreateVSphereVMFolder creates a vSphere VM folder
+func (v *CloudDriver) CreateVSphereVMFolder(ctx context.Context, datacenter string, folders []string) error {
 	finder, _, err := v.GetFinderWithDatacenter(ctx, datacenter)
 	if err != nil {
 		return err
 	}
 
 	for _, folder := range folders {
-		folderExists, _, err := v.GetFolderIfExists(ctx, finder, datacenter, folder)
+		folderExists, _, err := v.GetFolderIfExists(ctx, finder, folder)
 		if err != nil {
 			if strings.HasSuffix(err.Error(), "not found") {
 				v.log.V(1).Info("folder does not exist; will create it", "path", folder)

@@ -49,7 +49,7 @@ import (
 	vres "github.com/validator-labs/validator/pkg/validationresult"
 )
 
-var ErrSecretNameRequired = errors.New("auth.secretName is required")
+var errSecretNameRequired = errors.New("auth.secretName is required")
 
 // VsphereValidatorReconciler reconciles a VsphereValidator object
 type VsphereValidatorReconciler struct {
@@ -80,16 +80,15 @@ func (r *VsphereValidatorReconciler) Reconcile(ctx context.Context, req ctrl.Req
 	}
 
 	// Initialize Vsphere driver
-	var vsphereCloudAccount *vsphere.VsphereCloudAccount
+	var vsphereCloudAccount *vsphere.CloudAccount
 	var res *ctrl.Result
 	if validator.Spec.Auth.SecretName == "" {
-		l.Error(ErrSecretNameRequired, "failed to reconcile VsphereValidator with empty auth.secretName")
-		return ctrl.Result{}, ErrSecretNameRequired
-	} else {
-		vsphereCloudAccount, res = r.secretKeyAuth(req, validator)
-		if res != nil {
-			return *res, nil
-		}
+		l.Error(errSecretNameRequired, "failed to reconcile VsphereValidator with empty auth.secretName")
+		return ctrl.Result{}, errSecretNameRequired
+	}
+	vsphereCloudAccount, res = r.secretKeyAuth(req, validator)
+	if res != nil {
+		return *res, nil
 	}
 
 	vsphereCloudDriver, err := vsphere.NewVSphereDriver(
@@ -113,9 +112,9 @@ func (r *VsphereValidatorReconciler) Reconcile(ctx context.Context, req ctrl.Req
 	}
 
 	rolePrivilegeValidationService := privileges.NewPrivilegeValidationService(r.Log, vsphereCloudDriver, validator.Spec.Datacenter, authManager, userName)
-	tagValidationService := tags.NewTagsValidationService(r.Log)
-	computeResourceValidationService := computeresources.NewComputeResourcesValidationService(r.Log, vsphereCloudDriver)
-	ntpValidationService := ntp.NewNTPValidationService(r.Log, vsphereCloudDriver, validator.Spec.Datacenter)
+	tagValidationService := tags.NewValidationService(r.Log)
+	computeResourceValidationService := computeresources.NewValidationService(r.Log, vsphereCloudDriver)
+	ntpValidationService := ntp.NewValidationService(r.Log, vsphereCloudDriver, validator.Spec.Datacenter)
 
 	// Get the active validator's validation result
 	vr := &vapi.ValidationResult{}
@@ -214,7 +213,7 @@ func (r *VsphereValidatorReconciler) Reconcile(ctx context.Context, req ctrl.Req
 	return ctrl.Result{RequeueAfter: 2 * time.Minute}, nil
 }
 
-func (r *VsphereValidatorReconciler) secretKeyAuth(req ctrl.Request, validator *v1alpha1.VsphereValidator) (*vsphere.VsphereCloudAccount, *reconcile.Result) {
+func (r *VsphereValidatorReconciler) secretKeyAuth(req ctrl.Request, validator *v1alpha1.VsphereValidator) (*vsphere.CloudAccount, *reconcile.Result) {
 	l := r.Log.V(0).WithValues("name", req.Name, "namespace", req.Namespace, "secretName", validator.Spec.Auth.SecretName)
 
 	authSecret := &corev1.Secret{}
@@ -265,7 +264,7 @@ func (r *VsphereValidatorReconciler) secretKeyAuth(req ctrl.Request, validator *
 		return nil, &ctrl.Result{RequeueAfter: time.Second * 120}
 	}
 
-	return &vsphere.VsphereCloudAccount{
+	return &vsphere.CloudAccount{
 		Insecure:      skipVerify,
 		Password:      string(password),
 		Username:      string(username),

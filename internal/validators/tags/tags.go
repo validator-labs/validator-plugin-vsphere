@@ -1,3 +1,4 @@
+// Package tags handles tag validation rule reconciliation.
 package tags
 
 import (
@@ -20,21 +21,28 @@ import (
 	"github.com/validator-labs/validator/pkg/util"
 )
 
-// to enable monkey patching in integration tests
-var GetCategories = getCategories
-var GetAttachedTagsOnObjects = getAttachedTagsOnObjects
+var (
+	// GetCategories is defined to enable monkey patching the getCategories function in integration tests
+	GetCategories = getCategories
 
-type TagsValidationService struct {
+	// GetAttachedTagsOnObjects is defined to enable monkey patching the getAttachedTagsOnObjects function in integration tests
+	GetAttachedTagsOnObjects = getAttachedTagsOnObjects
+)
+
+// ValidationService is a service that validates tag rules
+type ValidationService struct {
 	Log logr.Logger
 }
 
-func NewTagsValidationService(log logr.Logger) *TagsValidationService {
-	return &TagsValidationService{
+// NewValidationService creates a new ValidationService
+func NewValidationService(log logr.Logger) *ValidationService {
+	return &ValidationService{
 		Log: log,
 	}
 }
 
-func (s *TagsValidationService) ReconcileTagRules(tagsManager *tags.Manager, finder *find.Finder, driver *vsphere.VSphereCloudDriver, tagValidationRule v1alpha1.TagValidationRule) (*vapitypes.ValidationRuleResult, error) {
+// ReconcileTagRules reconciles the tag rules
+func (s *ValidationService) ReconcileTagRules(tagsManager *tags.Manager, finder *find.Finder, driver *vsphere.CloudDriver, tagValidationRule v1alpha1.TagValidationRule) (*vapitypes.ValidationRuleResult, error) {
 	vr := buildValidationResult(tagValidationRule, constants.ValidationTypeTag)
 
 	valid, err := tagIsValid(tagsManager, finder, driver.Datacenter, tagValidationRule.ClusterName, tagValidationRule.EntityType, tagValidationRule.EntityName, tagValidationRule.Tag)

@@ -1,3 +1,4 @@
+// Package privileges handles privilege validation rule reconciliation.
 package privileges
 
 import (
@@ -7,15 +8,17 @@ import (
 	"github.com/validator-labs/validator-plugin-vsphere/pkg/vsphere"
 )
 
+// PrivilegeValidationService is a service that validates user privileges
 type PrivilegeValidationService struct {
 	log         logr.Logger
-	driver      *vsphere.VSphereCloudDriver
+	driver      *vsphere.CloudDriver
 	datacenter  string
 	authManager *object.AuthorizationManager
 	userName    string
 }
 
-func NewPrivilegeValidationService(log logr.Logger, driver *vsphere.VSphereCloudDriver, datacenter string, authManager *object.AuthorizationManager, userName string) *PrivilegeValidationService {
+// NewPrivilegeValidationService creates a new PrivilegeValidationService
+func NewPrivilegeValidationService(log logr.Logger, driver *vsphere.CloudDriver, datacenter string, authManager *object.AuthorizationManager, userName string) *PrivilegeValidationService {
 	return &PrivilegeValidationService{
 		log:         log,
 		driver:      driver,

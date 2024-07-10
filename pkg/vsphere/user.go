@@ -15,9 +15,11 @@ import (
 	"github.com/vmware/govmomi/vim25/types"
 )
 
+// IsAdminAccount is defined to enable monkey patching the isAdminAccount function in integration tests
 var IsAdminAccount = isAdminAccount
 
-func (v *VSphereCloudDriver) GetCurrentVmwareUser(ctx context.Context) (string, error) {
+// GetCurrentVmwareUser returns the user name the CloudDriver is currently authenticated with
+func (v *CloudDriver) GetCurrentVmwareUser(ctx context.Context) (string, error) {
 	userSession, err := v.Client.SessionManager.UserSession(ctx)
 	if err != nil {
 		return "", err
@@ -26,7 +28,8 @@ func (v *VSphereCloudDriver) GetCurrentVmwareUser(ctx context.Context) (string, 
 	return userSession.UserName, nil
 }
 
-func (v *VSphereCloudDriver) ValidateUserPrivilegeOnEntities(ctx context.Context, authManager *object.AuthorizationManager, datacenter string, finder *find.Finder, entityName, entityType string, privileges []string, userName, clusterName string) (isValid bool, failures []string, err error) {
+// ValidateUserPrivilegeOnEntities validates the user privileges on the entities
+func (v *CloudDriver) ValidateUserPrivilegeOnEntities(ctx context.Context, authManager *object.AuthorizationManager, datacenter string, finder *find.Finder, entityName, entityType string, privileges []string, userName, clusterName string) (isValid bool, failures []string, err error) {
 	var folder *object.Folder
 	var cluster *object.ClusterComputeResource
 	var host *object.HostSystem
@@ -38,7 +41,7 @@ func (v *VSphereCloudDriver) ValidateUserPrivilegeOnEntities(ctx context.Context
 
 	switch entityType {
 	case "folder":
-		_, folder, err = v.GetFolderIfExists(ctx, finder, datacenter, entityName)
+		_, folder, err = v.GetFolderIfExists(ctx, finder, entityName)
 		if err != nil {
 			return false, failures, err
 		}
@@ -50,13 +53,13 @@ func (v *VSphereCloudDriver) ValidateUserPrivilegeOnEntities(ctx context.Context
 		}
 		moID = resourcePool.Reference()
 	case "vapp":
-		_, vapp, err = v.GetVAppIfExists(ctx, finder, datacenter, entityName)
+		_, vapp, err = v.GetVAppIfExists(ctx, finder, entityName)
 		if err != nil {
 			return false, failures, err
 		}
 		moID = vapp.Reference()
 	case "vm":
-		_, vm, err = v.GetVMIfExists(ctx, finder, datacenter, clusterName, entityName)
+		_, vm, err = v.GetVMIfExists(ctx, finder, entityName)
 		if err != nil {
 			return false, failures, err
 		}
@@ -102,10 +105,12 @@ func (v *VSphereCloudDriver) ValidateUserPrivilegeOnEntities(ctx context.Context
 	return isValid, failures, err
 }
 
-func (v *VSphereCloudDriver) IsAdminAccount(ctx context.Context) (bool, error) {
+// IsAdminAccount checks if the current user is an admin account
+func (v *CloudDriver) IsAdminAccount(ctx context.Context) (bool, error) {
 	return IsAdminAccount(ctx, v)
 }
 
+// GetVmwareUserPrivileges returns a map of privileges for the user
 func GetVmwareUserPrivileges(ctx context.Context, userPrincipal string, groupPrincipals []string, authManager *object.AuthorizationManager) (map[string]bool, error) {
 	groupPrincipalMap := make(map[string]bool)
 	for _, principal := range groupPrincipals {
@@ -144,7 +149,7 @@ func getUserPrincipalFromUsername(username string) string {
 	return fmt.Sprintf("%s\\%s", strings.ToUpper(splitStr[1]), splitStr[0])
 }
 
-func isAdminAccount(ctx context.Context, driver *VSphereCloudDriver) (bool, error) {
+func isAdminAccount(ctx context.Context, driver *CloudDriver) (bool, error) {
 	ssoClient, err := ConfigureSSOClient(ctx, driver)
 	if err != nil {
 		return false, err
@@ -166,7 +171,8 @@ func isAdminAccount(ctx context.Context, driver *VSphereCloudDriver) (bool, erro
 	return true, nil
 }
 
-func ConfigureSSOClient(ctx context.Context, driver *VSphereCloudDriver) (*ssoadmin.Client, error) {
+// ConfigureSSOClient configures the SSO client for the given driver
+func ConfigureSSOClient(ctx context.Context, driver *CloudDriver) (*ssoadmin.Client, error) {
 	vc := driver.Client.Client
 	ssoClient, err := ssoadmin.NewClient(ctx, vc)
 	if err != nil {

@@ -1,3 +1,4 @@
+// Package vcsim is used to mock interactions with a vCenter server
 package vcsim
 
 import (
@@ -15,7 +16,7 @@ import (
 	"github.com/go-logr/logr"
 	"github.com/pkg/errors"
 	"github.com/vmware/govmomi/simulator"
-	_ "github.com/vmware/govmomi/vapi/simulator"
+	_ "github.com/vmware/govmomi/vapi/simulator" // Importing the simulator package to enable simulation of vCenter server
 
 	"github.com/validator-labs/validator-plugin-vsphere/pkg/vsphere"
 )
@@ -26,12 +27,14 @@ func init() {
 	// simulator.Trace = true
 }
 
+// VCSimulator is used to mock interactions with a vCenter server
 type VCSimulator struct {
-	cloudAccount *vsphere.VsphereCloudAccount
-	Driver       *vsphere.VSphereCloudDriver
+	cloudAccount *vsphere.CloudAccount
+	Driver       *vsphere.CloudDriver
 	log          logr.Logger
 }
 
+// NewVCSim creates a new VCSimulator
 func NewVCSim(username string, port int, log logr.Logger) *VCSimulator {
 	return &VCSimulator{
 		cloudAccount: NewTestVsphereAccount(username, port),
@@ -39,11 +42,12 @@ func NewVCSim(username string, port int, log logr.Logger) *VCSimulator {
 	}
 }
 
-func NewTestVsphereAccount(username string, port int) *vsphere.VsphereCloudAccount {
+// NewTestVsphereAccount creates a new vsphere account for testing
+func NewTestVsphereAccount(username string, port int) *vsphere.CloudAccount {
 	// Starting & stopping vcsim between test cases appears to work, but govmomi calls
 	// throw an auth error on the 2nd iteration unless a unique username is used
 	// each time the simulator is instantiated.
-	return &vsphere.VsphereCloudAccount{
+	return &vsphere.CloudAccount{
 		Insecure:      true,
 		Password:      "welcome123",
 		Username:      username,
@@ -51,6 +55,7 @@ func NewTestVsphereAccount(username string, port int) *vsphere.VsphereCloudAccou
 	}
 }
 
+// Start starts the mock vcsim server
 func (v *VCSimulator) Start() {
 	model := simulator.VPX()
 	model.Datacenter = 1
@@ -88,12 +93,14 @@ func (v *VCSimulator) Start() {
 	log.Println("started vcsim server")
 }
 
+// Shutdown shuts down the vcim mock server
 func (v *VCSimulator) Shutdown() {
 	log.Println("shutting down vcsim server")
 	sig <- syscall.SIGTERM
 }
 
-func (v *VCSimulator) GetTestVsphereAccount() *vsphere.VsphereCloudAccount {
+// GetTestVsphereAccount returns the test vsphere account
+func (v *VCSimulator) GetTestVsphereAccount() *vsphere.CloudAccount {
 	return v.cloudAccount
 }
 

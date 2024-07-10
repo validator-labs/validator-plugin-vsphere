@@ -25,11 +25,11 @@ func TestRolePrivilegeValidationService_ReconcileRolePrivilegesRule(t *testing.T
 	defer vcSim.Shutdown()
 
 	// monkey-patch GetUserGroupAndPrincipals and IsAdminAccount
-	GetUserAndGroupPrincipals = func(ctx context.Context, username string, driver *vsphere.VSphereCloudDriver, log logr.Logger) (string, []string, error) {
+	GetUserAndGroupPrincipals = func(ctx context.Context, username string, driver *vsphere.CloudDriver, log logr.Logger) (string, []string, error) {
 		return "admin", []string{"Administrators"}, nil
 	}
 
-	vsphere.IsAdminAccount = func(ctx context.Context, driver *vsphere.VSphereCloudDriver) (bool, error) {
+	vsphere.IsAdminAccount = func(ctx context.Context, driver *vsphere.CloudDriver) (bool, error) {
 		return true, nil
 	}
 
@@ -87,7 +87,7 @@ func TestRolePrivilegeValidationService_ReconcileRolePrivilegesRule(t *testing.T
 			},
 				State: util.Ptr(vapi.ValidationFailed),
 			},
-			expectedErr: ErrRequiredRolePrivilegesNotFound,
+			expectedErr: errRequiredRolePrivilegesNotFound,
 		},
 	}
 
