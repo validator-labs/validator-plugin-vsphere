@@ -104,123 +104,24 @@ type Usage struct {
 
 // ReconcileComputeResourceValidationRule reconciles the compute resource rule
 func (c *ValidationService) ReconcileComputeResourceValidationRule(rule v1alpha1.ComputeResourceRule, finder *find.Finder, driver *vsphere.CloudDriver) (*types.ValidationRuleResult, error) {
-	var res Usage
 
 	vr := buildValidationResult(rule, constants.ValidationTypeComputeResources)
 
-	resourceReq := getResourceRequirements(rule.NodepoolResourceRequirements)
 	ctx, cancel := context.WithCancel(context.Background())
 	defer cancel()
 
+	var res *Usage
+	var err error
 	switch rule.Scope {
 	case "cluster":
-		var cluster mo.ClusterComputeResource
-		var hosts []mo.HostSystem
-		var datastores []mo.Datastore
-
-		obj, err := finder.ClusterComputeResource(ctx, rule.EntityName)
-		if err != nil {
-			return nil, err
-		}
-
-		pc := property.DefaultCollector(obj.Client())
-		err = pc.RetrieveOne(ctx, obj.Reference(), []string{"datastore", "host"}, &cluster)
-		if err != nil {
-			return nil, err
-		}
-
-		err = pc.Retrieve(ctx, cluster.Host, []string{"summary"}, &hosts)
-		if err != nil {
-			return nil, err
-		}
-
-		for _, host := range hosts {
-			res.CPU.Capacity += int64(int32(host.Summary.Hardware.NumCpuCores) * host.Summary.Hardware.CpuMhz)
-			res.CPU.Used += int64(host.Summary.QuickStats.OverallCpuUsage)
-
-			res.Memory.Capacity += host.Summary.Hardware.MemorySize
-			res.Memory.Used += int64(host.Summary.QuickStats.OverallMemoryUsage) << 20
-		}
-
-		err = pc.Retrieve(ctx, cluster.Datastore, []string{"summary"}, &datastores)
-		if err != nil {
-			return nil, err
-		}
-
-		res.Storage.Capacity, res.Storage.Free = getDatastoreInfo(datastores)
-
+		res, err = clusterUsage(ctx, rule, finder)
 	case "resourcepool":
-		var cluster mo.ClusterComputeResource
-		var datastores []mo.Datastore
-
-		inventoryPath := fmt.Sprintf(constants.ResourcePoolInventoryPath, driver.Datacenter, rule.ClusterName, rule.EntityName)
-		if rule.EntityName == constants.ClusterDefaultResourcePoolName {
-			inventoryPath = fmt.Sprintf("/%s/host/%s/%s", driver.Datacenter, rule.ClusterName, rule.EntityName)
-		}
-		resourcePool, virtualMachines, err := GetResourcePoolAndVMs(ctx, inventoryPath, finder)
-		if err != nil {
-			return nil, err
-		}
-		res.CPU.Capacity += *resourcePool.Config.CpuAllocation.Limit
-		res.Memory.Capacity += *resourcePool.Config.MemoryAllocation.Limit << 20
-
-		for _, vm := range *virtualMachines {
-			res.CPU.Used += int64(vm.Summary.QuickStats.OverallCpuUsage)
-			res.Memory.Used += int64(vm.Summary.QuickStats.HostMemoryUsage) << 20
-		}
-
-		clusterObj, err := finder.ClusterComputeResource(ctx, rule.ClusterName)
-		if err != nil {
-			return nil, err
-		}
-
-		clusterPc := property.DefaultCollector(clusterObj.Client())
-		err = clusterPc.RetrieveOne(ctx, clusterObj.Reference(), []string{"datastore", "host"}, &cluster)
-		if err != nil {
-			return nil, err
-		}
-
-		err = clusterPc.Retrieve(ctx, cluster.Datastore, []string{"summary"}, &datastores)
-		if err != nil {
-			return nil, err
-		}
-
-		res.Storage.Capacity, res.Storage.Free = getDatastoreInfo(datastores)
-
+		res, err = resourcePoolUsage(ctx, rule, finder, driver)
 	case "host":
-		var hostSystem mo.HostSystem
-		var virtualMachines []mo.VirtualMachine
-
-		var datastores []mo.Datastore
-
-		obj, err := finder.HostSystem(ctx, rule.EntityName)
-		if err != nil {
-			return nil, err
-		}
-
-		pc := property.DefaultCollector(obj.Client())
-		err = pc.RetrieveOne(ctx, obj.Reference(), nil, &hostSystem)
-		if err != nil {
-			return nil, err
-		}
-
-		err = pc.Retrieve(ctx, hostSystem.Vm, nil, &virtualMachines)
-		if err != nil {
-			return nil, err
-		}
-
-		res.CPU.Capacity += int64(hostSystem.Summary.Hardware.CpuMhz * int32(hostSystem.Hardware.CpuInfo.NumCpuCores))
-		res.Memory.Capacity += hostSystem.Summary.Hardware.MemorySize
-
-		res.CPU.Used = int64(hostSystem.Summary.QuickStats.OverallCpuUsage)
-		res.Memory.Used = int64(hostSystem.Summary.QuickStats.OverallMemoryUsage) << 20
-
-		err = pc.Retrieve(ctx, hostSystem.Datastore, nil, &datastores)
-		if err != nil {
-			return nil, err
-		}
-
-		res.Storage.Capacity, res.Storage.Free = getDatastoreInfo(datastores)
+		res, err = hostUsage(ctx, rule, finder)
+	}
+	if err != nil {
+		return vr, err
 	}
 
 	res.CPU.Free = res.CPU.Capacity - res.CPU.Used
@@ -231,10 +132,12 @@ func (c *ValidationService) ReconcileComputeResourceValidationRule(rule v1alpha1
 
 	res.Storage.Used = res.Storage.Capacity - res.Storage.Free
 	res.Storage.summarize(size)
+
 	freeCPU := convertStringToQuantity(sanitizeStrUnits(res.CPU.Summary.Free, "cpu"))
 	freeMemory := convertStringToQuantity(sanitizeStrUnits(res.Memory.Summary.Free, "memory"))
 	freeStorage := convertStringToQuantity(sanitizeStrUnits(res.Storage.Summary.Free, "storage"))
 
+	resourceReq := getResourceRequirements(rule.NodepoolResourceRequirements)
 	cpuCapacityAvailable := requestedQuantityAvailable(freeCPU, resourceReq.CPU)
 	memoryCapacityAvailable := requestedQuantityAvailable(freeMemory, resourceReq.Memory)
 	diskCapacityAvailable := requestedQuantityAvailable(freeStorage, resourceReq.DiskSpace)
@@ -244,35 +147,138 @@ func (c *ValidationService) ReconcileComputeResourceValidationRule(rule v1alpha1
 		vr.Condition.Failures = append(vr.Condition.Failures, fmt.Sprintf("Not enough resources available. CPU available: %t, Memory available: %t, Storage available: %t", cpuCapacityAvailable, memoryCapacityAvailable, diskCapacityAvailable))
 		vr.Condition.Message = "One or more resource requirements were not satisfied"
 		vr.Condition.Status = corev1.ConditionFalse
-
 		return vr, errInsufficientComputeResources
 	}
 
 	return vr, nil
 }
 
-func getResourcePoolAndVMs(ctx context.Context, inventoryPath string, finder *find.Finder) (*mo.ResourcePool, *[]mo.VirtualMachine, error) {
-	var resourcePool mo.ResourcePool
-	var virtualMachines []mo.VirtualMachine
+func clusterUsage(ctx context.Context, rule v1alpha1.ComputeResourceRule, finder *find.Finder) (*Usage, error) {
+	var res Usage
 
+	// disk space
+	datastores, hosts, err := clusterResources(ctx, finder, rule.EntityName)
+	if err != nil {
+		return nil, err
+	}
+	res.Storage.Capacity, res.Storage.Free = getDatastoreInfo(datastores)
+
+	// cpu & memory
+	for _, host := range hosts {
+		addHostUsage(&res, host)
+	}
+
+	return &res, nil
+}
+
+func hostUsage(ctx context.Context, rule v1alpha1.ComputeResourceRule, finder *find.Finder) (*Usage, error) {
+	var res Usage
+
+	obj, err := finder.HostSystem(ctx, rule.EntityName)
+	if err != nil {
+		return nil, err
+	}
+	pc := property.DefaultCollector(obj.Client())
+
+	// cpu & memory
+	var hostSystem mo.HostSystem
+	if err := pc.RetrieveOne(ctx, obj.Reference(), nil, &hostSystem); err != nil {
+		return nil, err
+	}
+	addHostUsage(&res, hostSystem)
+
+	// disk space
+	var datastores []mo.Datastore
+	if err := pc.Retrieve(ctx, hostSystem.Datastore, nil, &datastores); err != nil {
+		return nil, err
+	}
+	res.Storage.Capacity, res.Storage.Free = getDatastoreInfo(datastores)
+
+	return &res, nil
+}
+
+func resourcePoolUsage(ctx context.Context, rule v1alpha1.ComputeResourceRule, finder *find.Finder, driver *vsphere.CloudDriver) (*Usage, error) {
+	var res Usage
+
+	// cpu & memory
+	inventoryPath := fmt.Sprintf(constants.ResourcePoolInventoryPath, driver.Datacenter, rule.ClusterName, rule.EntityName)
+	if rule.EntityName == constants.ClusterDefaultResourcePoolName {
+		inventoryPath = fmt.Sprintf("/%s/host/%s/%s", driver.Datacenter, rule.ClusterName, rule.EntityName)
+	}
+	resourcePool, virtualMachines, err := GetResourcePoolAndVMs(ctx, inventoryPath, finder)
+	if err != nil {
+		return nil, err
+	}
+
+	res.CPU.Capacity += *resourcePool.Config.CpuAllocation.Limit
+	res.Memory.Capacity += *resourcePool.Config.MemoryAllocation.Limit << 20
+
+	for _, vm := range *virtualMachines {
+		res.CPU.Used += int64(vm.Summary.QuickStats.OverallCpuUsage)
+		res.Memory.Used += int64(vm.Summary.QuickStats.HostMemoryUsage) << 20
+	}
+
+	// disk space
+	datastores, _, err := clusterResources(ctx, finder, rule.ClusterName)
+	if err != nil {
+		return nil, err
+	}
+	res.Storage.Capacity, res.Storage.Free = getDatastoreInfo(datastores)
+
+	return &res, nil
+}
+
+func clusterResources(ctx context.Context, finder *find.Finder, path string) ([]mo.Datastore, []mo.HostSystem, error) {
+	obj, err := finder.ClusterComputeResource(ctx, path)
+	if err != nil {
+		return nil, nil, err
+	}
+	pc := property.DefaultCollector(obj.Client())
+
+	var cluster mo.ClusterComputeResource
+	if err := pc.RetrieveOne(ctx, obj.Reference(), []string{"datastore", "host"}, &cluster); err != nil {
+		return nil, nil, err
+	}
+
+	var datastores []mo.Datastore
+	if err := pc.Retrieve(ctx, cluster.Datastore, []string{"summary"}, &datastores); err != nil {
+		return nil, nil, err
+	}
+
+	var hosts []mo.HostSystem
+	if err = pc.Retrieve(ctx, cluster.Host, []string{"summary"}, &hosts); err != nil {
+		return nil, nil, err
+	}
+
+	return datastores, hosts, nil
+}
+
+func addHostUsage(res *Usage, host mo.HostSystem) {
+	res.CPU.Capacity += int64(int32(host.Summary.Hardware.NumCpuCores) * host.Summary.Hardware.CpuMhz)
+	res.CPU.Used += int64(host.Summary.QuickStats.OverallCpuUsage)
+
+	res.Memory.Capacity += host.Summary.Hardware.MemorySize
+	res.Memory.Used += int64(host.Summary.QuickStats.OverallMemoryUsage) << 20
+}
+
+func getResourcePoolAndVMs(ctx context.Context, inventoryPath string, finder *find.Finder) (*mo.ResourcePool, *[]mo.VirtualMachine, error) {
 	obj, err := getResourcePoolObj(ctx, inventoryPath, finder)
 	if err != nil {
 		return nil, nil, err
 	}
-
 	pc := property.DefaultCollector(obj.Client())
-	err = pc.RetrieveOne(ctx, obj.Reference(), nil, &resourcePool)
-	if err != nil {
+
+	var resourcePool mo.ResourcePool
+	if err := pc.RetrieveOne(ctx, obj.Reference(), nil, &resourcePool); err != nil {
 		return nil, nil, err
 	}
 
-	err = pc.Retrieve(ctx, resourcePool.Vm, nil, &virtualMachines)
-	if err != nil {
+	var virtualMachines []mo.VirtualMachine
+	if err := pc.Retrieve(ctx, resourcePool.Vm, nil, &virtualMachines); err != nil {
 		return nil, nil, err
 	}
 
-	return &resourcePool, &virtualMachines, err
-
+	return &resourcePool, &virtualMachines, nil
 }
 
 func getResourcePoolObj(ctx context.Context, inventoryPath string, finder *find.Finder) (*object.ResourcePool, error) {
@@ -286,22 +292,18 @@ func getDatastoreInfo(datastores []mo.Datastore) (capacity int64, freeSpace int6
 		if shared != nil && !*shared {
 			continue
 		}
-
 		capacity += datastore.Summary.Capacity
 		freeSpace += datastore.Summary.FreeSpace
 	}
-
 	return capacity, freeSpace
 }
 
 func requestedQuantityAvailable(freeResource resource.Quantity, requestedResource resource.Quantity) bool {
 	available := freeResource.Cmp(requestedResource)
-
 	switch available {
 	case 0, -1:
 		return false
 	}
-
 	return true
 }
 
