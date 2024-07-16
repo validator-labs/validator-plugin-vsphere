@@ -1,5 +1,29 @@
 # Changelog
 
+## [0.0.27](https://github.com/validator-labs/validator-plugin-vsphere/compare/v0.0.26...v0.0.27) (2024-07-16)
+
+
+### Bug Fixes
+
+* always return a ValidationResult from ReconcileComputeResourceValidationRule ([#297](https://github.com/validator-labs/validator-plugin-vsphere/issues/297)) ([1a53fc6](https://github.com/validator-labs/validator-plugin-vsphere/commit/1a53fc6b733e82a28dce809122048e0f2adf50c9))
+* **deps:** update golang.org/x/exp digest to 7f521ea ([#285](https://github.com/validator-labs/validator-plugin-vsphere/issues/285)) ([598a86f](https://github.com/validator-labs/validator-plugin-vsphere/commit/598a86fc33e4784225661204a7df7ba3d39ddc9a))
+* **deps:** update module github.com/validator-labs/validator to v0.0.43 ([#287](https://github.com/validator-labs/validator-plugin-vsphere/issues/287)) ([49e45e9](https://github.com/validator-labs/validator-plugin-vsphere/commit/49e45e9a790b27d115ca11721897c1e7bb716d35))
+* **deps:** update module github.com/vmware/govmomi to v0.38.0 ([#288](https://github.com/validator-labs/validator-plugin-vsphere/issues/288)) ([8a98b24](https://github.com/validator-labs/validator-plugin-vsphere/commit/8a98b24c208576517a4c0cde129a1c3bc5a34686))
+
+
+### Dependency Updates
+
+* **deps:** update dependency go to v1.22.5 ([#291](https://github.com/validator-labs/validator-plugin-vsphere/issues/291)) ([e5d6717](https://github.com/validator-labs/validator-plugin-vsphere/commit/e5d671708c338b7c9e3c65391b60817e3c4751a5))
+* **deps:** update golang.org/x/exp digest to 46b0784 ([#292](https://github.com/validator-labs/validator-plugin-vsphere/issues/292)) ([fe35643](https://github.com/validator-labs/validator-plugin-vsphere/commit/fe35643ca8026cc8b9853f575dbe4c7c53ca5046))
+* **deps:** update module github.com/validator-labs/validator to v0.0.44 ([#295](https://github.com/validator-labs/validator-plugin-vsphere/issues/295)) ([c5ba9e0](https://github.com/validator-labs/validator-plugin-vsphere/commit/c5ba9e0dd75ad6076e4655e44832c76f9a4cb290))
+* **deps:** update module github.com/validator-labs/validator to v0.0.46 ([#296](https://github.com/validator-labs/validator-plugin-vsphere/issues/296)) ([704c063](https://github.com/validator-labs/validator-plugin-vsphere/commit/704c06367924f874a81aa805a8249bc436985262))
+* **deps:** update module sigs.k8s.io/cluster-api to v1.7.4 ([#294](https://github.com/validator-labs/validator-plugin-vsphere/issues/294)) ([2019561](https://github.com/validator-labs/validator-plugin-vsphere/commit/20195613d6189e60076d9d4b4060c8bd197dd0c2))
+
+
+### Refactoring
+
+* enable revive and address all lints ([#293](https://github.com/validator-labs/validator-plugin-vsphere/issues/293)) ([3d019e2](https://github.com/validator-labs/validator-plugin-vsphere/commit/3d019e27f865fc46d73326ad419a36c2613f176c))
+
 ## [0.0.26](https://github.com/validator-labs/validator-plugin-vsphere/compare/v0.0.25...v0.0.26) (2024-06-12)
 
 
