@@ -16,9 +16,9 @@ require (
 	github.com/validator-labs/validator v0.0.46
 	github.com/vmware/govmomi v0.38.0
 	golang.org/x/exp v0.0.0-20240716175740-e3f259677ff7
-	k8s.io/api v0.30.2
-	k8s.io/apimachinery v0.30.2
-	k8s.io/client-go v0.30.2
+	k8s.io/api v0.30.3
+	k8s.io/apimachinery v0.30.3
+	k8s.io/client-go v0.30.3
 	sigs.k8s.io/cluster-api v1.7.4
 	sigs.k8s.io/controller-runtime v0.18.4
 )
