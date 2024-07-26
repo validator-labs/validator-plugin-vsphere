@@ -1,5 +1,20 @@
 # Changelog
 
+## [0.0.28](https://github.com/validator-labs/validator-plugin-vsphere/compare/v0.0.27...v0.0.28) (2024-07-26)
+
+
+### Dependency Updates
+
+* **deps:** update golang.org/x/exp digest to 8a7402a ([#301](https://github.com/validator-labs/validator-plugin-vsphere/issues/301)) ([b82f965](https://github.com/validator-labs/validator-plugin-vsphere/commit/b82f965632fe2f3ffdb4f215b2fa806da5e09bb1))
+* **deps:** update golang.org/x/exp digest to e3f2596 ([#298](https://github.com/validator-labs/validator-plugin-vsphere/issues/298)) ([61db290](https://github.com/validator-labs/validator-plugin-vsphere/commit/61db290bb8d81276b35d91a11cb25b2e50da3f86))
+* **deps:** update kubernetes packages to v0.30.3 ([#300](https://github.com/validator-labs/validator-plugin-vsphere/issues/300)) ([394f3a8](https://github.com/validator-labs/validator-plugin-vsphere/commit/394f3a8958983698aebdb16038e574c6d22c6fd4))
+* **deps:** update module github.com/onsi/ginkgo/v2 to v2.19.1 ([#308](https://github.com/validator-labs/validator-plugin-vsphere/issues/308)) ([ed84188](https://github.com/validator-labs/validator-plugin-vsphere/commit/ed84188d468541d7143e4eecedd3744d62e120c0))
+* **deps:** update module github.com/onsi/gomega to v1.34.0 ([#307](https://github.com/validator-labs/validator-plugin-vsphere/issues/307)) ([a313ed2](https://github.com/validator-labs/validator-plugin-vsphere/commit/a313ed2ac26186ef37842f64f86f5ec296736c3e))
+* **deps:** update module github.com/validator-labs/validator to v0.0.47 ([#302](https://github.com/validator-labs/validator-plugin-vsphere/issues/302)) ([d1a1663](https://github.com/validator-labs/validator-plugin-vsphere/commit/d1a1663ab24e598e2d284cabe7d8dc9168031bb8))
+* **deps:** update module github.com/validator-labs/validator to v0.0.48 ([#304](https://github.com/validator-labs/validator-plugin-vsphere/issues/304)) ([0d959a5](https://github.com/validator-labs/validator-plugin-vsphere/commit/0d959a51c64d123d201b25e1ed5ec12a5fc40ad9))
+* **deps:** update module github.com/validator-labs/validator to v0.0.49 ([#305](https://github.com/validator-labs/validator-plugin-vsphere/issues/305)) ([d0ea99e](https://github.com/validator-labs/validator-plugin-vsphere/commit/d0ea99e3dfb1c3b4f1081e36c4232b66a5a6bb68))
+* **deps:** update module github.com/vmware/govmomi to v0.39.0 ([#303](https://github.com/validator-labs/validator-plugin-vsphere/issues/303)) ([61f40d8](https://github.com/validator-labs/validator-plugin-vsphere/commit/61f40d894621593dba703d54ee98819f40e9bcf6))
+
 ## [0.0.27](https://github.com/validator-labs/validator-plugin-vsphere/compare/v0.0.26...v0.0.27) (2024-07-16)
 
 
