@@ -51,7 +51,3 @@ metricsService:
     protocol: TCP
     targetPort: https
   type: ClusterIP
-auth:
-  # Specify the name of a secret in your cluster that contains vSphere credentials.
-  # E.g.: https://github.com/validator-labs/validator/blob/main/chart/validator/templates/plugin-secret-vsphere.yaml
-  secretName: vsphere-credentials
