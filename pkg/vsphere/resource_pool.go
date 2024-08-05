@@ -11,7 +11,7 @@ import (
 	"github.com/vmware/govmomi/find"
 	"github.com/vmware/govmomi/object"
 
-	"github.com/validator-labs/validator-plugin-vsphere/internal/constants"
+	"github.com/validator-labs/validator-plugin-vsphere/pkg/constants"
 )
 
 // GetResourcePoolIfExists returns the resource pool if it exists
