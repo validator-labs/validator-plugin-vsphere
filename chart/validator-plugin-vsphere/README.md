@@ -34,7 +34,6 @@ The following table lists the configurable parameters of the Validator-plugin-vs
 | `kubernetesClusterDomain` |  | `"cluster.local"` |
 | `metricsService.ports` |  | `[{"name": "https", "port": 8443, "protocol": "TCP", "targetPort": "https"}]` |
 | `metricsService.type` |  | `"ClusterIP"` |
-| `auth.secretName` |  | `"vsphere-credentials"` |
 
 
 
