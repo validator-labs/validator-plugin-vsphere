@@ -14,6 +14,7 @@ import (
 	"github.com/validator-labs/validator-plugin-vsphere/api/v1alpha1"
 	"github.com/validator-labs/validator-plugin-vsphere/pkg/vcsim"
 	vapi "github.com/validator-labs/validator/api/v1alpha1"
+	vres "github.com/validator-labs/validator/pkg/validationresult"
 	//+kubebuilder:scaffold:imports
 )
 
@@ -57,7 +58,7 @@ var _ = Describe("VsphereValidator controller", Ordered, func() {
 	}
 
 	vr := &vapi.ValidationResult{}
-	vrKey := types.NamespacedName{Name: validationResultName(val), Namespace: validatorNamespace}
+	vrKey := types.NamespacedName{Name: vres.Name(val), Namespace: validatorNamespace}
 
 	vcSim := vcsim.NewVCSim(username, 8446, logr.Logger{})
 	vcSim.Start()
