@@ -19,12 +19,11 @@ package controller
 import (
 	"context"
 	"errors"
+	"fmt"
 	"strconv"
 	"time"
 
 	"github.com/go-logr/logr"
-	"github.com/vmware/govmomi/object"
-	vtags "github.com/vmware/govmomi/vapi/tags"
 	corev1 "k8s.io/api/core/v1"
 	apierrs "k8s.io/apimachinery/pkg/api/errors"
 	"k8s.io/apimachinery/pkg/runtime"
@@ -32,16 +31,11 @@ import (
 	"sigs.k8s.io/cluster-api/util/patch"
 	ctrl "sigs.k8s.io/controller-runtime"
 	"sigs.k8s.io/controller-runtime/pkg/client"
-	"sigs.k8s.io/controller-runtime/pkg/reconcile"
 
 	"github.com/validator-labs/validator-plugin-vsphere/api/v1alpha1"
-	"github.com/validator-labs/validator-plugin-vsphere/pkg/validators/computeresources"
-	"github.com/validator-labs/validator-plugin-vsphere/pkg/validators/ntp"
-	"github.com/validator-labs/validator-plugin-vsphere/pkg/validators/privileges"
-	"github.com/validator-labs/validator-plugin-vsphere/pkg/validators/tags"
+	"github.com/validator-labs/validator-plugin-vsphere/pkg/validate"
 	"github.com/validator-labs/validator-plugin-vsphere/pkg/vsphere"
 	vapi "github.com/validator-labs/validator/api/v1alpha1"
-	"github.com/validator-labs/validator/pkg/types"
 	vres "github.com/validator-labs/validator/pkg/validationresult"
 )
 
@@ -75,43 +69,6 @@ func (r *VsphereValidatorReconciler) Reconcile(ctx context.Context, req ctrl.Req
 		return ctrl.Result{}, client.IgnoreNotFound(err)
 	}
 
-	// Initialize Vsphere driver
-	var vsphereCloudAccount *vsphere.CloudAccount
-	var res *ctrl.Result
-	if validator.Spec.Auth.SecretName == "" {
-		l.Error(errSecretNameRequired, "failed to reconcile VsphereValidator with empty auth.secretName")
-		return ctrl.Result{}, errSecretNameRequired
-	}
-	vsphereCloudAccount, res = r.secretKeyAuth(req, validator)
-	if res != nil {
-		return *res, nil
-	}
-
-	vsphereCloudDriver, err := vsphere.NewVSphereDriver(
-		vsphereCloudAccount.VcenterServer, vsphereCloudAccount.Username,
-		vsphereCloudAccount.Password, validator.Spec.Datacenter, r.Log,
-	)
-	if err != nil {
-		return ctrl.Result{}, err
-	}
-
-	// Get the authorization manager from the Client
-	authManager := object.NewAuthorizationManager(vsphereCloudDriver.Client.Client)
-	if authManager == nil {
-		return ctrl.Result{}, err
-	}
-
-	// Get the current user
-	userName, err := vsphereCloudDriver.GetCurrentVmwareUser(ctx)
-	if err != nil {
-		return ctrl.Result{}, err
-	}
-
-	rolePrivilegeValidationService := privileges.NewPrivilegeValidationService(r.Log, vsphereCloudDriver, validator.Spec.Datacenter, authManager, userName)
-	tagValidationService := tags.NewValidationService(r.Log)
-	computeResourceValidationService := computeresources.NewValidationService(r.Log, vsphereCloudDriver)
-	ntpValidationService := ntp.NewValidationService(r.Log, vsphereCloudDriver, validator.Spec.Datacenter)
-
 	// Get the active validator's validation result
 	vr := &vapi.ValidationResult{}
 	p, err := patch.NewHelper(vr, r.Client)
@@ -138,68 +95,30 @@ func (r *VsphereValidatorReconciler) Reconcile(ctx context.Context, req ctrl.Req
 	// Always update the expected result count in case the validator's rules have changed
 	vr.Spec.ExpectedResults = validator.Spec.ResultCount()
 
-	resp := types.ValidationResponse{
-		ValidationRuleResults: make([]*types.ValidationRuleResult, 0, vr.Spec.ExpectedResults),
-		ValidationRuleErrors:  make([]error, 0, vr.Spec.ExpectedResults),
+	// Initialize Vsphere driver
+	if validator.Spec.Auth.SecretName == "" {
+		l.Error(errSecretNameRequired, "failed to reconcile VsphereValidator with empty auth.secretName")
+		return ctrl.Result{}, errSecretNameRequired
 	}
-
-	tagsManager := vtags.NewManager(vsphereCloudDriver.RestClient)
-	finder, _, err := vsphereCloudDriver.GetFinderWithDatacenter(ctx, vsphereCloudDriver.Datacenter)
+	vsphereCloudAccount, err := r.secretKeyAuth(req, validator)
+	if err != nil {
+		return ctrl.Result{}, err
+	}
+	vsphereCloudDriver, err := vsphere.NewVSphereDriver(
+		vsphereCloudAccount.VcenterServer, vsphereCloudAccount.Username,
+		vsphereCloudAccount.Password, validator.Spec.Datacenter, r.Log,
+	)
 	if err != nil {
 		return ctrl.Result{}, err
 	}
 
-	// NTP validation rules
-	for _, rule := range validator.Spec.NTPValidationRules {
-		vrr, err := ntpValidationService.ReconcileNTPRule(rule, finder)
-		if err != nil {
-			l.Error(err, "failed to reconcile NTP rule")
-		}
-		resp.AddResult(vrr, err)
-		l.Info("Validated NTP rules")
+	// Validate the rules
+	resp, err := validate.Validate(ctx, validator.Spec, vsphereCloudDriver, r.Log)
+	if err != nil {
+		return ctrl.Result{}, err
 	}
 
-	// entity privilege validation rules
-	for _, rule := range validator.Spec.EntityPrivilegeValidationRules {
-		vrr, err := rolePrivilegeValidationService.ReconcileEntityPrivilegeRule(rule, finder)
-		if err != nil {
-			l.Error(err, "failed to reconcile entity privilege rule")
-		}
-		resp.AddResult(vrr, err)
-		l.Info("Validated privileges for account", "user", rule.Username)
-	}
-
-	// role privilege validation rules
-	for _, rule := range validator.Spec.RolePrivilegeValidationRules {
-		vrr, err := rolePrivilegeValidationService.ReconcileRolePrivilegesRule(rule, vsphereCloudDriver, authManager)
-		if err != nil {
-			l.Error(err, "failed to reconcile role privilege rule")
-		}
-		resp.AddResult(vrr, err)
-		l.Info("Validated privileges for account", "user", rule.Username)
-	}
-
-	// tag validation rules
-	for _, rule := range validator.Spec.TagValidationRules {
-		l.Info("Checking if tags are properly assigned")
-		vrr, err := tagValidationService.ReconcileTagRules(tagsManager, finder, vsphereCloudDriver, rule)
-		if err != nil {
-			l.Error(err, "failed to reconcile tag validation rule")
-		}
-		resp.AddResult(vrr, err)
-		l.Info("Validated tags", "entity type", rule.EntityType, "entity name", rule.EntityName, "tag", rule.Tag)
-	}
-
-	// computeresources validation rules
-	for _, rule := range validator.Spec.ComputeResourceRules {
-		vrr, err := computeResourceValidationService.ReconcileComputeResourceValidationRule(rule, finder, vsphereCloudDriver)
-		if err != nil {
-			l.Error(err, "failed to reconcile computeresources validation rule")
-		}
-		resp.AddResult(vrr, err)
-		l.Info("Validated compute resources", "scope", rule.Scope, "entity name", rule.EntityName)
-	}
-
+	// Patch the ValidationResult with the latest ValidationRuleResults
 	if err := vres.SafeUpdate(ctx, p, vr, resp, r.Log); err != nil {
 		return ctrl.Result{}, err
 	}
@@ -209,63 +128,44 @@ func (r *VsphereValidatorReconciler) Reconcile(ctx context.Context, req ctrl.Req
 	return ctrl.Result{RequeueAfter: 2 * time.Minute}, nil
 }
 
-func (r *VsphereValidatorReconciler) secretKeyAuth(req ctrl.Request, validator *v1alpha1.VsphereValidator) (*vsphere.CloudAccount, *reconcile.Result) {
-	l := r.Log.V(0).WithValues("name", req.Name, "namespace", req.Namespace, "secretName", validator.Spec.Auth.SecretName)
+func (r *VsphereValidatorReconciler) secretKeyAuth(req ctrl.Request, validator *v1alpha1.VsphereValidator) (*vsphere.CloudAccount, error) {
 
 	authSecret := &corev1.Secret{}
 	nn := ktypes.NamespacedName{Name: validator.Spec.Auth.SecretName, Namespace: req.Namespace}
 
 	if err := r.Get(context.Background(), nn, authSecret); err != nil {
-		if apierrs.IsNotFound(err) {
-			l.Error(err, "auth secret does not exist")
-		} else {
-			l.Error(err, "failed to fetch auth secret")
-		}
-		l.Info("Requeuing for re-validation in two minutes.")
-		return nil, &ctrl.Result{RequeueAfter: time.Second * 120}
+		return nil, fmt.Errorf("failed to get secret %s: %w", validator.Spec.Auth.SecretName, err)
 	}
 
 	username, ok := authSecret.Data["username"]
 	if !ok {
-		l.Info("Auth secret missing username")
-		l.Info("Requeuing for re-validation in two minutes.")
-		return nil, &ctrl.Result{RequeueAfter: time.Second * 120}
+		return nil, errors.New("auth secret missing username")
 	}
-
 	password, ok := authSecret.Data["password"]
 	if !ok {
-		l.Info("Auth secret missing password")
-		l.Info("Requeuing for re-validation in two minutes.")
-		return nil, &ctrl.Result{RequeueAfter: time.Second * 120}
+		return nil, errors.New("auth secret missing password")
 	}
-
 	vcenterServer, ok := authSecret.Data["vcenterServer"]
 	if !ok {
-		l.Info("Auth secret missing vcenterServer")
-		l.Info("Requeuing for re-validation in two minutes.")
-		return nil, &ctrl.Result{RequeueAfter: time.Second * 120}
+		return nil, errors.New("auth secret missing vcenterServer")
 	}
-
 	insecureSkipVerify, ok := authSecret.Data["insecureSkipVerify"]
 	if !ok {
-		l.Info("Auth secret missing insecureSkipVerify")
-		l.Info("Requeuing for re-validation in two minutes.")
-		return nil, &ctrl.Result{RequeueAfter: time.Second * 120}
+		return nil, errors.New("auth secret missing insecureSkipVerify")
 	}
-
 	skipVerify, err := strconv.ParseBool(string(insecureSkipVerify))
 	if err != nil {
-		l.Info("Failure converting insecureSkipVerify to bool")
-		l.Info("Requeuing for re-validation in two minutes.")
-		return nil, &ctrl.Result{RequeueAfter: time.Second * 120}
+		return nil, fmt.Errorf("failed to convert insecureSkipVerify to bool: %w", err)
 	}
 
-	return &vsphere.CloudAccount{
+	cloudAccount := &vsphere.CloudAccount{
 		Insecure:      skipVerify,
 		Password:      string(password),
 		Username:      string(username),
 		VcenterServer: string(vcenterServer),
-	}, nil
+	}
+
+	return cloudAccount, nil
 }
 
 // SetupWithManager sets up the controller with the Manager.
