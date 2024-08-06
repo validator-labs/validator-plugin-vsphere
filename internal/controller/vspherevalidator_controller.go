@@ -100,23 +100,13 @@ func (r *VsphereValidatorReconciler) Reconcile(ctx context.Context, req ctrl.Req
 		l.Error(errSecretNameRequired, "failed to reconcile VsphereValidator with empty auth.secretName")
 		return ctrl.Result{}, errSecretNameRequired
 	}
-	vsphereCloudAccount, err := r.secretKeyAuth(req, validator)
-	if err != nil {
-		return ctrl.Result{}, err
-	}
-	vsphereCloudDriver, err := vsphere.NewVSphereDriver(
-		vsphereCloudAccount.VcenterServer, vsphereCloudAccount.Username,
-		vsphereCloudAccount.Password, validator.Spec.Datacenter, r.Log,
-	)
+	vsphereAccount, err := r.secretKeyAuth(req, validator)
 	if err != nil {
 		return ctrl.Result{}, err
 	}
 
 	// Validate the rules
-	resp, err := validate.Validate(ctx, validator.Spec, vsphereCloudDriver, r.Log)
-	if err != nil {
-		return ctrl.Result{}, err
-	}
+	resp := validate.Validate(ctx, validator.Spec, vsphereAccount, r.Log)
 
 	// Patch the ValidationResult with the latest ValidationRuleResults
 	if err := vres.SafeUpdate(ctx, p, vr, resp, r.Log); err != nil {

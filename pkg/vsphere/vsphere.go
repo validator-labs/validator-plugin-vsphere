@@ -96,16 +96,16 @@ type Session struct {
 }
 
 // NewVSphereDriver creates a new instance of CloudDriver
-func NewVSphereDriver(VCenterServer, VCenterUsername, VCenterPassword, datacenter string, log logr.Logger) (*CloudDriver, error) {
-	session, err := GetOrCreateSession(context.TODO(), VCenterServer, VCenterUsername, VCenterPassword, true)
+func NewVSphereDriver(vCenterServer, vCenterUsername, vCenterPassword, datacenter string, log logr.Logger) (*CloudDriver, error) {
+	session, err := GetOrCreateSession(context.TODO(), vCenterServer, vCenterUsername, vCenterPassword, true)
 	if err != nil {
 		return nil, err
 	}
 
 	return &CloudDriver{
-		VCenterServer:   VCenterServer,
-		VCenterUsername: VCenterUsername,
-		VCenterPassword: VCenterPassword,
+		VCenterServer:   vCenterServer,
+		VCenterUsername: vCenterUsername,
+		VCenterPassword: vCenterPassword,
 		Datacenter:      datacenter,
 		Client:          session.GovmomiClient,
 		RestClient:      session.RestClient,
