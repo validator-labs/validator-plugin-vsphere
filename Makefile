@@ -1,8 +1,9 @@
 include build/makelib/common.mk
 include build/makelib/plugin.mk
 
-# Image URL to use all building/pushing image targets
-IMG ?= quay.io/validator-labs/validator-plugin-vsphere:latest
+# Container image
+TAG ?= latest
+IMG ?= quay.io/validator-labs/validator-plugin-vsphere:$(TAG)
 
 # Helm vars
 CHART_NAME=validator-plugin-vsphere
