@@ -10,9 +10,12 @@ import (
 	"github.com/vmware/govmomi/object"
 	vtags "github.com/vmware/govmomi/vapi/tags"
 
+	vapi "github.com/validator-labs/validator/api/v1alpha1"
+	vconstants "github.com/validator-labs/validator/pkg/constants"
 	"github.com/validator-labs/validator/pkg/types"
 
 	"github.com/validator-labs/validator-plugin-vsphere/api/v1alpha1"
+	"github.com/validator-labs/validator-plugin-vsphere/pkg/constants"
 	"github.com/validator-labs/validator-plugin-vsphere/pkg/validators/computeresources"
 	"github.com/validator-labs/validator-plugin-vsphere/pkg/validators/ntp"
 	"github.com/validator-labs/validator-plugin-vsphere/pkg/validators/privileges"
@@ -21,22 +24,36 @@ import (
 )
 
 // Validate validates the VsphereValidatorSpec and returns a ValidationResponse.
-func Validate(ctx context.Context, spec v1alpha1.VsphereValidatorSpec, driver *vsphere.CloudDriver, log logr.Logger) (types.ValidationResponse, error) {
+func Validate(ctx context.Context, spec v1alpha1.VsphereValidatorSpec, vsphereAccount *vsphere.CloudAccount, log logr.Logger) types.ValidationResponse {
 	resp := types.ValidationResponse{
 		ValidationRuleResults: make([]*types.ValidationRuleResult, 0, spec.ResultCount()),
 		ValidationRuleErrors:  make([]error, 0, spec.ResultCount()),
 	}
 
-	// Get the authorization manager from the Client
+	vrr := buildValidationResult()
+
+	// Create a new vSphere driver
+	driver, err := vsphere.NewVSphereDriver(
+		vsphereAccount.VcenterServer, vsphereAccount.Username,
+		vsphereAccount.Password, spec.Datacenter, log,
+	)
+	if err != nil {
+		resp.AddResult(vrr, fmt.Errorf("failed to create vSphere driver: %w", err))
+		return resp
+	}
+
+	// Get the authorization manager from the driver
 	authManager := object.NewAuthorizationManager(driver.Client.Client)
 	if authManager == nil {
-		return resp, errors.New("invalid vSphere driver; failed to get vim25 authorization manager")
+		resp.AddResult(vrr, errors.New("invalid vSphere driver; failed to get vim25 authorization manager"))
+		return resp
 	}
 
 	// Get a finder for the datacenter
 	finder, _, err := driver.GetFinderWithDatacenter(ctx, driver.Datacenter)
 	if err != nil {
-		return resp, fmt.Errorf("failed to get finder with datacenter: %w", err)
+		resp.AddResult(vrr, fmt.Errorf("failed to get finder with datacenter: %w", err))
+		return resp
 	}
 
 	tagsManager := vtags.NewManager(driver.RestClient)
@@ -44,7 +61,8 @@ func Validate(ctx context.Context, spec v1alpha1.VsphereValidatorSpec, driver *v
 	// Get the current user
 	userName, err := driver.GetCurrentVmwareUser(ctx)
 	if err != nil {
-		return resp, fmt.Errorf("failed to get current user: %w", err)
+		resp.AddResult(vrr, fmt.Errorf("failed to get current user: %w", err))
+		return resp
 	}
 
 	// NTP validation rules
@@ -104,5 +122,15 @@ func Validate(ctx context.Context, spec v1alpha1.VsphereValidatorSpec, driver *v
 		log.Info("Validated compute resources", "scope", rule.Scope, "entity name", rule.EntityName)
 	}
 
-	return resp, nil
+	return resp
+}
+
+func buildValidationResult() *types.ValidationRuleResult {
+	state := vapi.ValidationSucceeded
+	latestCondition := vapi.DefaultValidationCondition()
+	latestCondition.Message = "Initialization succeeded"
+	latestCondition.ValidationRule = fmt.Sprintf("%s-%s", vconstants.ValidationRulePrefix, constants.PluginCode)
+	latestCondition.ValidationType = constants.PluginCode
+
+	return &types.ValidationRuleResult{Condition: &latestCondition, State: &state}
 }
