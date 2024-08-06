@@ -9,8 +9,8 @@ import (
 	v1 "k8s.io/api/core/v1"
 
 	"github.com/validator-labs/validator-plugin-vsphere/api/v1alpha1"
-	tags "github.com/validator-labs/validator-plugin-vsphere/internal/validators/tags"
-	"github.com/validator-labs/validator-plugin-vsphere/internal/vcsim"
+	tags "github.com/validator-labs/validator-plugin-vsphere/pkg/validators/tags"
+	"github.com/validator-labs/validator-plugin-vsphere/pkg/vcsim"
 	"github.com/validator-labs/validator-plugin-vsphere/pkg/vsphere"
 	"github.com/validator-labs/validator-plugin-vsphere/tests/utils/test"
 	"github.com/validator-labs/validator/pkg/types"

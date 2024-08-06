@@ -11,7 +11,7 @@ import (
 	corev1 "k8s.io/api/core/v1"
 
 	"github.com/validator-labs/validator-plugin-vsphere/api/v1alpha1"
-	"github.com/validator-labs/validator-plugin-vsphere/internal/constants"
+	"github.com/validator-labs/validator-plugin-vsphere/pkg/constants"
 	"github.com/validator-labs/validator-plugin-vsphere/pkg/vsphere"
 	vapi "github.com/validator-labs/validator/api/v1alpha1"
 	vapiconstants "github.com/validator-labs/validator/pkg/constants"

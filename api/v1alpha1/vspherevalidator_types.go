@@ -2,6 +2,8 @@ package v1alpha1
 
 import (
 	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
+
+	"github.com/validator-labs/validator-plugin-vsphere/pkg/constants"
 )
 
 // VsphereValidatorSpec defines the desired state of VsphereValidator
@@ -13,6 +15,17 @@ type VsphereValidatorSpec struct {
 	TagValidationRules             []TagValidationRule                  `json:"tagValidationRules,omitempty" yaml:"tagValidationRules,omitempty"`
 	ComputeResourceRules           []ComputeResourceRule                `json:"computeResourceRules,omitempty" yaml:"computeResourceRules,omitempty"`
 	NTPValidationRules             []NTPValidationRule                  `json:"ntpValidationRules,omitempty" yaml:"ntpValidationRules,omitempty"`
+}
+
+// PluginCode returns the vSphere validator's plugin code.
+func (s VsphereValidatorSpec) PluginCode() string {
+	return constants.PluginCode
+}
+
+// ResultCount returns the number of validation results expected for an VsphereValidatorSpec.
+func (s VsphereValidatorSpec) ResultCount() int {
+	return len(s.RolePrivilegeValidationRules) + len(s.EntityPrivilegeValidationRules) + len(s.ComputeResourceRules) +
+		len(s.TagValidationRules) + len(s.NTPValidationRules)
 }
 
 // VsphereAuth defines authentication configuration for an VsphereValidator.
@@ -112,10 +125,14 @@ type VsphereValidator struct {
 	Status VsphereValidatorStatus `json:"status,omitempty"`
 }
 
-// ResultCount returns the number of validation results expected for an VsphereValidatorSpec.
-func (s VsphereValidatorSpec) ResultCount() int {
-	return len(s.RolePrivilegeValidationRules) + len(s.EntityPrivilegeValidationRules) + len(s.ComputeResourceRules) +
-		len(s.TagValidationRules) + len(s.NTPValidationRules)
+// PluginCode returns the vSphere validator's plugin code.
+func (v VsphereValidator) PluginCode() string {
+	return v.Spec.PluginCode()
+}
+
+// ResultCount returns the number of validation results expected for a VsphereValidator.
+func (v VsphereValidator) ResultCount() int {
+	return v.Spec.ResultCount()
 }
 
 //+kubebuilder:object:root=true
