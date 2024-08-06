@@ -1,5 +1,26 @@
 # Changelog
 
+## [0.0.29](https://github.com/validator-labs/validator-plugin-vsphere/compare/v0.0.28...v0.0.29) (2024-08-06)
+
+
+### Other
+
+* add hook to install validator crds in devspace ([#314](https://github.com/validator-labs/validator-plugin-vsphere/issues/314)) ([2e6b46d](https://github.com/validator-labs/validator-plugin-vsphere/commit/2e6b46d5f9dfb37761887d1a8690549380bed04d))
+* remove unused helm value ([#316](https://github.com/validator-labs/validator-plugin-vsphere/issues/316)) ([6685bb8](https://github.com/validator-labs/validator-plugin-vsphere/commit/6685bb86f5586cb4d871f8687a2072483c6e1b08))
+
+
+### Dependency Updates
+
+* **deps:** update module github.com/onsi/gomega to v1.34.1 ([#312](https://github.com/validator-labs/validator-plugin-vsphere/issues/312)) ([cd420f6](https://github.com/validator-labs/validator-plugin-vsphere/commit/cd420f6141fd49e29a58373a563009dec35e01c7))
+* **deps:** update module github.com/validator-labs/validator to v0.0.50 ([#310](https://github.com/validator-labs/validator-plugin-vsphere/issues/310)) ([4ba801f](https://github.com/validator-labs/validator-plugin-vsphere/commit/4ba801f119a5a8e6560fcd8f55523f598ceec02d))
+* **deps:** update module github.com/validator-labs/validator to v0.0.51 ([#313](https://github.com/validator-labs/validator-plugin-vsphere/issues/313)) ([5ef0f95](https://github.com/validator-labs/validator-plugin-vsphere/commit/5ef0f955756c846936c324b6f85a70886f7c5057))
+* **deps:** update module github.com/validator-labs/validator to v0.1.0 ([#315](https://github.com/validator-labs/validator-plugin-vsphere/issues/315)) ([ebe8964](https://github.com/validator-labs/validator-plugin-vsphere/commit/ebe8964292889be2ce55dc56c43e9f34ec0adce7))
+
+
+### Refactoring
+
+* support direct rule evaluation ([#318](https://github.com/validator-labs/validator-plugin-vsphere/issues/318)) ([12ce92d](https://github.com/validator-labs/validator-plugin-vsphere/commit/12ce92d5086a3c34b97385ff9c8f7342c27de336))
+
 ## [0.0.28](https://github.com/validator-labs/validator-plugin-vsphere/compare/v0.0.27...v0.0.28) (2024-07-26)
 
 
