@@ -1,6 +1,8 @@
 package v1alpha1
 
 import (
+	"reflect"
+
 	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
 
 	"github.com/validator-labs/validator-plugin-vsphere/pkg/constants"
@@ -123,6 +125,11 @@ type VsphereValidator struct {
 
 	Spec   VsphereValidatorSpec   `json:"spec,omitempty"`
 	Status VsphereValidatorStatus `json:"status,omitempty"`
+}
+
+// GetKind returns the vSphere validator's kind.
+func (v VsphereValidator) GetKind() string {
+	return reflect.TypeOf(v).Name()
 }
 
 // PluginCode returns the vSphere validator's plugin code.
