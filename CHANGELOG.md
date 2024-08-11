@@ -1,5 +1,25 @@
 # Changelog
 
+## [0.0.30](https://github.com/validator-labs/validator-plugin-vsphere/compare/v0.0.29...v0.0.30) (2024-08-11)
+
+
+### Other
+
+* satisfy ValidationRule ([#323](https://github.com/validator-labs/validator-plugin-vsphere/issues/323)) ([a318dfc](https://github.com/validator-labs/validator-plugin-vsphere/commit/a318dfc2be38da4720c06ae2d5d51725980b50ac))
+
+
+### Dependency Updates
+
+* **deps:** update golang.org/x/exp digest to 0cdaa3a ([#322](https://github.com/validator-labs/validator-plugin-vsphere/issues/322)) ([1b290d2](https://github.com/validator-labs/validator-plugin-vsphere/commit/1b290d291100e1d7f83d382b405783af5dd2cab7))
+* **deps:** update module github.com/onsi/ginkgo/v2 to v2.20.0 ([#321](https://github.com/validator-labs/validator-plugin-vsphere/issues/321)) ([d7deabd](https://github.com/validator-labs/validator-plugin-vsphere/commit/d7deabde208d3ae67bf481e9eb6f3298cd849e43))
+* **deps:** update module github.com/validator-labs/validator to v0.1.2 ([#317](https://github.com/validator-labs/validator-plugin-vsphere/issues/317)) ([a93cb70](https://github.com/validator-labs/validator-plugin-vsphere/commit/a93cb7014075cc45a7bd58bd71ba68eceacbafc5))
+* **deps:** update module github.com/validator-labs/validator to v0.1.3 ([#325](https://github.com/validator-labs/validator-plugin-vsphere/issues/325)) ([8f0afbb](https://github.com/validator-labs/validator-plugin-vsphere/commit/8f0afbbb928d444dba33bf566bd1aad7ac15c92c))
+
+
+### Refactoring
+
+* do not return an error from Validate ([#319](https://github.com/validator-labs/validator-plugin-vsphere/issues/319)) ([d48d5d9](https://github.com/validator-labs/validator-plugin-vsphere/commit/d48d5d9ca56b6aa40282e423da07a217f865ea8c))
+
 ## [0.0.29](https://github.com/validator-labs/validator-plugin-vsphere/compare/v0.0.28...v0.0.29) (2024-08-06)
 
 
