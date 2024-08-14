@@ -11,13 +11,13 @@ require (
 	github.com/pkg/errors v0.9.1
 	github.com/sirupsen/logrus v1.9.3
 	github.com/stretchr/testify v1.9.0
-	github.com/validator-labs/validator v0.1.3
+	github.com/validator-labs/validator v0.1.5
 	github.com/vmware/govmomi v0.40.0
 	golang.org/x/exp v0.0.0-20240808152545-0cdaa3abc0fa
 	k8s.io/api v0.30.3
 	k8s.io/apimachinery v0.30.3
 	k8s.io/client-go v0.30.3
-	sigs.k8s.io/cluster-api v1.8.0
+	sigs.k8s.io/cluster-api v1.8.1
 	sigs.k8s.io/controller-runtime v0.18.5
 )
 
