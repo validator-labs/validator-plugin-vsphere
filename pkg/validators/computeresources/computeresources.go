@@ -29,6 +29,7 @@ var (
 	// GetResourcePoolAndVMs is defined to enable monkey patching the getResourcePoolAndVMs function in integration tests
 	GetResourcePoolAndVMs           = getResourcePoolAndVMs
 	errInsufficientComputeResources = errors.New("compute resources rule not satisfied")
+	errRuleAlreadyProcessed         = errors.New("rule for scope already processed")
 )
 
 // ValidationService is a service that validates compute resource rules
@@ -103,9 +104,18 @@ type Usage struct {
 }
 
 // ReconcileComputeResourceValidationRule reconciles the compute resource rule
-func (c *ValidationService) ReconcileComputeResourceValidationRule(rule v1alpha1.ComputeResourceRule, finder *find.Finder, driver *vsphere.CloudDriver) (*types.ValidationRuleResult, error) {
+func (c *ValidationService) ReconcileComputeResourceValidationRule(rule v1alpha1.ComputeResourceRule, finder *find.Finder, driver *vsphere.CloudDriver, seenScopes map[string]bool) (*types.ValidationRuleResult, error) {
 
 	vr := buildValidationResult(rule, constants.ValidationTypeComputeResources)
+
+	key := GetScopeKey(rule)
+	if seenScopes[key] {
+		vr.State = util.Ptr(vapi.ValidationFailed)
+		vr.Condition.Message = "Rule for scope already processed"
+		vr.Condition.Failures = append(vr.Condition.Failures, fmt.Sprintf("Rule for scope %s already processed", key))
+		vr.Condition.Status = corev1.ConditionFalse
+		return vr, errRuleAlreadyProcessed
+	}
 
 	ctx, cancel := context.WithCancel(context.Background())
 	defer cancel()
@@ -347,4 +357,17 @@ func getTotalQuantity(quantity string, numberOfNodes int) resource.Quantity {
 		totalQuantity.Add(resource.MustParse(quantity))
 	}
 	return totalQuantity
+}
+
+// GetScopeKey returns a formatted key depending on the scope of a rule
+func GetScopeKey(rule v1alpha1.ComputeResourceRule) string {
+	switch rule.Scope {
+	case "cluster":
+		return fmt.Sprintf("%s-%s", rule.Scope, rule.EntityName)
+	case "host":
+		return fmt.Sprintf("%s-%s", rule.Scope, rule.EntityName)
+	case "resourcepool":
+		return fmt.Sprintf("%s-%s", rule.Scope, rule.ClusterName)
+	}
+	return ""
 }

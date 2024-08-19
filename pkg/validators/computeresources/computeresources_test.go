@@ -458,6 +458,77 @@ func TestComputeResourcesValidationService_ReconcileComputeResourceValidationRul
 				State: util.Ptr(vapi.ValidationFailed),
 			},
 		},
+		{
+			name:        "Duplicate scope resourcepool",
+			expectedErr: errRuleAlreadyProcessed,
+			rule: v1alpha1.ComputeResourceRule{
+				Name:        "Test Resourcepool Resource Validation rule",
+				Scope:       "resourcepool",
+				ClusterName: "DC0_C1",
+				EntityName:  "DC0_C1_RP0",
+				NodepoolResourceRequirements: []v1alpha1.NodepoolResourceRequirement{
+					{
+						Name:          "masterpool",
+						NumberOfNodes: 1,
+						CPU:           "1GHz",
+						Memory:        "500Mi",
+						DiskSpace:     "500Ti",
+					},
+					{
+						Name:          "workerpool",
+						NumberOfNodes: 1,
+						CPU:           "1GHz",
+						Memory:        "1Gi",
+						DiskSpace:     "100Ti",
+					},
+				},
+			},
+			expectedResult: types.ValidationRuleResult{Condition: &vapi.ValidationCondition{
+				ValidationType: "vsphere-compute-resources",
+				ValidationRule: "validation-resourcepool-DC0_C1_RP0",
+				Message:        "Rule for scope already processed",
+				Details:        []string{},
+				Failures:       []string{"Rule for scope resourcepool-DC0_C1 already processed"},
+				Status:         corev1.ConditionFalse,
+			},
+				State: util.Ptr(vapi.ValidationFailed),
+			},
+		},
+		{
+			name:        "Duplicate scope cluster",
+			expectedErr: errRuleAlreadyProcessed,
+			rule: v1alpha1.ComputeResourceRule{
+				Name:       "Test Resourcepool Resource Validation rule",
+				Scope:      "cluster",
+				EntityName: "DC0_C1",
+				NodepoolResourceRequirements: []v1alpha1.NodepoolResourceRequirement{
+					{
+						Name:          "masterpool",
+						NumberOfNodes: 1,
+						CPU:           "1GHz",
+						Memory:        "500Mi",
+						DiskSpace:     "500Ti",
+					},
+					{
+						Name:          "workerpool",
+						NumberOfNodes: 1,
+						CPU:           "1GHz",
+						Memory:        "1Gi",
+						DiskSpace:     "100Ti",
+					},
+				},
+			},
+			expectedResult: types.ValidationRuleResult{Condition: &vapi.ValidationCondition{
+				ValidationType: "vsphere-compute-resources",
+				ValidationRule: "validation-cluster-DC0_C1",
+				Message:        "Rule for scope already processed",
+				Details:        []string{},
+				Failures:       []string{"Rule for scope cluster-DC0_C1 already processed"},
+				Status:         corev1.ConditionFalse,
+			},
+				State: util.Ptr(vapi.ValidationFailed),
+			},
+		},
 	}
 
 	GetResourcePoolAndVMs = func(ctx context.Context, inventoryPath string, finder *find.Finder) (*mo.ResourcePool, *[]mo.VirtualMachine, error) {
@@ -487,8 +558,13 @@ func TestComputeResourcesValidationService_ReconcileComputeResourceValidationRul
 		return &resourcePool, &virtualmachines, nil
 	}
 
+	seenScopes := map[string]bool{
+		"resourcepool-DC0_C1": true,
+		"cluster-DC0_C1":      true,
+	}
+
 	for _, tc := range testCases {
-		vr, err := validationService.ReconcileComputeResourceValidationRule(tc.rule, finder, vcSim.Driver)
+		vr, err := validationService.ReconcileComputeResourceValidationRule(tc.rule, finder, vcSim.Driver, seenScopes)
 		util.CheckTestCase(t, vr, tc.expectedResult, err, tc.expectedErr)
 	}
 }

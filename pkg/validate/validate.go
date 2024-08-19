@@ -113,13 +113,16 @@ func Validate(ctx context.Context, spec v1alpha1.VsphereValidatorSpec, vsphereAc
 
 	// Compute resource validation rules
 	computeResourceValidationService := computeresources.NewValidationService(log, driver)
+	seenScope := make(map[string]bool, 0)
 	for _, rule := range spec.ComputeResourceRules {
-		vrr, err := computeResourceValidationService.ReconcileComputeResourceValidationRule(rule, finder, driver)
+		vrr, err := computeResourceValidationService.ReconcileComputeResourceValidationRule(rule, finder, driver, seenScope)
 		if err != nil {
 			log.Error(err, "failed to reconcile computeresources validation rule")
 		}
 		resp.AddResult(vrr, err)
 		log.Info("Validated compute resources", "scope", rule.Scope, "entity name", rule.EntityName)
+		key := computeresources.GetScopeKey(rule)
+		seenScope[key] = true
 	}
 
 	return resp
