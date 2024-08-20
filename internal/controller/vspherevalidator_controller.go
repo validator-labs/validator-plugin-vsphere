@@ -96,7 +96,7 @@ func (r *VsphereValidatorReconciler) Reconcile(ctx context.Context, req ctrl.Req
 	vr.Spec.ExpectedResults = validator.Spec.ResultCount()
 
 	// Initialize Vsphere driver
-	if validator.Spec.Auth.SecretName == "" && validator.Spec.Auth.CloudAccount == (vsphere.CloudAccount{}) {
+	if validator.Spec.Auth.SecretName == "" && validator.Spec.Auth.CloudAccount == nil {
 		l.Error(errCredentialsRequired, "failed to reconcile VsphereValidator with empty credentials")
 		return ctrl.Result{}, errCredentialsRequired
 	}
@@ -107,7 +107,7 @@ func (r *VsphereValidatorReconciler) Reconcile(ctx context.Context, req ctrl.Req
 			return ctrl.Result{}, err
 		}
 	} else {
-		vsphereAccount = &validator.Spec.Auth.CloudAccount
+		vsphereAccount = validator.Spec.Auth.CloudAccount
 	}
 
 	// Validate the rules

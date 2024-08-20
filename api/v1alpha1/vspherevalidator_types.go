@@ -36,7 +36,7 @@ type VsphereAuth struct {
 	// SecretName is the name of the secret containing the vSphere credentials
 	SecretName string `json:"secretName,omitempty" yaml:"secretName,omitempty"`
 	// CloudAccount is the vSphere cloud account to use for authentication
-	CloudAccount vsphere.CloudAccount `json:"cloudAccount,omitempty" yaml:"cloudAccount,omitempty"`
+	CloudAccount *vsphere.CloudAccount `json:"cloudAccount,omitempty" yaml:"cloudAccount,omitempty"`
 }
 
 // NTPValidationRule defines the NTP validation rule
