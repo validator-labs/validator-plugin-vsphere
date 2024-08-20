@@ -43,12 +43,39 @@ spec:
                 description: VsphereAuth defines authentication configuration for
                   an VsphereValidator.
                 properties:
+                  cloudAccount:
+                    description: CloudAccount is the vSphere cloud account to use
+                      for authentication
+                    properties:
+                      insecure:
+                        description: Insecure is a flag that controls whether to validate
+                          the vSphere server's certificate.
+                        type: boolean
+                      password:
+                        description: |-
+                          password
+                          Required: true
+                        type: string
+                      username:
+                        description: |-
+                          username
+                          Required: true
+                        type: string
+                      vcenterServer:
+                        description: |-
+                          VcenterServer is the address of the vSphere endpoint
+                          Required: true
+                        type: string
+                    required:
+                    - insecure
+                    - password
+                    - username
+                    - vcenterServer
+                    type: object
                   secretName:
                     description: SecretName is the name of the secret containing the
                       vSphere credentials
                     type: string
-                required:
-                - secretName
                 type: object
               computeResourceRules:
                 items:

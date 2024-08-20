@@ -6,6 +6,7 @@ import (
 	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
 
 	"github.com/validator-labs/validator-plugin-vsphere/pkg/constants"
+	"github.com/validator-labs/validator-plugin-vsphere/pkg/vsphere"
 )
 
 // VsphereValidatorSpec defines the desired state of VsphereValidator
@@ -33,7 +34,9 @@ func (s VsphereValidatorSpec) ResultCount() int {
 // VsphereAuth defines authentication configuration for an VsphereValidator.
 type VsphereAuth struct {
 	// SecretName is the name of the secret containing the vSphere credentials
-	SecretName string `json:"secretName" yaml:"secretName"`
+	SecretName string `json:"secretName,omitempty" yaml:"secretName,omitempty"`
+	// CloudAccount is the vSphere cloud account to use for authentication
+	CloudAccount vsphere.CloudAccount `json:"cloudAccount,omitempty" yaml:"cloudAccount,omitempty"`
 }
 
 // NTPValidationRule defines the NTP validation rule
