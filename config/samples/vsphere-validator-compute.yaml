@@ -1,0 +1,31 @@
+apiVersion: validation.spectrocloud.labs/v1alpha1
+kind: VsphereValidator
+metadata:
+  labels:
+    app.kubernetes.io/name: vspherevalidator
+    app.kubernetes.io/instance: vspherevalidator-sample
+    app.kubernetes.io/part-of: validator-plugin-vsphere
+    app.kubernetes.io/managed-by: kustomize
+    app.kubernetes.io/created-by: validator-plugin-vsphere
+  name: vspherevalidator-compute
+  namespace: validator
+spec:
+  datacenter: "Datacenter"
+  computeResourceRules:
+   - name: "rp-cluster2-palette-advanced-projects check resources"
+     clusterName: Cluster2
+     scope: resourcepool
+     entityName: "rp-cluster2-palette-advanced-projects"
+     nodepoolResourceRequirements:
+       - name: master-pool
+         numberOfNodes: 3
+         cpu: "1GHz"
+         memory: 8Gi
+         diskSpace: 80Gi
+       - name: worker-pool
+         numberOfNodes: 2
+         cpu: "2GHz"
+         memory: 8Gi
+         diskSpace: 100Gi
+  auth:
+    secretName: vsphere-creds

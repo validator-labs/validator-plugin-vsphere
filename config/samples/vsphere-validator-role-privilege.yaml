@@ -7,19 +7,20 @@ metadata:
     app.kubernetes.io/part-of: validator-plugin-vsphere
     app.kubernetes.io/managed-by: kustomize
     app.kubernetes.io/created-by: validator-plugin-vsphere
-  name: vspherevalidator-explicit-auth
+  name: vspherevalidator-role-privilege
   namespace: validator
 spec:
   datacenter: "Datacenter"
   auth:
-    cloudAccount:
-      insecure: true
-      username: "user@vsphere.local"
-      password: "password"
-      vcenterServer: "vcenter.example.com"
-  tagValidationRules:
-    - name: "Folder tag validation"
-      clusterName: "Cluster2"
-      entityType: "folder"
-      entityName: "sp-prakash"
-      tag: "owner"
+    secretName: vsphere-creds
+  rolePrivilegeValidationRules:
+    - username: tmpadmin@vsphere.local
+      privileges:
+        - Cns.Searchable
+        - Datastore.Browse
+        - InventoryService.Tagging.CreateTag
+        - InventoryService.Tagging.EditTag
+        - Network.Assign
+        - Sessions.ValidateSession
+        - StorageProfile.View
+        - StorageViews.View

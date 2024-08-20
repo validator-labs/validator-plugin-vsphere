@@ -7,16 +7,17 @@ metadata:
     app.kubernetes.io/part-of: validator-plugin-vsphere
     app.kubernetes.io/managed-by: kustomize
     app.kubernetes.io/created-by: validator-plugin-vsphere
-  name: vspherevalidator
+  name: vspherevalidator-entity-privilege
   namespace: validator
 spec:
   datacenter: "Datacenter"
-  ntpValidationRules:
-    - name: "validate ntp on hosts"
-      clusterName: Cluster2
-      hosts:
-        - 10.10.20.110
-        - 10.10.20.111
-        - 10.10.20.112
   auth:
-    secretName: validator-secret
+    secretName: vsphere-creds
+  entityPrivilegeValidationRules:
+    - name: "Deploy VM to vapp test-vapp"
+      username: prakash@vsphere.local
+      entityName: "sp-prakash"
+      entityType: "folder"
+      privileges:
+      - "VirtualMachine.Config.AddExistingDisk"
+      - "VirtualMachine.Config.AddNewDisk"

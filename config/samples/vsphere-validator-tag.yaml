@@ -28,7 +28,7 @@ spec:
 #          memory: 8Gi
 #          diskSpace: 100Gi
   auth:
-    secretName: validator-secret
+    secretName: vsphere-creds
 #  entityPrivilegeValidationRules:
 #    - name: "Deploy VM to vapp test-vapp"
 #      username: prakash@vsphere.local
