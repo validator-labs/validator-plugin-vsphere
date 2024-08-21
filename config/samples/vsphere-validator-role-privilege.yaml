@@ -1,0 +1,26 @@
+apiVersion: validation.spectrocloud.labs/v1alpha1
+kind: VsphereValidator
+metadata:
+  labels:
+    app.kubernetes.io/name: vspherevalidator
+    app.kubernetes.io/instance: vspherevalidator-sample
+    app.kubernetes.io/part-of: validator-plugin-vsphere
+    app.kubernetes.io/managed-by: kustomize
+    app.kubernetes.io/created-by: validator-plugin-vsphere
+  name: vspherevalidator-role-privilege
+  namespace: validator
+spec:
+  datacenter: "Datacenter"
+  auth:
+    secretName: vsphere-creds
+  rolePrivilegeValidationRules:
+    - username: tmpadmin@vsphere.local
+      privileges:
+        - Cns.Searchable
+        - Datastore.Browse
+        - InventoryService.Tagging.CreateTag
+        - InventoryService.Tagging.EditTag
+        - Network.Assign
+        - Sessions.ValidateSession
+        - StorageProfile.View
+        - StorageViews.View

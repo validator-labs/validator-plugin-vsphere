@@ -7,16 +7,19 @@ metadata:
     app.kubernetes.io/part-of: validator-plugin-vsphere
     app.kubernetes.io/managed-by: kustomize
     app.kubernetes.io/created-by: validator-plugin-vsphere
-  name: vspherevalidator
+  name: vspherevalidator-explicit-auth
   namespace: validator
 spec:
   datacenter: "Datacenter"
-  ntpValidationRules:
-    - name: "validate ntp on hosts"
-      clusterName: Cluster2
-      hosts:
-        - 10.10.20.110
-        - 10.10.20.111
-        - 10.10.20.112
   auth:
-    secretName: validator-secret
+    cloudAccount:
+      insecure: true
+      username: "user@vsphere.local"
+      password: "password"
+      vcenterServer: "vcenter.example.com"
+  tagValidationRules:
+    - name: "Folder tag validation"
+      clusterName: "Cluster2"
+      entityType: "folder"
+      entityName: "sp-prakash"
+      tag: "owner"

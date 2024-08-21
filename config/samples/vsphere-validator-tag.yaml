@@ -7,6 +7,15 @@ metadata:
     app.kubernetes.io/part-of: validator-plugin-vsphere
     app.kubernetes.io/managed-by: kustomize
     app.kubernetes.io/created-by: validator-plugin-vsphere
-  name: vspherevalidator-sample
+  name: vspherevalidator
+  namespace: validator
 spec:
-  # TODO(user): Add fields here
+  datacenter: "Datacenter"
+  auth:
+    secretName: vsphere-creds
+  tagValidationRules:
+    - name: "Folder tag validation"
+      clusterName: "Cluster2"
+      entityType: "folder"
+      entityName: "sp-prakash"
+      tag: "owner"

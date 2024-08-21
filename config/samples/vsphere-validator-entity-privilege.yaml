@@ -1,0 +1,23 @@
+apiVersion: validation.spectrocloud.labs/v1alpha1
+kind: VsphereValidator
+metadata:
+  labels:
+    app.kubernetes.io/name: vspherevalidator
+    app.kubernetes.io/instance: vspherevalidator-sample
+    app.kubernetes.io/part-of: validator-plugin-vsphere
+    app.kubernetes.io/managed-by: kustomize
+    app.kubernetes.io/created-by: validator-plugin-vsphere
+  name: vspherevalidator-entity-privilege
+  namespace: validator
+spec:
+  datacenter: "Datacenter"
+  auth:
+    secretName: vsphere-creds
+  entityPrivilegeValidationRules:
+    - name: "Deploy VM to vapp test-vapp"
+      username: prakash@vsphere.local
+      entityName: "sp-prakash"
+      entityType: "folder"
+      privileges:
+      - "VirtualMachine.Config.AddExistingDisk"
+      - "VirtualMachine.Config.AddNewDisk"
