@@ -17,7 +17,7 @@ spec:
      scope: resourcepool
      entityName: "rp-cluster2-palette-advanced-projects"
      nodepoolResourceRequirements:
-       - name: master-pool
+       - name: control-plane-pool
          numberOfNodes: 3
          cpu: "1GHz"
          memory: 8Gi
