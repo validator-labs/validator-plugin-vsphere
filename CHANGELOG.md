@@ -1,5 +1,29 @@
 # Changelog
 
+## [0.0.31](https://github.com/validator-labs/validator-plugin-vsphere/compare/v0.0.30...v0.0.31) (2024-08-21)
+
+
+### Features
+
+* support inline auth for vCenter ([#338](https://github.com/validator-labs/validator-plugin-vsphere/issues/338)) ([9a3d713](https://github.com/validator-labs/validator-plugin-vsphere/commit/9a3d713d65a93054346929689f331b4aad7aa4a2))
+
+
+### Bug Fixes
+
+* deduplicate resource rule scope to prevent resource overflow ([#336](https://github.com/validator-labs/validator-plugin-vsphere/issues/336)) ([88745e5](https://github.com/validator-labs/validator-plugin-vsphere/commit/88745e5f939901159b7f17d31bed12f6cac5338a))
+
+
+### Dependency Updates
+
+* **deps:** update module github.com/onsi/ginkgo/v2 to v2.20.1 ([#339](https://github.com/validator-labs/validator-plugin-vsphere/issues/339)) ([55e502e](https://github.com/validator-labs/validator-plugin-vsphere/commit/55e502ed4e6f84e86c19577441f2ee9928b82562))
+* **deps:** update module github.com/validator-labs/validator to v0.1.5 ([#329](https://github.com/validator-labs/validator-plugin-vsphere/issues/329)) ([bfb44b2](https://github.com/validator-labs/validator-plugin-vsphere/commit/bfb44b26e6062ea809d8e92aecbc6cec57126a96))
+* **deps:** update module github.com/validator-labs/validator to v0.1.6 ([#335](https://github.com/validator-labs/validator-plugin-vsphere/issues/335)) ([5c5b3a1](https://github.com/validator-labs/validator-plugin-vsphere/commit/5c5b3a18752cd9f8288482c6215c24b326d4f9e4))
+* **deps:** update module github.com/vmware/govmomi to v0.40.0 ([#330](https://github.com/validator-labs/validator-plugin-vsphere/issues/330)) ([e8f0c87](https://github.com/validator-labs/validator-plugin-vsphere/commit/e8f0c877123553351706c08b8a94fd576be26e20))
+* **deps:** update module github.com/vmware/govmomi to v0.42.0 ([#334](https://github.com/validator-labs/validator-plugin-vsphere/issues/334)) ([040d15c](https://github.com/validator-labs/validator-plugin-vsphere/commit/040d15c7a5eacd00b145dbdedf21e155826a0d74))
+* **deps:** update module sigs.k8s.io/cluster-api to v1.8.0 ([#327](https://github.com/validator-labs/validator-plugin-vsphere/issues/327)) ([7306e5c](https://github.com/validator-labs/validator-plugin-vsphere/commit/7306e5c1645372dc1f129845f7771f5f76f18ef3))
+* **deps:** update module sigs.k8s.io/controller-runtime to v0.18.5 ([#326](https://github.com/validator-labs/validator-plugin-vsphere/issues/326)) ([e7767f8](https://github.com/validator-labs/validator-plugin-vsphere/commit/e7767f8dbc68f68b3808b5c0d7d3114bea18b7c0))
+* **deps:** update module sigs.k8s.io/controller-runtime to v0.19.0 ([#333](https://github.com/validator-labs/validator-plugin-vsphere/issues/333)) ([1ec82f4](https://github.com/validator-labs/validator-plugin-vsphere/commit/1ec82f466bb6fc8f55b8e662db6c70a5eb2339f5))
+
 ## [0.0.30](https://github.com/validator-labs/validator-plugin-vsphere/compare/v0.0.29...v0.0.30) (2024-08-11)
 
 
