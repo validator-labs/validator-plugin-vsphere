@@ -90,7 +90,7 @@ spec:
                       description: EntityName is the name of the entity to validate
                       type: string
                     name:
-                      description: Name is the name of the compute resource validation
+                      description: RuleName is the name of the compute resource validation
                         rule
                       type: string
                     nodepoolResourceRequirements:
@@ -155,7 +155,7 @@ spec:
                       description: EntityType is the type of the entity to validate
                       type: string
                     name:
-                      description: Name is the name of the entity privilege validation
+                      description: RuleName is the name of the entity privilege validation
                         rule
                       type: string
                     privileges:
@@ -190,7 +190,7 @@ spec:
                         type: string
                       type: array
                     name:
-                      description: Name is the name of the NTP validation rule
+                      description: RuleName is the name of the NTP validation rule
                       type: string
                   required:
                   - hosts
@@ -231,7 +231,7 @@ spec:
                       description: EntityType is the type of the entity to validate
                       type: string
                     name:
-                      description: Name is the name of the tag validation rule
+                      description: RuleName is the name of the tag validation rule
                       type: string
                     tag:
                       description: Tag is the tag to validate on the entity

@@ -5,6 +5,8 @@ import (
 
 	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
 
+	"github.com/validator-labs/validator/pkg/validationrule"
+
 	"github.com/validator-labs/validator-plugin-vsphere/pkg/constants"
 	"github.com/validator-labs/validator-plugin-vsphere/pkg/vsphere"
 )
@@ -41,18 +43,34 @@ type VsphereAuth struct {
 
 // NTPValidationRule defines the NTP validation rule
 type NTPValidationRule struct {
-	// Name is the name of the NTP validation rule
-	Name string `json:"name" yaml:"name"`
+	validationrule.ManuallyNamed `json:"-"`
+
+	// RuleName is the name of the NTP validation rule
+	RuleName string `json:"name" yaml:"name"`
 	// ClusterName is required when the vCenter Host(s) reside beneath a Cluster in the vCenter object hierarchy
 	ClusterName string `json:"clusterName,omitempty" yaml:"clusterName,omitempty"`
 	// Hosts is the list of vCenter Hosts to validate NTP configuration
 	Hosts []string `json:"hosts" yaml:"hosts"`
 }
 
+var _ validationrule.Interface = (*NTPValidationRule)(nil)
+
+// Name returns the name of the NTPValidationRule.
+func (r NTPValidationRule) Name() string {
+	return r.RuleName
+}
+
+// SetName sets the name of the NTPValidationRule.
+func (r *NTPValidationRule) SetName(name string) {
+	r.RuleName = name
+}
+
 // ComputeResourceRule defines the compute resource validation rule
 type ComputeResourceRule struct {
-	// Name is the name of the compute resource validation rule
-	Name string `json:"name" yaml:"name"`
+	validationrule.ManuallyNamed `json:"-"`
+
+	// RuleName is the name of the compute resource validation rule
+	RuleName string `json:"name" yaml:"name"`
 	// ClusterName is required when the vCenter Entity resides beneath a Cluster in the vCenter object hierarchy
 	ClusterName string `json:"clusterName,omitempty" yaml:"clusterName"`
 	// Scope is the scope of the compute resource validation rule
@@ -63,10 +81,24 @@ type ComputeResourceRule struct {
 	NodepoolResourceRequirements []NodepoolResourceRequirement `json:"nodepoolResourceRequirements" yaml:"nodepoolResourceRequirements"`
 }
 
+var _ validationrule.Interface = (*ComputeResourceRule)(nil)
+
+// Name returns the name of the ComputeResourceRule.
+func (r ComputeResourceRule) Name() string {
+	return r.RuleName
+}
+
+// SetName sets the name of the ComputeResourceRule.
+func (r *ComputeResourceRule) SetName(name string) {
+	r.RuleName = name
+}
+
 // EntityPrivilegeValidationRule defines the entity privilege validation rule
 type EntityPrivilegeValidationRule struct {
-	// Name is the name of the entity privilege validation rule
-	Name string `json:"name" yaml:"name"`
+	validationrule.ManuallyNamed `json:"-"`
+
+	// RuleName is the name of the entity privilege validation rule
+	RuleName string `json:"name" yaml:"name"`
 	// Username is the username to validate against
 	Username string `json:"username" yaml:"username"`
 	// ClusterName is required when the vCenter Entity resides beneath a Cluster in the vCenter object hierarchy
@@ -79,18 +111,41 @@ type EntityPrivilegeValidationRule struct {
 	Privileges []string `json:"privileges" yaml:"privileges"`
 }
 
+var _ validationrule.Interface = (*EntityPrivilegeValidationRule)(nil)
+
+// Name returns the name of the EntityPrivilegeValidationRule.
+func (r EntityPrivilegeValidationRule) Name() string {
+	return r.RuleName
+}
+
+// SetName sets the name of the EntityPrivilegeValidationRule.
+func (r *EntityPrivilegeValidationRule) SetName(name string) {
+	r.RuleName = name
+}
+
 // GenericRolePrivilegeValidationRule defines the generic role privilege validation rule
 type GenericRolePrivilegeValidationRule struct {
+	validationrule.AutomaticallyNamed `json:"-"`
+
 	// Username is the username to validate against
 	Username string `json:"username" yaml:"username"`
 	// Privileges is the list of privileges to validate that the user has
 	Privileges []string `json:"privileges" yaml:"privileges"`
 }
 
+var _ validationrule.Interface = (*GenericRolePrivilegeValidationRule)(nil)
+
+// Name returns the name of the GenericRolePrivilegeValidationRule.
+func (r GenericRolePrivilegeValidationRule) Name() string {
+	return r.Username
+}
+
 // TagValidationRule defines the tag validation rule
 type TagValidationRule struct {
-	// Name is the name of the tag validation rule
-	Name string `json:"name" yaml:"name"`
+	validationrule.ManuallyNamed `json:"-"`
+
+	// RuleName is the name of the tag validation rule
+	RuleName string `json:"name" yaml:"name"`
 	// ClusterName is required when the vCenter Entity resides beneath a Cluster in the vCenter object hierarchy
 	ClusterName string `json:"clusterName,omitempty" yaml:"clusterName"`
 	// EntityType is the type of the entity to validate
@@ -99,6 +154,18 @@ type TagValidationRule struct {
 	EntityName string `json:"entityName" yaml:"entityName"`
 	// Tag is the tag to validate on the entity
 	Tag string `json:"tag" yaml:"tag"`
+}
+
+var _ validationrule.Interface = (*TagValidationRule)(nil)
+
+// Name returns the name of the TagValidationRule.
+func (r TagValidationRule) Name() string {
+	return r.RuleName
+}
+
+// SetName sets the name of the TagValidationRule.
+func (r *TagValidationRule) SetName(name string) {
+	r.RuleName = name
 }
 
 // NodepoolResourceRequirement defines the resource requirements for a nodepool

@@ -29,7 +29,7 @@ func buildValidationResult(rule v1alpha1.GenericRolePrivilegeValidationRule, val
 	state := vapi.ValidationSucceeded
 	latestCondition := vapi.DefaultValidationCondition()
 	latestCondition.Message = fmt.Sprintf("All required %s permissions were found", validationType)
-	latestCondition.ValidationRule = fmt.Sprintf("%s-%s", vapiconstants.ValidationRulePrefix, rule.Username)
+	latestCondition.ValidationRule = fmt.Sprintf("%s-%s", vapiconstants.ValidationRulePrefix, rule.Name())
 	latestCondition.ValidationType = validationType
 
 	return &types.ValidationRuleResult{Condition: &latestCondition, State: &state}
@@ -49,11 +49,11 @@ func (s *PrivilegeValidationService) ReconcileRolePrivilegesRule(rule v1alpha1.G
 	defer cancel()
 
 	vr := buildValidationResult(rule, constants.ValidationTypeRolePrivileges)
-	failMsg := fmt.Sprintf("One or more required privileges was not found, or a condition was not met for account: %s", rule.Username)
+	failMsg := fmt.Sprintf("One or more required privileges was not found, or a condition was not met for account: %s", rule.Name())
 
-	privileges, err := getPrivileges(ctx, driver, authManager, rule.Username, s.log)
+	privileges, err := getPrivileges(ctx, driver, authManager, rule.Name(), s.log)
 	if err != nil {
-		vr.Condition.Failures = append(vr.Condition.Failures, fmt.Sprintf("Failed to get user privileges for %s due to error: %s", rule.Username, err))
+		vr.Condition.Failures = append(vr.Condition.Failures, fmt.Sprintf("Failed to get user privileges for %s due to error: %s", rule.Name(), err))
 		setFailureStatus(vr, failMsg)
 		return vr, err
 	}
