@@ -49,11 +49,11 @@ func (s *PrivilegeValidationService) ReconcileRolePrivilegesRule(rule v1alpha1.G
 	defer cancel()
 
 	vr := buildValidationResult(rule, constants.ValidationTypeRolePrivileges)
-	failMsg := fmt.Sprintf("One or more required privileges was not found, or a condition was not met for account: %s", rule.Name())
+	failMsg := fmt.Sprintf("One or more required privileges was not found, or a condition was not met for account: %s", rule.Username)
 
-	privileges, err := getPrivileges(ctx, driver, authManager, rule.Name(), s.log)
+	privileges, err := getPrivileges(ctx, driver, authManager, rule.Username, s.log)
 	if err != nil {
-		vr.Condition.Failures = append(vr.Condition.Failures, fmt.Sprintf("Failed to get user privileges for %s due to error: %s", rule.Name(), err))
+		vr.Condition.Failures = append(vr.Condition.Failures, fmt.Sprintf("Failed to get user privileges for %s due to error: %s", rule.Username, err))
 		setFailureStatus(vr, failMsg)
 		return vr, err
 	}

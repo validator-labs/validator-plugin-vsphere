@@ -96,7 +96,7 @@ func Validate(ctx context.Context, spec v1alpha1.VsphereValidatorSpec, vsphereAc
 			log.Error(err, "failed to reconcile role privilege rule")
 		}
 		resp.AddResult(vrr, err)
-		log.Info("Validated privileges for account", "user", rule.Name())
+		log.Info("Validated privileges for account", "user", rule.Username)
 	}
 
 	// Tag validation rules
