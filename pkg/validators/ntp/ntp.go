@@ -39,7 +39,7 @@ func buildValidationResult(rule v1alpha1.NTPValidationRule, validationType strin
 	state := vapi.ValidationSucceeded
 	latestCondition := vapi.DefaultValidationCondition()
 	latestCondition.Message = "All required NTP rules were satisfied"
-	latestCondition.ValidationRule = fmt.Sprintf("%s-%s", vapiconstants.ValidationRulePrefix, strings.ReplaceAll(rule.Name, " ", "-"))
+	latestCondition.ValidationRule = fmt.Sprintf("%s-%s", vapiconstants.ValidationRulePrefix, strings.ReplaceAll(rule.Name(), " ", "-"))
 	latestCondition.ValidationType = validationType
 
 	return &types.ValidationRuleResult{Condition: &latestCondition, State: &state}
@@ -60,9 +60,9 @@ func (n *ValidationService) ReconcileNTPRule(rule v1alpha1.NTPValidationRule, fi
 
 	if len(vr.Condition.Failures) > 0 {
 		vr.State = util.Ptr(vapi.ValidationFailed)
-		vr.Condition.Message = fmt.Sprintf("One or more NTP rules were not satisfied for rule: %s", rule.Name)
+		vr.Condition.Message = fmt.Sprintf("One or more NTP rules were not satisfied for rule: %s", rule.Name())
 		vr.Condition.Status = corev1.ConditionFalse
-		err = fmt.Errorf("one or more NTP rules were not satisfied for rule: %s", rule.Name)
+		err = fmt.Errorf("one or more NTP rules were not satisfied for rule: %s", rule.Name())
 	}
 
 	return vr, err

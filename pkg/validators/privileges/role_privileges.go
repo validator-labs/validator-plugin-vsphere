@@ -29,7 +29,7 @@ func buildValidationResult(rule v1alpha1.GenericRolePrivilegeValidationRule, val
 	state := vapi.ValidationSucceeded
 	latestCondition := vapi.DefaultValidationCondition()
 	latestCondition.Message = fmt.Sprintf("All required %s permissions were found", validationType)
-	latestCondition.ValidationRule = fmt.Sprintf("%s-%s", vapiconstants.ValidationRulePrefix, rule.Username)
+	latestCondition.ValidationRule = fmt.Sprintf("%s-%s", vapiconstants.ValidationRulePrefix, rule.Name())
 	latestCondition.ValidationType = validationType
 
 	return &types.ValidationRuleResult{Condition: &latestCondition, State: &state}

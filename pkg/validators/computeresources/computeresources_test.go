@@ -36,7 +36,7 @@ func TestComputeResourcesValidationService_ReconcileComputeResourceValidationRul
 		{
 			name: "All Resources available",
 			rule: v1alpha1.ComputeResourceRule{
-				Name:        "Test Resource Validation rule",
+				RuleName:    "Test Resource Validation rule",
 				ClusterName: "DC0_C0",
 				Scope:       "cluster",
 				EntityName:  "DC0_C0",
@@ -72,7 +72,7 @@ func TestComputeResourcesValidationService_ReconcileComputeResourceValidationRul
 			name:        "cluster CPU not available",
 			expectedErr: errInsufficientComputeResources,
 			rule: v1alpha1.ComputeResourceRule{
-				Name:        "Test Resource Validation rule",
+				RuleName:    "Test Resource Validation rule",
 				ClusterName: "DC0_C0",
 				Scope:       "cluster",
 				EntityName:  "DC0_C0",
@@ -108,7 +108,7 @@ func TestComputeResourcesValidationService_ReconcileComputeResourceValidationRul
 			name:        "cluster Memory not available",
 			expectedErr: errInsufficientComputeResources,
 			rule: v1alpha1.ComputeResourceRule{
-				Name:        "Test Resource Validation rule",
+				RuleName:    "Test Resource Validation rule",
 				ClusterName: "DC0_C0",
 				Scope:       "cluster",
 				EntityName:  "DC0_C0",
@@ -144,7 +144,7 @@ func TestComputeResourcesValidationService_ReconcileComputeResourceValidationRul
 			name:        "cluster Disk not available",
 			expectedErr: errInsufficientComputeResources,
 			rule: v1alpha1.ComputeResourceRule{
-				Name:        "Test Resource Validation rule",
+				RuleName:    "Test Resource Validation rule",
 				ClusterName: "DC0_C0",
 				Scope:       "cluster",
 				EntityName:  "DC0_C0",
@@ -179,7 +179,7 @@ func TestComputeResourcesValidationService_ReconcileComputeResourceValidationRul
 		{
 			name: "Host - All Resources available",
 			rule: v1alpha1.ComputeResourceRule{
-				Name:       "Test Host Resource Validation rule",
+				RuleName:   "Test Host Resource Validation rule",
 				Scope:      "host",
 				EntityName: "DC0_C0_H0",
 				NodepoolResourceRequirements: []v1alpha1.NodepoolResourceRequirement{
@@ -214,7 +214,7 @@ func TestComputeResourcesValidationService_ReconcileComputeResourceValidationRul
 			name:        "Host CPU not available",
 			expectedErr: errInsufficientComputeResources,
 			rule: v1alpha1.ComputeResourceRule{
-				Name:       "Test Host Resource Validation rule",
+				RuleName:   "Test Host Resource Validation rule",
 				Scope:      "host",
 				EntityName: "DC0_C0_H0",
 				NodepoolResourceRequirements: []v1alpha1.NodepoolResourceRequirement{
@@ -249,7 +249,7 @@ func TestComputeResourcesValidationService_ReconcileComputeResourceValidationRul
 			name:        "Host Memory not available",
 			expectedErr: errInsufficientComputeResources,
 			rule: v1alpha1.ComputeResourceRule{
-				Name:       "Test Host Resource Validation rule",
+				RuleName:   "Test Host Resource Validation rule",
 				Scope:      "host",
 				EntityName: "DC0_C0_H0",
 				NodepoolResourceRequirements: []v1alpha1.NodepoolResourceRequirement{
@@ -284,7 +284,7 @@ func TestComputeResourcesValidationService_ReconcileComputeResourceValidationRul
 			name:        "Host Disk not available",
 			expectedErr: errInsufficientComputeResources,
 			rule: v1alpha1.ComputeResourceRule{
-				Name:       "Test Host Resource Validation rule",
+				RuleName:   "Test Host Resource Validation rule",
 				Scope:      "host",
 				EntityName: "DC0_C0_H0",
 				NodepoolResourceRequirements: []v1alpha1.NodepoolResourceRequirement{
@@ -318,7 +318,7 @@ func TestComputeResourcesValidationService_ReconcileComputeResourceValidationRul
 		{
 			name: "Resourcepool - All Resources available",
 			rule: v1alpha1.ComputeResourceRule{
-				Name:        "Test Host Resource Validation rule",
+				RuleName:    "Test Host Resource Validation rule",
 				Scope:       "resourcepool",
 				ClusterName: "DC0_C0",
 				EntityName:  "DC0_C0_RP0",
@@ -354,7 +354,7 @@ func TestComputeResourcesValidationService_ReconcileComputeResourceValidationRul
 			name:        "Resourcepool CPU not available",
 			expectedErr: errInsufficientComputeResources,
 			rule: v1alpha1.ComputeResourceRule{
-				Name:        "Test Host Resource Validation rule",
+				RuleName:    "Test Host Resource Validation rule",
 				Scope:       "resourcepool",
 				ClusterName: "DC0_C0",
 				EntityName:  "DC0_C0_RP0",
@@ -390,7 +390,7 @@ func TestComputeResourcesValidationService_ReconcileComputeResourceValidationRul
 			name:        "Resourcepool Memory not available",
 			expectedErr: errInsufficientComputeResources,
 			rule: v1alpha1.ComputeResourceRule{
-				Name:        "Test Resourcepool Resource Validation rule",
+				RuleName:    "Test Resourcepool Resource Validation rule",
 				Scope:       "resourcepool",
 				ClusterName: "DC0_C0",
 				EntityName:  "DC0_C0_RP0",
@@ -426,7 +426,7 @@ func TestComputeResourcesValidationService_ReconcileComputeResourceValidationRul
 			name:        "Resourcepool Disk not available",
 			expectedErr: errInsufficientComputeResources,
 			rule: v1alpha1.ComputeResourceRule{
-				Name:        "Test Resourcepool Resource Validation rule",
+				RuleName:    "Test Resourcepool Resource Validation rule",
 				Scope:       "resourcepool",
 				ClusterName: "DC0_C0",
 				EntityName:  "DC0_C0_RP0",
@@ -462,7 +462,7 @@ func TestComputeResourcesValidationService_ReconcileComputeResourceValidationRul
 			name:        "Duplicate scope resourcepool",
 			expectedErr: errRuleAlreadyProcessed,
 			rule: v1alpha1.ComputeResourceRule{
-				Name:        "Test Resourcepool Resource Validation rule",
+				RuleName:    "Test Resourcepool Resource Validation rule",
 				Scope:       "resourcepool",
 				ClusterName: "DC0_C1",
 				EntityName:  "DC0_C1_RP0",
@@ -498,7 +498,7 @@ func TestComputeResourcesValidationService_ReconcileComputeResourceValidationRul
 			name:        "Duplicate scope cluster",
 			expectedErr: errRuleAlreadyProcessed,
 			rule: v1alpha1.ComputeResourceRule{
-				Name:       "Test Resourcepool Resource Validation rule",
+				RuleName:   "Test Resourcepool Resource Validation rule",
 				Scope:      "cluster",
 				EntityName: "DC0_C1",
 				NodepoolResourceRequirements: []v1alpha1.NodepoolResourceRequirement{

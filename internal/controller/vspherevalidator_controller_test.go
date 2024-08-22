@@ -48,7 +48,7 @@ var _ = Describe("VsphereValidator controller", Ordered, func() {
 			NTPValidationRules:             []v1alpha1.NTPValidationRule{},
 			TagValidationRules: []v1alpha1.TagValidationRule{
 				{
-					Name:       "Datacenter k8s-region rule",
+					RuleName:   "Datacenter k8s-region rule",
 					EntityType: "datacenter",
 					EntityName: "Datacenter",
 					Tag:        "k8s-region",

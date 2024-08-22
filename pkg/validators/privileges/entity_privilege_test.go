@@ -49,7 +49,7 @@ func TestRolePrivilegeValidationService_ReconcileEntityPrivilegeRule(t *testing.
 		{
 			name: "All privileges available",
 			rule: v1alpha1.EntityPrivilegeValidationRule{
-				Name:        "VirtualMachine.Config.AddExistingDisk",
+				RuleName:    "VirtualMachine.Config.AddExistingDisk",
 				Username:    userName,
 				ClusterName: "DC0_C0",
 				EntityType:  "cluster",
@@ -72,7 +72,7 @@ func TestRolePrivilegeValidationService_ReconcileEntityPrivilegeRule(t *testing.
 		{
 			name: "Certain privilege not available",
 			rule: v1alpha1.EntityPrivilegeValidationRule{
-				Name:        "VirtualMachine.Config.AddExistingDisk",
+				RuleName:    "VirtualMachine.Config.AddExistingDisk",
 				Username:    userName,
 				ClusterName: "DC0_C0",
 				EntityType:  "cluster",
