@@ -1,5 +1,17 @@
 # Changelog
 
+## [0.0.32](https://github.com/validator-labs/validator-plugin-vsphere/compare/v0.0.31...v0.0.32) (2024-08-22)
+
+
+### Dependency Updates
+
+* **deps:** update golang.org/x/exp digest to 778ce7b ([#340](https://github.com/validator-labs/validator-plugin-vsphere/issues/340)) ([145fd5a](https://github.com/validator-labs/validator-plugin-vsphere/commit/145fd5a34e17970a1cac81881e8b6aa3dd0f78b7))
+
+
+### Refactoring
+
+* make each rule implement `validationrule.Interface` ([#341](https://github.com/validator-labs/validator-plugin-vsphere/issues/341)) ([e79d5c9](https://github.com/validator-labs/validator-plugin-vsphere/commit/e79d5c9e146c2cdcc547e678f030e12ec79c6ebd))
+
 ## [0.0.31](https://github.com/validator-labs/validator-plugin-vsphere/compare/v0.0.30...v0.0.31) (2024-08-21)
 
 
