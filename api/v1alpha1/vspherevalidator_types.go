@@ -5,6 +5,7 @@ import (
 
 	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
 
+	"github.com/validator-labs/validator/pkg/plugins"
 	"github.com/validator-labs/validator/pkg/validationrule"
 
 	"github.com/validator-labs/validator-plugin-vsphere/pkg/constants"
@@ -21,6 +22,8 @@ type VsphereValidatorSpec struct {
 	ComputeResourceRules           []ComputeResourceRule                `json:"computeResourceRules,omitempty" yaml:"computeResourceRules,omitempty"`
 	NTPValidationRules             []NTPValidationRule                  `json:"ntpValidationRules,omitempty" yaml:"ntpValidationRules,omitempty"`
 }
+
+var _ plugins.PluginSpec = (*VsphereValidatorSpec)(nil)
 
 // PluginCode returns the vSphere validator's plugin code.
 func (s VsphereValidatorSpec) PluginCode() string {
