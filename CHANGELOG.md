@@ -1,5 +1,17 @@
 # Changelog
 
+## [0.0.33](https://github.com/validator-labs/validator-plugin-vsphere/compare/v0.0.32...v0.0.33) (2024-08-23)
+
+
+### Bug Fixes
+
+* embedding structs related to `validationrule.Interface` ([#346](https://github.com/validator-labs/validator-plugin-vsphere/issues/346)) ([c89dd21](https://github.com/validator-labs/validator-plugin-vsphere/commit/c89dd21af8426a3944ca96960d7cc593f86ebcc1))
+
+
+### Other
+
+* assert that PluginSpec is implemented ([#344](https://github.com/validator-labs/validator-plugin-vsphere/issues/344)) ([1213e69](https://github.com/validator-labs/validator-plugin-vsphere/commit/1213e69e33a483f141ec82afdecd45d2e387742e))
+
 ## [0.0.32](https://github.com/validator-labs/validator-plugin-vsphere/compare/v0.0.31...v0.0.32) (2024-08-22)
 
 
