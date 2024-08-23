@@ -43,7 +43,7 @@ type VsphereAuth struct {
 
 // NTPValidationRule defines the NTP validation rule
 type NTPValidationRule struct {
-	validationrule.ManuallyNamed `json:"-"`
+	validationrule.ManuallyNamed `json:",inline"`
 
 	// RuleName is the name of the NTP validation rule
 	RuleName string `json:"name" yaml:"name"`
@@ -67,7 +67,7 @@ func (r *NTPValidationRule) SetName(name string) {
 
 // ComputeResourceRule defines the compute resource validation rule
 type ComputeResourceRule struct {
-	validationrule.ManuallyNamed `json:"-"`
+	validationrule.ManuallyNamed `json:",inline"`
 
 	// RuleName is the name of the compute resource validation rule
 	RuleName string `json:"name" yaml:"name"`
@@ -95,7 +95,7 @@ func (r *ComputeResourceRule) SetName(name string) {
 
 // EntityPrivilegeValidationRule defines the entity privilege validation rule
 type EntityPrivilegeValidationRule struct {
-	validationrule.ManuallyNamed `json:"-"`
+	validationrule.ManuallyNamed `json:",inline"`
 
 	// RuleName is the name of the entity privilege validation rule
 	RuleName string `json:"name" yaml:"name"`
@@ -125,7 +125,7 @@ func (r *EntityPrivilegeValidationRule) SetName(name string) {
 
 // GenericRolePrivilegeValidationRule defines the generic role privilege validation rule
 type GenericRolePrivilegeValidationRule struct {
-	validationrule.AutomaticallyNamed `json:"-"`
+	validationrule.AutomaticallyNamed `json:",inline"`
 
 	// Username is the username to validate against
 	Username string `json:"username" yaml:"username"`
@@ -142,7 +142,7 @@ func (r GenericRolePrivilegeValidationRule) Name() string {
 
 // TagValidationRule defines the tag validation rule
 type TagValidationRule struct {
-	validationrule.ManuallyNamed `json:"-"`
+	validationrule.ManuallyNamed `json:",inline"`
 
 	// RuleName is the name of the tag validation rule
 	RuleName string `json:"name" yaml:"name"`
