@@ -1,5 +1,17 @@
 # Changelog
 
+## [0.0.34](https://github.com/validator-labs/validator-plugin-vsphere/compare/v0.0.33...v0.0.34) (2024-08-24)
+
+
+### Bug Fixes
+
+* YAML rendering of structs embedded in rules ([#351](https://github.com/validator-labs/validator-plugin-vsphere/issues/351)) ([883c0bf](https://github.com/validator-labs/validator-plugin-vsphere/commit/883c0bf78547f8818cfd84e39564eb62a6583246))
+
+
+### Dependency Updates
+
+* **deps:** update golang.org/x/exp digest to 9b4947d ([#345](https://github.com/validator-labs/validator-plugin-vsphere/issues/345)) ([3b4c76d](https://github.com/validator-labs/validator-plugin-vsphere/commit/3b4c76db032c877856ee200f8dc6fce610445fd8))
+
 ## [0.0.33](https://github.com/validator-labs/validator-plugin-vsphere/compare/v0.0.32...v0.0.33) (2024-08-23)
 
 
