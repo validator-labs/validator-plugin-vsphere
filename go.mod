@@ -11,7 +11,7 @@ require (
 	github.com/pkg/errors v0.9.1
 	github.com/sirupsen/logrus v1.9.3
 	github.com/stretchr/testify v1.9.0
-	github.com/validator-labs/validator v0.1.8
+	github.com/validator-labs/validator v0.1.9
 	github.com/vmware/govmomi v0.42.0
 	golang.org/x/exp v0.0.0-20240823005443-9b4947da3948
 	k8s.io/api v0.31.0
