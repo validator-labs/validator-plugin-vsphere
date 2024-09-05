@@ -61,7 +61,7 @@ var _ = Describe("VsphereValidator controller", Ordered, func() {
 
 	vcSim := vcsim.NewVCSim(username, 8446, logr.Logger{})
 	vcSim.Start()
-	cloudAccount := vcSim.GetTestVsphereAccount()
+	account := vcSim.Account
 
 	validatorSecret := &v1.Secret{
 		TypeMeta: metav1.TypeMeta{},
@@ -71,10 +71,10 @@ var _ = Describe("VsphereValidator controller", Ordered, func() {
 		},
 		Immutable: nil,
 		Data: map[string][]byte{
-			"username":           []byte(cloudAccount.Username),
-			"password":           []byte(cloudAccount.Password),
+			"username":           []byte(account.Username),
+			"password":           []byte(account.Password),
 			"insecureSkipVerify": []byte("true"),
-			"vcenterServer":      []byte(cloudAccount.VcenterServer),
+			"vcenterServer":      []byte(account.Host),
 		},
 	}
 

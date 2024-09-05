@@ -40,8 +40,8 @@ type VsphereAuth struct {
 	// SecretName is the name of the secret containing the vSphere credentials
 	SecretName string `json:"secretName,omitempty" yaml:"secretName,omitempty"`
 
-	// CloudAccount is the vSphere cloud account to use for authentication
-	CloudAccount *vsphere.CloudAccount `json:"cloudAccount,omitempty" yaml:"cloudAccount,omitempty"`
+	// Account is the vSphere account to use for authentication
+	Account *vsphere.Account `json:"account,omitempty" yaml:"account,omitempty"`
 }
 
 // NTPValidationRule defines the NTP validation rule
@@ -113,7 +113,7 @@ type PrivilegeValidationRule struct {
 	Username string `json:"username" yaml:"username"`
 
 	// ClusterName is required when the vCenter Entity resides beneath a Cluster in the vCenter object hierarchy
-	ClusterName string `json:"clusterName,omitempty" yaml:"clusterName"`
+	ClusterName string `json:"clusterName,omitempty" yaml:"clusterName,omitempty"`
 
 	// EntityType is the type of the entity to validate
 	// +kubebuilder:validation:Enum=cluster;datacenter;datastore;folder;host;network;resourcepool;vapp;vcenterroot;vds;vm

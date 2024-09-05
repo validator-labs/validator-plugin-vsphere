@@ -24,7 +24,7 @@ import (
 )
 
 // Validate validates the VsphereValidatorSpec and returns a ValidationResponse.
-func Validate(ctx context.Context, spec v1alpha1.VsphereValidatorSpec, vsphereAccount *vsphere.CloudAccount, log logr.Logger) types.ValidationResponse {
+func Validate(ctx context.Context, spec v1alpha1.VsphereValidatorSpec, log logr.Logger) types.ValidationResponse {
 	resp := types.ValidationResponse{
 		ValidationRuleResults: make([]*types.ValidationRuleResult, 0, spec.ResultCount()),
 		ValidationRuleErrors:  make([]error, 0, spec.ResultCount()),
@@ -32,11 +32,13 @@ func Validate(ctx context.Context, spec v1alpha1.VsphereValidatorSpec, vsphereAc
 
 	vrr := buildValidationResult()
 
+	if spec.Auth.Account == nil {
+		resp.AddResult(vrr, errors.New("invalid spec; account must not be nil"))
+		return resp
+	}
+
 	// Create a new vSphere driver
-	driver, err := vsphere.NewVSphereDriver(
-		vsphereAccount.VcenterServer, vsphereAccount.Username,
-		vsphereAccount.Password, spec.Datacenter, log,
-	)
+	driver, err := vsphere.NewVSphereDriver(*spec.Auth.Account, spec.Datacenter, log)
 	if err != nil {
 		resp.AddResult(vrr, fmt.Errorf("failed to create vSphere driver: %w", err))
 		return resp

@@ -70,22 +70,19 @@ type CloudDriver struct {
 	log             logr.Logger
 }
 
-// CloudAccount is a struct that contains the vSphere account details
-type CloudAccount struct {
-	// Insecure is a flag that controls whether to validate the vSphere server's certificate.
+// Account contains vSphere account details.
+type Account struct {
+	// Insecure controls whether to validate the vSphere server's certificate.
 	Insecure bool `json:"insecure" yaml:"insecure"`
 
-	// password
-	// Required: true
+	// Password is the vCenter password.
 	Password string `json:"password" yaml:"password"`
 
-	// username
-	// Required: true
+	// Username is the vCenter username.
 	Username string `json:"username" yaml:"username"`
 
-	// VcenterServer is the address of the vSphere endpoint
-	// Required: true
-	VcenterServer string `json:"vcenterServer" yaml:"vcenterServer"`
+	// Host is the vCenter URL.
+	Host string `json:"host" yaml:"host"`
 }
 
 // Session is a struct that contains the govmomi and rest clients
@@ -95,16 +92,16 @@ type Session struct {
 }
 
 // NewVSphereDriver creates a new instance of CloudDriver
-func NewVSphereDriver(vCenterServer, vCenterUsername, vCenterPassword, datacenter string, log logr.Logger) (*CloudDriver, error) {
-	session, err := GetOrCreateSession(context.TODO(), vCenterServer, vCenterUsername, vCenterPassword, true)
+func NewVSphereDriver(account Account, datacenter string, log logr.Logger) (*CloudDriver, error) {
+	session, err := GetOrCreateSession(context.TODO(), account.Host, account.Username, account.Password, true)
 	if err != nil {
 		return nil, err
 	}
 
 	return &CloudDriver{
-		VCenterServer:   vCenterServer,
-		VCenterUsername: vCenterUsername,
-		VCenterPassword: vCenterPassword,
+		VCenterServer:   account.Host,
+		VCenterUsername: account.Username,
+		VCenterPassword: account.Password,
 		Datacenter:      datacenter,
 		Client:          session.GovmomiClient,
 		RestClient:      session.RestClient,

@@ -43,34 +43,27 @@ spec:
                 description: VsphereAuth defines authentication configuration for
                   an VsphereValidator.
                 properties:
-                  cloudAccount:
-                    description: CloudAccount is the vSphere cloud account to use
-                      for authentication
+                  account:
+                    description: Account is the vSphere account to use for authentication
                     properties:
+                      host:
+                        description: Host is the vCenter URL.
+                        type: string
                       insecure:
-                        description: Insecure is a flag that controls whether to validate
-                          the vSphere server's certificate.
+                        description: Insecure controls whether to validate the vSphere
+                          server's certificate.
                         type: boolean
                       password:
-                        description: |-
-                          password
-                          Required: true
+                        description: Password is the vCenter password.
                         type: string
                       username:
-                        description: |-
-                          username
-                          Required: true
-                        type: string
-                      vcenterServer:
-                        description: |-
-                          VcenterServer is the address of the vSphere endpoint
-                          Required: true
+                        description: Username is the vCenter username.
                         type: string
                     required:
+                    - host
                     - insecure
                     - password
                     - username
-                    - vcenterServer
                     type: object
                   secretName:
                     description: SecretName is the name of the secret containing the

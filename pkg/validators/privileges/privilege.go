@@ -1,3 +1,4 @@
+// Package privileges handles reconciliation of PrivilegeValidationRules.
 package privileges
 
 import (
@@ -5,11 +6,14 @@ import (
 	"errors"
 	"fmt"
 
+	"github.com/go-logr/logr"
 	"github.com/vmware/govmomi/find"
+	"github.com/vmware/govmomi/object"
 	corev1 "k8s.io/api/core/v1"
 
 	"github.com/validator-labs/validator-plugin-vsphere/api/v1alpha1"
 	"github.com/validator-labs/validator-plugin-vsphere/pkg/constants"
+	"github.com/validator-labs/validator-plugin-vsphere/pkg/vsphere"
 	vapi "github.com/validator-labs/validator/api/v1alpha1"
 	vapiconstants "github.com/validator-labs/validator/pkg/constants"
 	"github.com/validator-labs/validator/pkg/types"
@@ -18,14 +22,24 @@ import (
 
 var errRequiredPrivilegesNotFound = errors.New("one or more required privileges was not found")
 
-func buildPrivilegeValidationResult(rule v1alpha1.PrivilegeValidationRule, validationType string) *types.ValidationRuleResult {
-	state := vapi.ValidationSucceeded
-	latestCondition := vapi.DefaultValidationCondition()
-	latestCondition.Message = fmt.Sprintf("All required %s permissions were found for account: %s", validationType, rule.Username)
-	latestCondition.ValidationRule = fmt.Sprintf("%s-%s-%s", vapiconstants.ValidationRulePrefix, rule.EntityType, rule.EntityName)
-	latestCondition.ValidationType = validationType
+// PrivilegeValidationService is a service that validates user privileges
+type PrivilegeValidationService struct {
+	log         logr.Logger
+	driver      *vsphere.CloudDriver
+	datacenter  string
+	authManager *object.AuthorizationManager
+	userName    string
+}
 
-	return &types.ValidationRuleResult{Condition: &latestCondition, State: &state}
+// NewPrivilegeValidationService creates a new PrivilegeValidationService
+func NewPrivilegeValidationService(log logr.Logger, driver *vsphere.CloudDriver, datacenter string, authManager *object.AuthorizationManager, userName string) *PrivilegeValidationService {
+	return &PrivilegeValidationService{
+		log:         log,
+		driver:      driver,
+		datacenter:  datacenter,
+		authManager: authManager,
+		userName:    userName,
+	}
 }
 
 // ReconcilePrivilegeRule reconciles a privilege rule
@@ -49,4 +63,14 @@ func (s *PrivilegeValidationService) ReconcilePrivilegeRule(rule v1alpha1.Privil
 	}
 
 	return vr, err
+}
+
+func buildPrivilegeValidationResult(rule v1alpha1.PrivilegeValidationRule, validationType string) *types.ValidationRuleResult {
+	state := vapi.ValidationSucceeded
+	latestCondition := vapi.DefaultValidationCondition()
+	latestCondition.Message = fmt.Sprintf("All required %s permissions were found for account: %s", validationType, rule.Username)
+	latestCondition.ValidationRule = fmt.Sprintf("%s-%s-%s", vapiconstants.ValidationRulePrefix, rule.EntityType, rule.EntityName)
+	latestCondition.ValidationType = validationType
+
+	return &types.ValidationRuleResult{Condition: &latestCondition, State: &state}
 }

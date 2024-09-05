@@ -96,22 +96,18 @@ func (r *VsphereValidatorReconciler) Reconcile(ctx context.Context, req ctrl.Req
 	vr.Spec.ExpectedResults = validator.Spec.ResultCount()
 
 	// Initialize Vsphere driver
-	if validator.Spec.Auth.SecretName == "" && validator.Spec.Auth.CloudAccount == nil {
+	if validator.Spec.Auth.SecretName == "" && validator.Spec.Auth.Account == nil {
 		l.Error(errCredentialsRequired, "failed to reconcile VsphereValidator with empty credentials")
 		return ctrl.Result{}, errCredentialsRequired
 	}
-	var vsphereAccount *vsphere.CloudAccount
 	if validator.Spec.Auth.SecretName != "" {
-		vsphereAccount, err = r.secretKeyAuth(req, validator)
-		if err != nil {
+		if err := r.secretKeyAuth(req, validator); err != nil {
 			return ctrl.Result{}, err
 		}
-	} else {
-		vsphereAccount = validator.Spec.Auth.CloudAccount
 	}
 
 	// Validate the rules
-	resp := validate.Validate(ctx, validator.Spec, vsphereAccount, r.Log)
+	resp := validate.Validate(ctx, validator.Spec, r.Log)
 
 	// Patch the ValidationResult with the latest ValidationRuleResults
 	if err := vres.SafeUpdate(ctx, p, vr, resp, r.Log); err != nil {
@@ -123,44 +119,44 @@ func (r *VsphereValidatorReconciler) Reconcile(ctx context.Context, req ctrl.Req
 	return ctrl.Result{RequeueAfter: 2 * time.Minute}, nil
 }
 
-func (r *VsphereValidatorReconciler) secretKeyAuth(req ctrl.Request, validator *v1alpha1.VsphereValidator) (*vsphere.CloudAccount, error) {
+func (r *VsphereValidatorReconciler) secretKeyAuth(req ctrl.Request, validator *v1alpha1.VsphereValidator) error {
 
 	authSecret := &corev1.Secret{}
 	nn := ktypes.NamespacedName{Name: validator.Spec.Auth.SecretName, Namespace: req.Namespace}
 
 	if err := r.Get(context.Background(), nn, authSecret); err != nil {
-		return nil, fmt.Errorf("failed to get secret %s: %w", validator.Spec.Auth.SecretName, err)
+		return fmt.Errorf("failed to get secret %s: %w", validator.Spec.Auth.SecretName, err)
 	}
 
 	username, ok := authSecret.Data["username"]
 	if !ok {
-		return nil, errors.New("auth secret missing username")
+		return errors.New("auth secret missing username")
 	}
 	password, ok := authSecret.Data["password"]
 	if !ok {
-		return nil, errors.New("auth secret missing password")
+		return errors.New("auth secret missing password")
 	}
 	vcenterServer, ok := authSecret.Data["vcenterServer"]
 	if !ok {
-		return nil, errors.New("auth secret missing vcenterServer")
+		return errors.New("auth secret missing vcenterServer")
 	}
 	insecureSkipVerify, ok := authSecret.Data["insecureSkipVerify"]
 	if !ok {
-		return nil, errors.New("auth secret missing insecureSkipVerify")
+		return errors.New("auth secret missing insecureSkipVerify")
 	}
 	skipVerify, err := strconv.ParseBool(string(insecureSkipVerify))
 	if err != nil {
-		return nil, fmt.Errorf("failed to convert insecureSkipVerify to bool: %w", err)
+		return fmt.Errorf("failed to convert insecureSkipVerify to bool: %w", err)
 	}
 
-	cloudAccount := &vsphere.CloudAccount{
-		Insecure:      skipVerify,
-		Password:      string(password),
-		Username:      string(username),
-		VcenterServer: string(vcenterServer),
+	validator.Spec.Auth.Account = &vsphere.Account{
+		Insecure: skipVerify,
+		Username: string(username),
+		Password: string(password),
+		Host:     string(vcenterServer),
 	}
 
-	return cloudAccount, nil
+	return nil
 }
 
 // SetupWithManager sets up the controller with the Manager.
