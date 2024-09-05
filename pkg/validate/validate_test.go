@@ -15,7 +15,7 @@ import (
 )
 
 func TestValidate(t *testing.T) {
-	vcSim := vcsim.NewVCSim("admin@vsphere.local", 8446, logr.Logger{})
+	vcSim := vcsim.NewVCSim("admin@vsphere.local", 8449, logr.Logger{})
 	vcSim.Start()
 	defer vcSim.Shutdown()
 
@@ -33,13 +33,13 @@ func TestValidate(t *testing.T) {
 				Datacenter: "DC0",
 				PrivilegeValidationRules: testRules([]privilegeRuleInput{
 					{
-						EntityType: "datacenter",
-						EntityName: "DC0",
+						EntityType: "cluster",
+						EntityName: "DC0_C0",
 						Privileges: []string{"Alarm.Acknowledge"},
 					},
 				}),
 			},
-			expected: `{"ValidationRuleResults":[{"Condition":{"validationType":"vsphere-privileges","validationRule":"validation-datacenter-DC0","message":"All required vsphere-privileges permissions were found for account: admin@vsphere.local","status":"True","lastValidationTime":null},"State":"Succeeded"}],"ValidationRuleErrors":[null]}`,
+			expected: `{"ValidationRuleResults":[{"Condition":{"validationType":"vsphere-privileges","validationRule":"validation-cluster-DC0_C0","message":"All required vsphere-privileges permissions were found for account: admin@vsphere.local","status":"True","lastValidationTime":null},"State":"Succeeded"}],"ValidationRuleErrors":[null]}`,
 		},
 		{
 			name: "Datacenter_Fail",
@@ -50,13 +50,13 @@ func TestValidate(t *testing.T) {
 				Datacenter: "DC0",
 				PrivilegeValidationRules: testRules([]privilegeRuleInput{
 					{
-						EntityType: "datacenter",
-						EntityName: "DC0",
+						EntityType: "cluster",
+						EntityName: "DC0_C0",
 						Privileges: []string{"Nonexistent"},
 					},
 				}),
 			},
-			expected: `{"ValidationRuleResults":[{"Condition":{"validationType":"vsphere-privileges","validationRule":"validation-datacenter-DC0","message":"One or more required privileges was not found, or a condition was not met for account: admin@vsphere.local","failures":["user: admin@vsphere.local does not have privilege: Nonexistent on entity type: datacenter with name: DC0"],"status":"False","lastValidationTime":null},"State":"Failed"}],"ValidationRuleErrors":[{}]}`,
+			expected: `{"ValidationRuleResults":[{"Condition":{"validationType":"vsphere-privileges","validationRule":"validation-cluster-DC0_C0","message":"One or more required privileges was not found, or a condition was not met for account: admin@vsphere.local","failures":["user: admin@vsphere.local does not have privilege: Nonexistent on entity type: cluster with name: DC0_C0"],"status":"False","lastValidationTime":null},"State":"Failed"}],"ValidationRuleErrors":[{}]}`,
 		},
 	}
 	for _, tc := range tests {
