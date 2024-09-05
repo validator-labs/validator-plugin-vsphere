@@ -131,12 +131,12 @@ type PrivilegeValidationRule struct {
 
 var _ validationrule.Interface = (*PrivilegeValidationRule)(nil)
 
-// Name returns the name of the EntityPrivilegeValidationRule.
+// Name returns the name of the PrivilegeValidationRule.
 func (r PrivilegeValidationRule) Name() string {
 	return r.RuleName
 }
 
-// SetName sets the name of the EntityPrivilegeValidationRule.
+// SetName sets the name of the PrivilegeValidationRule.
 func (r *PrivilegeValidationRule) SetName(name string) {
 	r.RuleName = name
 }
