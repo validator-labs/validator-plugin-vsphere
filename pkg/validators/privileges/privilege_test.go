@@ -17,7 +17,7 @@ import (
 	"github.com/validator-labs/validator/pkg/util"
 )
 
-func TestRolePrivilegeValidationService_ReconcileEntityPrivilegeRule(t *testing.T) {
+func TestPrivilegeValidationService_ReconcilePrivilegeRule(t *testing.T) {
 	var log logr.Logger
 
 	vcSim := vcsim.NewVCSim("admin2@vsphere.local", 8448, log)
@@ -43,12 +43,12 @@ func TestRolePrivilegeValidationService_ReconcileEntityPrivilegeRule(t *testing.
 	testCases := []struct {
 		name           string
 		expectedErr    error
-		rule           v1alpha1.EntityPrivilegeValidationRule
+		rule           v1alpha1.PrivilegeValidationRule
 		expectedResult types.ValidationRuleResult
 	}{
 		{
 			name: "All privileges available",
-			rule: v1alpha1.EntityPrivilegeValidationRule{
+			rule: v1alpha1.PrivilegeValidationRule{
 				RuleName:    "VirtualMachine.Config.AddExistingDisk",
 				Username:    userName,
 				ClusterName: "DC0_C0",
@@ -59,9 +59,9 @@ func TestRolePrivilegeValidationService_ReconcileEntityPrivilegeRule(t *testing.
 				},
 			},
 			expectedResult: types.ValidationRuleResult{Condition: &vapi.ValidationCondition{
-				ValidationType: "vsphere-entity-privileges",
+				ValidationType: "vsphere-privileges",
 				ValidationRule: "validation-cluster-DC0_C0",
-				Message:        fmt.Sprintf("All required vsphere-entity-privileges permissions were found for account: %s", userName),
+				Message:        fmt.Sprintf("All required vsphere-privileges permissions were found for account: %s", userName),
 				Details:        []string{},
 				Failures:       nil,
 				Status:         corev1.ConditionTrue,
@@ -71,7 +71,7 @@ func TestRolePrivilegeValidationService_ReconcileEntityPrivilegeRule(t *testing.
 		},
 		{
 			name: "Certain privilege not available",
-			rule: v1alpha1.EntityPrivilegeValidationRule{
+			rule: v1alpha1.PrivilegeValidationRule{
 				RuleName:    "VirtualMachine.Config.AddExistingDisk",
 				Username:    userName,
 				ClusterName: "DC0_C0",
@@ -82,7 +82,7 @@ func TestRolePrivilegeValidationService_ReconcileEntityPrivilegeRule(t *testing.
 				},
 			},
 			expectedResult: types.ValidationRuleResult{Condition: &vapi.ValidationCondition{
-				ValidationType: "vsphere-entity-privileges",
+				ValidationType: "vsphere-privileges",
 				ValidationRule: "validation-cluster-DC0_C0",
 				Message:        fmt.Sprintf("One or more required privileges was not found, or a condition was not met for account: %s", userName),
 				Details:        []string{},
@@ -91,12 +91,12 @@ func TestRolePrivilegeValidationService_ReconcileEntityPrivilegeRule(t *testing.
 			},
 				State: util.Ptr(vapi.ValidationFailed),
 			},
-			expectedErr: errRequiredEntityPrivilegesNotFound,
+			expectedErr: errRequiredPrivilegesNotFound,
 		},
 	}
 
 	for _, tc := range testCases {
-		vr, err := validationService.ReconcileEntityPrivilegeRule(tc.rule, finder)
+		vr, err := validationService.ReconcilePrivilegeRule(tc.rule, finder)
 		util.CheckTestCase(t, vr, tc.expectedResult, err, tc.expectedErr)
 	}
 }

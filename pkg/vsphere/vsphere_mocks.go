@@ -80,11 +80,6 @@ func (d MockVsphereDriver) GetResourceTags(_ context.Context, _ string) (map[str
 	return d.ResourceTags, nil
 }
 
-// IsAdminAccount returns a mocked response
-func (d MockVsphereDriver) IsAdminAccount(_ context.Context) (bool, error) {
-	return true, nil
-}
-
 func concat(ss ...string) string {
 	return strings.Join(ss, "_")
 }

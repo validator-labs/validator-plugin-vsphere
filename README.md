@@ -11,18 +11,36 @@ The vSphere [validator](https://github.com/validator-labs/validator) plugin ensu
 ## Description
 The vSphere validator plugin reconciles `VsphereValidator` custom resources to perform the following validations against your vSphere environment:
 
-1. Compare the privileges associated with a user against an expected privileges set
-2. Compare the privileges associated with a user against an expected privileges set on a particular entity(cluster, resourcepool, folder, vapp, host)
-3. Check if enough compute resources are available on a host, resourcepool or cluster against a resource request
-4. Compare the tags associated with a datacenter, cluster, host, vm, resourcepool or vm against an expected tag set
-5. Check if a given set of host systems have a valid NTP configuration
+1. Compare a user's privileges with respect to a particular entity against an expected privilege set.
+
+   Supported entities:
+   - Cluster, Datacenter, Datastore, Folder, ESXi Host, Network, Resource Pool, vApp, vCenter root, vSphere Distributed Switch (VDS)
+
+   Required Privileges:
+   - `System.View`
+   - TODO: identify and update any additional required privileges
+2. Check if sufficient compute resources are available on a particular entity to satify a resource request.
+
+   Supported entities:
+   - Cluster, ESXi Host, Resource Pool
+
+   Required Privileges:
+   - TODO: identify and update
+3. Compare the tags associated with a particular entity against an expected tag set.
+
+   Supported entities:
+   - Cluster, Datacenter, ESXi Host, Resource Pool, VM
+
+   Required Privileges:
+   - - TODO: identify and update
+4. Check if a given set of ESXi Hosts all have NTP enabled and running, with identical NTP servers configured.
+
+   Required Privileges:
+   - - TODO: identify and update
 
 Each `VsphereValidator` CR is (re)-processed every two minutes to continuously ensure that your vSphere environment matches the expected state.
 
 See the [samples](https://github.com/validator-labs/validator-plugin-vsphere/tree/main/config/samples) directory for example `VsphereValidator` configurations.
-
-> [!NOTE]
-> This plugin currently require a user with administrator role to perform all of the validations specified above. Further information on fine-grained permissions required by each validation will be updated in the future.
 
 ## Getting Started
 You’ll need a Kubernetes cluster to run against. You can use [KIND](https://sigs.k8s.io/kind) to get a local cluster for testing, or run against a remote cluster.

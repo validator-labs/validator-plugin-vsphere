@@ -24,7 +24,7 @@ import (
 )
 
 // Validate validates the VsphereValidatorSpec and returns a ValidationResponse.
-func Validate(ctx context.Context, spec v1alpha1.VsphereValidatorSpec, vsphereAccount *vsphere.CloudAccount, log logr.Logger) types.ValidationResponse {
+func Validate(ctx context.Context, spec v1alpha1.VsphereValidatorSpec, log logr.Logger) types.ValidationResponse {
 	resp := types.ValidationResponse{
 		ValidationRuleResults: make([]*types.ValidationRuleResult, 0, spec.ResultCount()),
 		ValidationRuleErrors:  make([]error, 0, spec.ResultCount()),
@@ -32,11 +32,13 @@ func Validate(ctx context.Context, spec v1alpha1.VsphereValidatorSpec, vsphereAc
 
 	vrr := buildValidationResult()
 
+	if spec.Auth.Account == nil {
+		resp.AddResult(vrr, errors.New("invalid spec; account must not be nil"))
+		return resp
+	}
+
 	// Create a new vSphere driver
-	driver, err := vsphere.NewVSphereDriver(
-		vsphereAccount.VcenterServer, vsphereAccount.Username,
-		vsphereAccount.Password, spec.Datacenter, log,
-	)
+	driver, err := vsphere.NewVSphereDriver(*spec.Auth.Account, spec.Datacenter, log)
 	if err != nil {
 		resp.AddResult(vrr, fmt.Errorf("failed to create vSphere driver: %w", err))
 		return resp
@@ -76,24 +78,14 @@ func Validate(ctx context.Context, spec v1alpha1.VsphereValidatorSpec, vsphereAc
 		log.Info("Validated NTP rules")
 	}
 
-	// Entity privilege validation rules
-	rolePrivilegeValidationService := privileges.NewPrivilegeValidationService(
+	// Privilege validation rules
+	privilegeValidationService := privileges.NewPrivilegeValidationService(
 		log, driver, spec.Datacenter, authManager, userName,
 	)
-	for _, rule := range spec.EntityPrivilegeValidationRules {
-		vrr, err := rolePrivilegeValidationService.ReconcileEntityPrivilegeRule(rule, finder)
+	for _, rule := range spec.PrivilegeValidationRules {
+		vrr, err := privilegeValidationService.ReconcilePrivilegeRule(rule, finder)
 		if err != nil {
-			log.Error(err, "failed to reconcile entity privilege rule")
-		}
-		resp.AddResult(vrr, err)
-		log.Info("Validated privileges for account", "user", rule.Username)
-	}
-
-	// Role privilege validation rules
-	for _, rule := range spec.RolePrivilegeValidationRules {
-		vrr, err := rolePrivilegeValidationService.ReconcileRolePrivilegesRule(rule, driver, authManager)
-		if err != nil {
-			log.Error(err, "failed to reconcile role privilege rule")
+			log.Error(err, "failed to reconcile privilege rule")
 		}
 		resp.AddResult(vrr, err)
 		log.Info("Validated privileges for account", "user", rule.Username)
@@ -121,8 +113,12 @@ func Validate(ctx context.Context, spec v1alpha1.VsphereValidatorSpec, vsphereAc
 		}
 		resp.AddResult(vrr, err)
 		log.Info("Validated compute resources", "scope", rule.Scope, "entity name", rule.EntityName)
-		key := computeresources.GetScopeKey(rule)
-		seenScope[key] = true
+		key, err := computeresources.GetScopeKey(rule)
+		if err != nil {
+			log.Error(err, "failed to get scope key for rule")
+		} else {
+			seenScope[key] = true
+		}
 	}
 
 	return resp

@@ -29,29 +29,29 @@ func init() {
 
 // VCSimulator is used to mock interactions with a vCenter server
 type VCSimulator struct {
-	cloudAccount *vsphere.CloudAccount
-	Driver       *vsphere.CloudDriver
-	log          logr.Logger
+	Account vsphere.Account
+	Driver  *vsphere.CloudDriver
+	log     logr.Logger
 }
 
 // NewVCSim creates a new VCSimulator
 func NewVCSim(username string, port int, log logr.Logger) *VCSimulator {
 	return &VCSimulator{
-		cloudAccount: NewTestVsphereAccount(username, port),
-		log:          log,
+		Account: NewTestVsphereAccount(username, port),
+		log:     log,
 	}
 }
 
 // NewTestVsphereAccount creates a new vsphere account for testing
-func NewTestVsphereAccount(username string, port int) *vsphere.CloudAccount {
+func NewTestVsphereAccount(username string, port int) vsphere.Account {
 	// Starting & stopping vcsim between test cases appears to work, but govmomi calls
 	// throw an auth error on the 2nd iteration unless a unique username is used
 	// each time the simulator is instantiated.
-	return &vsphere.CloudAccount{
-		Insecure:      true,
-		Password:      "welcome123",
-		Username:      username,
-		VcenterServer: fmt.Sprintf("127.0.0.1:%d", port),
+	return vsphere.Account{
+		Insecure: true,
+		Password: "welcome123",
+		Username: username,
+		Host:     fmt.Sprintf("127.0.0.1:%d", port),
 	}
 }
 
@@ -73,10 +73,7 @@ func (v *VCSimulator) Start() {
 		log.Fatalf("failed to create vCenter simulator: %s", err)
 	}
 
-	v.Driver, err = vsphere.NewVSphereDriver(
-		v.cloudAccount.VcenterServer, v.cloudAccount.Username,
-		v.cloudAccount.Password, "DC0", v.log,
-	)
+	v.Driver, err = vsphere.NewVSphereDriver(v.Account, "DC0", v.log)
 	if err != nil {
 		log.Fatalf("failed to create driver for vCenter simulator: %s", err)
 	}
@@ -97,11 +94,6 @@ func (v *VCSimulator) Start() {
 func (v *VCSimulator) Shutdown() {
 	log.Println("shutting down vcsim server")
 	sig <- syscall.SIGTERM
-}
-
-// GetTestVsphereAccount returns the test vsphere account
-func (v *VCSimulator) GetTestVsphereAccount() *vsphere.CloudAccount {
-	return v.cloudAccount
 }
 
 func (v *VCSimulator) createFolders() {
@@ -165,14 +157,14 @@ func (v *VCSimulator) createVCenterSimulator(model *simulator.Model) (func(), er
 		return func() {}, errors.Wrap(err, "Error while creating model")
 	}
 
-	host := v.cloudAccount.VcenterServer
+	host := v.Account.Host
 	if _, err = url.Parse(fmt.Sprintf("https://%s/sdk", host)); err != nil {
 		return nil, errors.Errorf("invalid vCenter server")
 	}
 
 	model.Service.RegisterEndpoints = true
 	model.Service.Listen = &url.URL{
-		User: url.UserPassword(v.cloudAccount.Username, v.cloudAccount.Password),
+		User: url.UserPassword(v.Account.Username, v.Account.Password),
 		Host: host,
 	}
 	model.Service.TLS = new(tls.Config)
@@ -186,9 +178,9 @@ func (v *VCSimulator) createVCenterSimulator(model *simulator.Model) (func(), er
 
 func (v *VCSimulator) getOpts() govcOptions {
 	return govcOptions{
-		VCenterServer:      v.cloudAccount.VcenterServer,
-		VCenterUsername:    v.cloudAccount.Username,
-		VCenterPassword:    v.cloudAccount.Password,
+		VCenterServer:      v.Account.Host,
+		VCenterUsername:    v.Account.Username,
+		VCenterPassword:    v.Account.Password,
 		InsecureConnection: strconv.FormatBool(true),
 		Datacenter:         "DC0",
 		Cluster:            "DC0_C0",

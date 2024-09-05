@@ -43,34 +43,27 @@ spec:
                 description: VsphereAuth defines authentication configuration for
                   an VsphereValidator.
                 properties:
-                  cloudAccount:
-                    description: CloudAccount is the vSphere cloud account to use
-                      for authentication
+                  account:
+                    description: Account is the vSphere account to use for authentication
                     properties:
+                      host:
+                        description: Host is the vCenter URL.
+                        type: string
                       insecure:
-                        description: Insecure is a flag that controls whether to validate
-                          the vSphere server's certificate.
+                        description: Insecure controls whether to validate the vSphere
+                          server's certificate.
                         type: boolean
                       password:
-                        description: |-
-                          password
-                          Required: true
+                        description: Password is the vCenter password.
                         type: string
                       username:
-                        description: |-
-                          username
-                          Required: true
-                        type: string
-                      vcenterServer:
-                        description: |-
-                          VcenterServer is the address of the vSphere endpoint
-                          Required: true
+                        description: Username is the vCenter username.
                         type: string
                     required:
+                    - host
                     - insecure
                     - password
                     - username
-                    - vcenterServer
                     type: object
                   secretName:
                     description: SecretName is the name of the secret containing the
@@ -129,6 +122,10 @@ spec:
                     scope:
                       description: Scope is the scope of the compute resource validation
                         rule
+                      enum:
+                      - cluster
+                      - host
+                      - resourcepool
                       type: string
                   required:
                   - entityName
@@ -139,42 +136,6 @@ spec:
                 type: array
               datacenter:
                 type: string
-              entityPrivilegeValidationRules:
-                items:
-                  description: EntityPrivilegeValidationRule defines the entity privilege
-                    validation rule
-                  properties:
-                    clusterName:
-                      description: ClusterName is required when the vCenter Entity
-                        resides beneath a Cluster in the vCenter object hierarchy
-                      type: string
-                    entityName:
-                      description: EntityName is the name of the entity to validate
-                      type: string
-                    entityType:
-                      description: EntityType is the type of the entity to validate
-                      type: string
-                    name:
-                      description: RuleName is the name of the entity privilege validation
-                        rule
-                      type: string
-                    privileges:
-                      description: Privileges is the list of privileges to validate
-                        that the user has
-                      items:
-                        type: string
-                      type: array
-                    username:
-                      description: Username is the username to validate against
-                      type: string
-                  required:
-                  - entityName
-                  - entityType
-                  - name
-                  - privileges
-                  - username
-                  type: object
-                type: array
               ntpValidationRules:
                 items:
                   description: NTPValidationRule defines the NTP validation rule
@@ -197,11 +158,37 @@ spec:
                   - name
                   type: object
                 type: array
-              rolePrivilegeValidationRules:
+              privilegeValidationRules:
                 items:
-                  description: GenericRolePrivilegeValidationRule defines the generic
-                    role privilege validation rule
+                  description: PrivilegeValidationRule defines the privilege validation
+                    rule
                   properties:
+                    clusterName:
+                      description: ClusterName is required when the vCenter Entity
+                        resides beneath a Cluster in the vCenter object hierarchy
+                      type: string
+                    entityName:
+                      description: EntityName is the name of the entity to validate
+                      type: string
+                    entityType:
+                      description: EntityType is the type of the entity to validate
+                      enum:
+                      - cluster
+                      - datacenter
+                      - datastore
+                      - folder
+                      - host
+                      - network
+                      - resourcepool
+                      - vapp
+                      - vcenterroot
+                      - vds
+                      - vm
+                      type: string
+                    name:
+                      description: RuleName is the name of the entity privilege validation
+                        rule
+                      type: string
                     privileges:
                       description: Privileges is the list of privileges to validate
                         that the user has
@@ -212,6 +199,9 @@ spec:
                       description: Username is the username to validate against
                       type: string
                   required:
+                  - entityName
+                  - entityType
+                  - name
                   - privileges
                   - username
                   type: object
@@ -229,6 +219,13 @@ spec:
                       type: string
                     entityType:
                       description: EntityType is the type of the entity to validate
+                      enum:
+                      - cluster
+                      - datacenter
+                      - folder
+                      - host
+                      - resourcepool
+                      - vm
                       type: string
                     name:
                       description: RuleName is the name of the tag validation rule
