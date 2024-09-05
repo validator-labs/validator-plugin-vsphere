@@ -14,13 +14,12 @@ import (
 
 // VsphereValidatorSpec defines the desired state of VsphereValidator
 type VsphereValidatorSpec struct {
-	Auth                           VsphereAuth                          `json:"auth" yaml:"auth"`
-	Datacenter                     string                               `json:"datacenter" yaml:"datacenter"`
-	EntityPrivilegeValidationRules []EntityPrivilegeValidationRule      `json:"entityPrivilegeValidationRules,omitempty" yaml:"entityPrivilegeValidationRules,omitempty"`
-	RolePrivilegeValidationRules   []GenericRolePrivilegeValidationRule `json:"rolePrivilegeValidationRules,omitempty" yaml:"rolePrivilegeValidationRules,omitempty"`
-	TagValidationRules             []TagValidationRule                  `json:"tagValidationRules,omitempty" yaml:"tagValidationRules,omitempty"`
-	ComputeResourceRules           []ComputeResourceRule                `json:"computeResourceRules,omitempty" yaml:"computeResourceRules,omitempty"`
-	NTPValidationRules             []NTPValidationRule                  `json:"ntpValidationRules,omitempty" yaml:"ntpValidationRules,omitempty"`
+	Auth                     VsphereAuth               `json:"auth" yaml:"auth"`
+	Datacenter               string                    `json:"datacenter" yaml:"datacenter"`
+	PrivilegeValidationRules []PrivilegeValidationRule `json:"privilegeValidationRules,omitempty" yaml:"privilegeValidationRules,omitempty"`
+	TagValidationRules       []TagValidationRule       `json:"tagValidationRules,omitempty" yaml:"tagValidationRules,omitempty"`
+	ComputeResourceRules     []ComputeResourceRule     `json:"computeResourceRules,omitempty" yaml:"computeResourceRules,omitempty"`
+	NTPValidationRules       []NTPValidationRule       `json:"ntpValidationRules,omitempty" yaml:"ntpValidationRules,omitempty"`
 }
 
 var _ plugins.PluginSpec = (*VsphereValidatorSpec)(nil)
@@ -32,7 +31,7 @@ func (s VsphereValidatorSpec) PluginCode() string {
 
 // ResultCount returns the number of validation results expected for an VsphereValidatorSpec.
 func (s VsphereValidatorSpec) ResultCount() int {
-	return len(s.RolePrivilegeValidationRules) + len(s.EntityPrivilegeValidationRules) + len(s.ComputeResourceRules) +
+	return len(s.PrivilegeValidationRules) + len(s.ComputeResourceRules) +
 		len(s.TagValidationRules) + len(s.NTPValidationRules)
 }
 
@@ -96,51 +95,41 @@ func (r *ComputeResourceRule) SetName(name string) {
 	r.RuleName = name
 }
 
-// EntityPrivilegeValidationRule defines the entity privilege validation rule
-type EntityPrivilegeValidationRule struct {
+// PrivilegeValidationRule defines the privilege validation rule
+type PrivilegeValidationRule struct {
 	validationrule.ManuallyNamed `json:",inline" yaml:",omitempty"`
 
 	// RuleName is the name of the entity privilege validation rule
 	RuleName string `json:"name" yaml:"name"`
+
 	// Username is the username to validate against
 	Username string `json:"username" yaml:"username"`
+
 	// ClusterName is required when the vCenter Entity resides beneath a Cluster in the vCenter object hierarchy
 	ClusterName string `json:"clusterName,omitempty" yaml:"clusterName"`
+
 	// EntityType is the type of the entity to validate
 	EntityType string `json:"entityType" yaml:"entityType"`
+
 	// EntityName is the name of the entity to validate
 	EntityName string `json:"entityName" yaml:"entityName"`
+
 	// Privileges is the list of privileges to validate that the user has
 	Privileges []string `json:"privileges" yaml:"privileges"`
+
+	// TODO: consider propagation somehow
 }
 
-var _ validationrule.Interface = (*EntityPrivilegeValidationRule)(nil)
+var _ validationrule.Interface = (*PrivilegeValidationRule)(nil)
 
 // Name returns the name of the EntityPrivilegeValidationRule.
-func (r EntityPrivilegeValidationRule) Name() string {
+func (r PrivilegeValidationRule) Name() string {
 	return r.RuleName
 }
 
 // SetName sets the name of the EntityPrivilegeValidationRule.
-func (r *EntityPrivilegeValidationRule) SetName(name string) {
+func (r *PrivilegeValidationRule) SetName(name string) {
 	r.RuleName = name
-}
-
-// GenericRolePrivilegeValidationRule defines the generic role privilege validation rule
-type GenericRolePrivilegeValidationRule struct {
-	validationrule.AutomaticallyNamed `json:",inline" yaml:",omitempty"`
-
-	// Username is the username to validate against
-	Username string `json:"username" yaml:"username"`
-	// Privileges is the list of privileges to validate that the user has
-	Privileges []string `json:"privileges" yaml:"privileges"`
-}
-
-var _ validationrule.Interface = (*GenericRolePrivilegeValidationRule)(nil)
-
-// Name returns the name of the GenericRolePrivilegeValidationRule.
-func (r GenericRolePrivilegeValidationRule) Name() string {
-	return r.Username
 }
 
 // TagValidationRule defines the tag validation rule

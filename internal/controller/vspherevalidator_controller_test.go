@@ -41,11 +41,10 @@ var _ = Describe("VsphereValidator controller", Ordered, func() {
 			Auth: v1alpha1.VsphereAuth{
 				SecretName: "validator-secret",
 			},
-			Datacenter:                     "DC0",
-			EntityPrivilegeValidationRules: []v1alpha1.EntityPrivilegeValidationRule{},
-			RolePrivilegeValidationRules:   []v1alpha1.GenericRolePrivilegeValidationRule{},
-			ComputeResourceRules:           []v1alpha1.ComputeResourceRule{},
-			NTPValidationRules:             []v1alpha1.NTPValidationRule{},
+			Datacenter:               "DC0",
+			PrivilegeValidationRules: []v1alpha1.PrivilegeValidationRule{},
+			ComputeResourceRules:     []v1alpha1.ComputeResourceRule{},
+			NTPValidationRules:       []v1alpha1.NTPValidationRule{},
 			TagValidationRules: []v1alpha1.TagValidationRule{
 				{
 					RuleName:   "Datacenter k8s-region rule",

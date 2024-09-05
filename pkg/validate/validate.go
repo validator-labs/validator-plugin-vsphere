@@ -76,24 +76,14 @@ func Validate(ctx context.Context, spec v1alpha1.VsphereValidatorSpec, vsphereAc
 		log.Info("Validated NTP rules")
 	}
 
-	// Entity privilege validation rules
-	rolePrivilegeValidationService := privileges.NewPrivilegeValidationService(
+	// Privilege validation rules
+	privilegeValidationService := privileges.NewPrivilegeValidationService(
 		log, driver, spec.Datacenter, authManager, userName,
 	)
-	for _, rule := range spec.EntityPrivilegeValidationRules {
-		vrr, err := rolePrivilegeValidationService.ReconcileEntityPrivilegeRule(rule, finder)
+	for _, rule := range spec.PrivilegeValidationRules {
+		vrr, err := privilegeValidationService.ReconcilePrivilegeRule(rule, finder)
 		if err != nil {
-			log.Error(err, "failed to reconcile entity privilege rule")
-		}
-		resp.AddResult(vrr, err)
-		log.Info("Validated privileges for account", "user", rule.Username)
-	}
-
-	// Role privilege validation rules
-	for _, rule := range spec.RolePrivilegeValidationRules {
-		vrr, err := rolePrivilegeValidationService.ReconcileRolePrivilegesRule(rule, driver, authManager)
-		if err != nil {
-			log.Error(err, "failed to reconcile role privilege rule")
+			log.Error(err, "failed to reconcile privilege rule")
 		}
 		resp.AddResult(vrr, err)
 		log.Info("Validated privileges for account", "user", rule.Username)

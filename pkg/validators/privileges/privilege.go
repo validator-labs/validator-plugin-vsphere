@@ -16,9 +16,9 @@ import (
 	"github.com/validator-labs/validator/pkg/util"
 )
 
-var errRequiredEntityPrivilegesNotFound = errors.New("one or more required entity privileges was not found")
+var errRequiredPrivilegesNotFound = errors.New("one or more required privileges was not found")
 
-func buildEntityPrivilegeValidationResult(rule v1alpha1.EntityPrivilegeValidationRule, validationType string) *types.ValidationRuleResult {
+func buildPrivilegeValidationResult(rule v1alpha1.PrivilegeValidationRule, validationType string) *types.ValidationRuleResult {
 	state := vapi.ValidationSucceeded
 	latestCondition := vapi.DefaultValidationCondition()
 	latestCondition.Message = fmt.Sprintf("All required %s permissions were found for account: %s", validationType, rule.Username)
@@ -28,10 +28,10 @@ func buildEntityPrivilegeValidationResult(rule v1alpha1.EntityPrivilegeValidatio
 	return &types.ValidationRuleResult{Condition: &latestCondition, State: &state}
 }
 
-// ReconcileEntityPrivilegeRule  reconciles the entity privilege rule
-func (s *PrivilegeValidationService) ReconcileEntityPrivilegeRule(rule v1alpha1.EntityPrivilegeValidationRule, finder *find.Finder) (*types.ValidationRuleResult, error) {
+// ReconcilePrivilegeRule reconciles a privilege rule
+func (s *PrivilegeValidationService) ReconcilePrivilegeRule(rule v1alpha1.PrivilegeValidationRule, finder *find.Finder) (*types.ValidationRuleResult, error) {
 	var err error
-	vr := buildEntityPrivilegeValidationResult(rule, constants.ValidationTypeEntityPrivileges)
+	vr := buildPrivilegeValidationResult(rule, constants.ValidationTypePrivileges)
 
 	ctx, cancel := context.WithCancel(context.Background())
 	defer cancel()
@@ -45,7 +45,7 @@ func (s *PrivilegeValidationService) ReconcileEntityPrivilegeRule(rule v1alpha1.
 		vr.State = util.Ptr(vapi.ValidationFailed)
 		vr.Condition.Message = fmt.Sprintf("One or more required privileges was not found, or a condition was not met for account: %s", rule.Username)
 		vr.Condition.Status = corev1.ConditionFalse
-		err = errRequiredEntityPrivilegesNotFound
+		err = errRequiredPrivilegesNotFound
 	}
 
 	return vr, err

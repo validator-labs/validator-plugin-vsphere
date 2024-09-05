@@ -5,11 +5,8 @@ const (
 	// PluginCode is the code of the plugin
 	PluginCode string = "vSphere"
 
-	// ValidationTypeRolePrivileges is the validation type for role privileges
-	ValidationTypeRolePrivileges string = "vsphere-role-privileges"
-
-	// ValidationTypeEntityPrivileges is the validation type for entity privileges
-	ValidationTypeEntityPrivileges string = "vsphere-entity-privileges"
+	// ValidationTypePrivileges is the validation type for privileges
+	ValidationTypePrivileges string = "vsphere-privileges"
 
 	// ValidationTypeTag is the validation type for tags
 	ValidationTypeTag string = "vsphere-tags"

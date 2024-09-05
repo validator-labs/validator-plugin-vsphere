@@ -139,10 +139,32 @@ spec:
                 type: array
               datacenter:
                 type: string
-              entityPrivilegeValidationRules:
+              ntpValidationRules:
                 items:
-                  description: EntityPrivilegeValidationRule defines the entity privilege
-                    validation rule
+                  description: NTPValidationRule defines the NTP validation rule
+                  properties:
+                    clusterName:
+                      description: ClusterName is required when the vCenter Host(s)
+                        reside beneath a Cluster in the vCenter object hierarchy
+                      type: string
+                    hosts:
+                      description: Hosts is the list of vCenter Hosts to validate
+                        NTP configuration
+                      items:
+                        type: string
+                      type: array
+                    name:
+                      description: RuleName is the name of the NTP validation rule
+                      type: string
+                  required:
+                  - hosts
+                  - name
+                  type: object
+                type: array
+              privilegeValidationRules:
+                items:
+                  description: PrivilegeValidationRule defines the privilege validation
+                    rule
                   properties:
                     clusterName:
                       description: ClusterName is required when the vCenter Entity
@@ -171,47 +193,6 @@ spec:
                   - entityName
                   - entityType
                   - name
-                  - privileges
-                  - username
-                  type: object
-                type: array
-              ntpValidationRules:
-                items:
-                  description: NTPValidationRule defines the NTP validation rule
-                  properties:
-                    clusterName:
-                      description: ClusterName is required when the vCenter Host(s)
-                        reside beneath a Cluster in the vCenter object hierarchy
-                      type: string
-                    hosts:
-                      description: Hosts is the list of vCenter Hosts to validate
-                        NTP configuration
-                      items:
-                        type: string
-                      type: array
-                    name:
-                      description: RuleName is the name of the NTP validation rule
-                      type: string
-                  required:
-                  - hosts
-                  - name
-                  type: object
-                type: array
-              rolePrivilegeValidationRules:
-                items:
-                  description: GenericRolePrivilegeValidationRule defines the generic
-                    role privilege validation rule
-                  properties:
-                    privileges:
-                      description: Privileges is the list of privileges to validate
-                        that the user has
-                      items:
-                        type: string
-                      type: array
-                    username:
-                      description: Username is the username to validate against
-                      type: string
-                  required:
                   - privileges
                   - username
                   type: object
