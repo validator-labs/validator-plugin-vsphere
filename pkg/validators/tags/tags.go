@@ -100,6 +100,8 @@ func tagIsValid(tagsManager *tags.Manager, finder *find.Finder, datacenterName, 
 		}
 	case "vm":
 		inventoryPath = entityName
+	default:
+		return false, fmt.Errorf("unsupported entity type: %s", entityType)
 	}
 
 	// check if object has tag

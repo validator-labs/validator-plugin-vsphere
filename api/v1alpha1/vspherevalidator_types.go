@@ -81,6 +81,7 @@ type ComputeResourceRule struct {
 	ClusterName string `json:"clusterName,omitempty" yaml:"clusterName"`
 
 	// Scope is the scope of the compute resource validation rule
+	// +kubebuilder:validation:Enum=cluster;host;resourcepool
 	Scope string `json:"scope" yaml:"scope"`
 
 	// EntityName is the name of the entity to validate

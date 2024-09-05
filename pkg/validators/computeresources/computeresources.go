@@ -108,7 +108,10 @@ func (c *ValidationService) ReconcileComputeResourceValidationRule(rule v1alpha1
 
 	vr := buildValidationResult(rule, constants.ValidationTypeComputeResources)
 
-	key := GetScopeKey(rule)
+	key, err := GetScopeKey(rule)
+	if err != nil {
+		return vr, err
+	}
 	if seenScopes[key] {
 		vr.State = util.Ptr(vapi.ValidationFailed)
 		vr.Condition.Message = "Rule for scope already processed"
@@ -121,7 +124,6 @@ func (c *ValidationService) ReconcileComputeResourceValidationRule(rule v1alpha1
 	defer cancel()
 
 	var res *Usage
-	var err error
 	switch rule.Scope {
 	case "cluster":
 		res, err = clusterUsage(ctx, rule, finder)
@@ -129,6 +131,8 @@ func (c *ValidationService) ReconcileComputeResourceValidationRule(rule v1alpha1
 		res, err = resourcePoolUsage(ctx, rule, finder, driver)
 	case "host":
 		res, err = hostUsage(ctx, rule, finder)
+	default:
+		err = fmt.Errorf("unsupported scope: %s", rule.Scope)
 	}
 	if err != nil {
 		return vr, err
@@ -360,14 +364,15 @@ func getTotalQuantity(quantity string, numberOfNodes int) resource.Quantity {
 }
 
 // GetScopeKey returns a formatted key depending on the scope of a rule
-func GetScopeKey(rule v1alpha1.ComputeResourceRule) string {
+func GetScopeKey(rule v1alpha1.ComputeResourceRule) (string, error) {
 	switch rule.Scope {
 	case "cluster":
-		return fmt.Sprintf("%s-%s", rule.Scope, rule.EntityName)
+		return fmt.Sprintf("%s-%s", rule.Scope, rule.EntityName), nil
 	case "host":
-		return fmt.Sprintf("%s-%s", rule.Scope, rule.EntityName)
+		return fmt.Sprintf("%s-%s", rule.Scope, rule.EntityName), nil
 	case "resourcepool":
-		return fmt.Sprintf("%s-%s", rule.Scope, rule.ClusterName)
+		return fmt.Sprintf("%s-%s", rule.Scope, rule.ClusterName), nil
+	default:
+		return "", fmt.Errorf("unsupported scope: %s", rule.Scope)
 	}
-	return ""
 }

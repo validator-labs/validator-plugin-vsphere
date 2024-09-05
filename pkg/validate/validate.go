@@ -113,8 +113,12 @@ func Validate(ctx context.Context, spec v1alpha1.VsphereValidatorSpec, log logr.
 		}
 		resp.AddResult(vrr, err)
 		log.Info("Validated compute resources", "scope", rule.Scope, "entity name", rule.EntityName)
-		key := computeresources.GetScopeKey(rule)
-		seenScope[key] = true
+		key, err := computeresources.GetScopeKey(rule)
+		if err != nil {
+			log.Error(err, "failed to get scope key for rule")
+		} else {
+			seenScope[key] = true
+		}
 	}
 
 	return resp

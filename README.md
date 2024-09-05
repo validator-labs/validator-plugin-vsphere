@@ -17,7 +17,8 @@ The vSphere validator plugin reconciles `VsphereValidator` custom resources to p
    - Cluster, Datacenter, Datastore, Folder, ESXi Host, Network, Resource Pool, vApp, vCenter root, vSphere Distributed Switch (VDS)
 
    Required Privileges:
-   - `System.View`, `???`
+   - `System.View`
+   - TODO: identify and update any additional required privileges
 2. Check if sufficient compute resources are available on a particular entity to satify a resource request.
 
    Supported entities:

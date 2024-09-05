@@ -70,6 +70,8 @@ func (v *CloudDriver) ValidateUserPrivilegeOnEntities(ctx context.Context, authM
 			return false, failures, err
 		}
 		moID = cluster.Reference()
+	default:
+		return false, failures, fmt.Errorf("unsupported entity type: %s", entityType)
 	}
 
 	userPrincipal := getUserPrincipalFromUsername(userName)

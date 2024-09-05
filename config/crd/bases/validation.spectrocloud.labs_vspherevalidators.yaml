@@ -122,6 +122,10 @@ spec:
                     scope:
                       description: Scope is the scope of the compute resource validation
                         rule
+                      enum:
+                      - cluster
+                      - host
+                      - resourcepool
                       type: string
                   required:
                   - entityName
