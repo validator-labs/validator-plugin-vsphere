@@ -39,6 +39,7 @@ func (s VsphereValidatorSpec) ResultCount() int {
 type VsphereAuth struct {
 	// SecretName is the name of the secret containing the vSphere credentials
 	SecretName string `json:"secretName,omitempty" yaml:"secretName,omitempty"`
+
 	// CloudAccount is the vSphere cloud account to use for authentication
 	CloudAccount *vsphere.CloudAccount `json:"cloudAccount,omitempty" yaml:"cloudAccount,omitempty"`
 }
@@ -49,8 +50,10 @@ type NTPValidationRule struct {
 
 	// RuleName is the name of the NTP validation rule
 	RuleName string `json:"name" yaml:"name"`
+
 	// ClusterName is required when the vCenter Host(s) reside beneath a Cluster in the vCenter object hierarchy
 	ClusterName string `json:"clusterName,omitempty" yaml:"clusterName,omitempty"`
+
 	// Hosts is the list of vCenter Hosts to validate NTP configuration
 	Hosts []string `json:"hosts" yaml:"hosts"`
 }
@@ -73,12 +76,16 @@ type ComputeResourceRule struct {
 
 	// RuleName is the name of the compute resource validation rule
 	RuleName string `json:"name" yaml:"name"`
+
 	// ClusterName is required when the vCenter Entity resides beneath a Cluster in the vCenter object hierarchy
 	ClusterName string `json:"clusterName,omitempty" yaml:"clusterName"`
+
 	// Scope is the scope of the compute resource validation rule
 	Scope string `json:"scope" yaml:"scope"`
+
 	// EntityName is the name of the entity to validate
 	EntityName string `json:"entityName" yaml:"entityName"`
+
 	// NodepoolResourceRequirements is the list of nodepool resource requirements
 	NodepoolResourceRequirements []NodepoolResourceRequirement `json:"nodepoolResourceRequirements" yaml:"nodepoolResourceRequirements"`
 }
@@ -109,6 +116,7 @@ type PrivilegeValidationRule struct {
 	ClusterName string `json:"clusterName,omitempty" yaml:"clusterName"`
 
 	// EntityType is the type of the entity to validate
+	// +kubebuilder:validation:Enum=cluster;datacenter;datastore;folder;host;network;resourcepool;vapp;vcenterroot;vds;vm
 	EntityType string `json:"entityType" yaml:"entityType"`
 
 	// EntityName is the name of the entity to validate
@@ -138,12 +146,17 @@ type TagValidationRule struct {
 
 	// RuleName is the name of the tag validation rule
 	RuleName string `json:"name" yaml:"name"`
+
 	// ClusterName is required when the vCenter Entity resides beneath a Cluster in the vCenter object hierarchy
 	ClusterName string `json:"clusterName,omitempty" yaml:"clusterName"`
+
 	// EntityType is the type of the entity to validate
+	// +kubebuilder:validation:Enum=cluster;datacenter;folder;host;resourcepool;vm
 	EntityType string `json:"entityType" yaml:"entityType"`
+
 	// EntityName is the name of the entity to validate
 	EntityName string `json:"entityName" yaml:"entityName"`
+
 	// Tag is the tag to validate on the entity
 	Tag string `json:"tag" yaml:"tag"`
 }
@@ -164,12 +177,16 @@ func (r *TagValidationRule) SetName(name string) {
 type NodepoolResourceRequirement struct {
 	// Name is the name of the nodepool
 	Name string `json:"name" yaml:"name"`
+
 	// NumberOfNodes is the number of nodes in the nodepool
 	NumberOfNodes int `json:"numberOfNodes" yaml:"numberOfNodes"`
+
 	// CPU is the CPU requirement for the nodepool
 	CPU string `json:"cpu" yaml:"cpu"`
+
 	// Memory is the memory requirement for the nodepool
 	Memory string `json:"memory" yaml:"memory"`
+
 	// DiskSpace is the disk space requirement for the nodepool
 	DiskSpace string `json:"diskSpace" yaml:"diskSpace"`
 }

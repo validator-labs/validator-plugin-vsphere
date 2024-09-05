@@ -11,11 +11,13 @@ The vSphere [validator](https://github.com/validator-labs/validator) plugin ensu
 ## Description
 The vSphere validator plugin reconciles `VsphereValidator` custom resources to perform the following validations against your vSphere environment:
 
-1. Compare the privileges associated with a user against an expected privileges set
-2. Compare the privileges associated with a user against an expected privileges set on a particular entity(cluster, resourcepool, folder, vapp, host)
-3. Check if enough compute resources are available on a host, resourcepool or cluster against a resource request
-4. Compare the tags associated with a datacenter, cluster, host, vm, resourcepool or vm against an expected tag set
-5. Check if a given set of host systems have a valid NTP configuration
+1. Compare the privileges associated with a user against an expected privilege set on a particular entity.
+
+   Supported entities:
+   - Cluster, Datacenter, Datastore, Folder, ESXi Host, Network, Resource Pool, vApp, vCenter root, vSphere Distributed Switch (VDS)
+2. Check if enough compute resources are available on a host, resourcepool or cluster against a resource request
+3. Compare the tags associated with a datacenter, cluster, host, vm, resourcepool or vm against an expected tag set
+4. Check if a given set of host systems have a valid NTP configuration
 
 Each `VsphereValidator` CR is (re)-processed every two minutes to continuously ensure that your vSphere environment matches the expected state.
 

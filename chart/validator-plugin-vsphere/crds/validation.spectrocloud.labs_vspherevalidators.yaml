@@ -175,6 +175,18 @@ spec:
                       type: string
                     entityType:
                       description: EntityType is the type of the entity to validate
+                      enum:
+                      - cluster
+                      - datacenter
+                      - datastore
+                      - folder
+                      - host
+                      - network
+                      - resourcepool
+                      - vapp
+                      - vcenterroot
+                      - vds
+                      - vm
                       type: string
                     name:
                       description: RuleName is the name of the entity privilege validation
@@ -210,6 +222,13 @@ spec:
                       type: string
                     entityType:
                       description: EntityType is the type of the entity to validate
+                      enum:
+                      - cluster
+                      - datacenter
+                      - folder
+                      - host
+                      - resourcepool
+                      - vm
                       type: string
                     name:
                       description: RuleName is the name of the tag validation rule
