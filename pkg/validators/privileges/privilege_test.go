@@ -64,7 +64,7 @@ func TestPrivilegeValidationService_ReconcilePrivilegeRule(t *testing.T) {
 				ValidationRule: "validation-cluster-DC0_C0",
 				Message:        fmt.Sprintf("All required vsphere-privileges permissions were found for account: %s", username),
 				Details:        []string{},
-				Failures:       nil,
+				Failures:       []string{},
 				Status:         corev1.ConditionTrue,
 			},
 				State: util.Ptr(vapi.ValidationSucceeded),
