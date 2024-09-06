@@ -24,6 +24,8 @@ import (
 	"github.com/vmware/govmomi/vim25/methods"
 	"github.com/vmware/govmomi/vim25/mo"
 	"github.com/vmware/govmomi/vim25/soap"
+
+	"github.com/validator-labs/validator-plugin-vsphere/api/vcenter"
 )
 
 const (
@@ -70,21 +72,6 @@ type CloudDriver struct {
 	log             logr.Logger
 }
 
-// Account contains vSphere account details.
-type Account struct {
-	// Insecure controls whether to validate the vSphere server's certificate.
-	Insecure bool `json:"insecure" yaml:"insecure"`
-
-	// Password is the vCenter password.
-	Password string `json:"password" yaml:"password"`
-
-	// Username is the vCenter username.
-	Username string `json:"username" yaml:"username"`
-
-	// Host is the vCenter URL.
-	Host string `json:"host" yaml:"host"`
-}
-
 // Session is a struct that contains the govmomi and rest clients
 type Session struct {
 	GovmomiClient *govmomi.Client
@@ -92,7 +79,7 @@ type Session struct {
 }
 
 // NewVSphereDriver creates a new instance of CloudDriver
-func NewVSphereDriver(account Account, datacenter string, log logr.Logger) (*CloudDriver, error) {
+func NewVSphereDriver(account vcenter.Account, datacenter string, log logr.Logger) (*CloudDriver, error) {
 	session, err := GetOrCreateSession(context.TODO(), account.Host, account.Username, account.Password, true)
 	if err != nil {
 		return nil, err

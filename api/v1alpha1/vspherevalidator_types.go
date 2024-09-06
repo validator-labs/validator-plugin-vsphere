@@ -8,8 +8,8 @@ import (
 	"github.com/validator-labs/validator/pkg/plugins"
 	"github.com/validator-labs/validator/pkg/validationrule"
 
+	"github.com/validator-labs/validator-plugin-vsphere/api/vcenter"
 	"github.com/validator-labs/validator-plugin-vsphere/pkg/constants"
-	"github.com/validator-labs/validator-plugin-vsphere/pkg/vsphere"
 )
 
 // VsphereValidatorSpec defines the desired state of VsphereValidator
@@ -40,8 +40,8 @@ type VsphereAuth struct {
 	// SecretName is the name of the secret containing the vSphere credentials
 	SecretName string `json:"secretName,omitempty" yaml:"secretName,omitempty"`
 
-	// Account is the vSphere account to use for authentication
-	Account *vsphere.Account `json:"account,omitempty" yaml:"account,omitempty"`
+	// Account is the vCenter account to use for authentication
+	Account *vcenter.Account `json:"account,omitempty" yaml:"account,omitempty"`
 }
 
 // NTPValidationRule defines the NTP validation rule
@@ -81,8 +81,7 @@ type ComputeResourceRule struct {
 	ClusterName string `json:"clusterName,omitempty" yaml:"clusterName"`
 
 	// Scope is the scope of the compute resource validation rule
-	// +kubebuilder:validation:Enum=cluster;host;resourcepool
-	Scope string `json:"scope" yaml:"scope"`
+	Scope vcenter.Entity `json:"scope" yaml:"scope"`
 
 	// EntityName is the name of the entity to validate
 	EntityName string `json:"entityName" yaml:"entityName"`
@@ -117,8 +116,7 @@ type PrivilegeValidationRule struct {
 	ClusterName string `json:"clusterName,omitempty" yaml:"clusterName,omitempty"`
 
 	// EntityType is the type of the entity to validate
-	// +kubebuilder:validation:Enum=cluster;datacenter;datastore;folder;host;network;resourcepool;vapp;vcenterroot;vds;vm
-	EntityType string `json:"entityType" yaml:"entityType"`
+	EntityType vcenter.Entity `json:"entityType" yaml:"entityType"`
 
 	// EntityName is the name of the entity to validate
 	EntityName string `json:"entityName" yaml:"entityName"`
@@ -152,8 +150,7 @@ type TagValidationRule struct {
 	ClusterName string `json:"clusterName,omitempty" yaml:"clusterName"`
 
 	// EntityType is the type of the entity to validate
-	// +kubebuilder:validation:Enum=cluster;datacenter;folder;host;resourcepool;vm
-	EntityType string `json:"entityType" yaml:"entityType"`
+	EntityType vcenter.Entity `json:"entityType" yaml:"entityType"`
 
 	// EntityName is the name of the entity to validate
 	EntityName string `json:"entityName" yaml:"entityName"`

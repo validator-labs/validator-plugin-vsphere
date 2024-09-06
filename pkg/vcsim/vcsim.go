@@ -18,6 +18,7 @@ import (
 	"github.com/vmware/govmomi/simulator"
 	_ "github.com/vmware/govmomi/vapi/simulator" // Importing the simulator package to enable simulation of vCenter server
 
+	"github.com/validator-labs/validator-plugin-vsphere/api/vcenter"
 	"github.com/validator-labs/validator-plugin-vsphere/pkg/vsphere"
 )
 
@@ -29,7 +30,7 @@ func init() {
 
 // VCSimulator is used to mock interactions with a vCenter server
 type VCSimulator struct {
-	Account vsphere.Account
+	Account vcenter.Account
 	Driver  *vsphere.CloudDriver
 	log     logr.Logger
 }
@@ -43,11 +44,11 @@ func NewVCSim(username string, port int, log logr.Logger) *VCSimulator {
 }
 
 // NewTestVsphereAccount creates a new vsphere account for testing
-func NewTestVsphereAccount(username string, port int) vsphere.Account {
+func NewTestVsphereAccount(username string, port int) vcenter.Account {
 	// Starting & stopping vcsim between test cases appears to work, but govmomi calls
 	// throw an auth error on the 2nd iteration unless a unique username is used
 	// each time the simulator is instantiated.
-	return vsphere.Account{
+	return vcenter.Account{
 		Insecure: true,
 		Password: "welcome123",
 		Username: username,

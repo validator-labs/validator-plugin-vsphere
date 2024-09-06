@@ -13,6 +13,7 @@ import (
 	corev1 "k8s.io/api/core/v1"
 
 	"github.com/validator-labs/validator-plugin-vsphere/api/v1alpha1"
+	"github.com/validator-labs/validator-plugin-vsphere/api/vcenter"
 	"github.com/validator-labs/validator-plugin-vsphere/pkg/constants"
 	"github.com/validator-labs/validator-plugin-vsphere/pkg/vsphere"
 	vapi "github.com/validator-labs/validator/api/v1alpha1"
@@ -42,10 +43,10 @@ func NewValidationService(log logr.Logger) *ValidationService {
 }
 
 // ReconcileTagRules reconciles the tag rules
-func (s *ValidationService) ReconcileTagRules(tagsManager *tags.Manager, finder *find.Finder, driver *vsphere.CloudDriver, tagValidationRule v1alpha1.TagValidationRule) (*vapitypes.ValidationRuleResult, error) {
-	vr := buildValidationResult(tagValidationRule, constants.ValidationTypeTag)
+func (s *ValidationService) ReconcileTagRules(tagsManager *tags.Manager, finder *find.Finder, driver *vsphere.CloudDriver, rule v1alpha1.TagValidationRule) (*vapitypes.ValidationRuleResult, error) {
+	vr := buildValidationResult(rule, constants.ValidationTypeTag)
 
-	valid, err := tagIsValid(tagsManager, finder, driver.Datacenter, tagValidationRule.ClusterName, tagValidationRule.EntityType, tagValidationRule.EntityName, tagValidationRule.Tag)
+	valid, err := tagIsValid(tagsManager, finder, driver.Datacenter, rule)
 	if !valid {
 		vr.State = util.Ptr(vapi.ValidationFailed)
 		vr.Condition.Failures = append(vr.Condition.Failures, "One or more required tags was not found")
@@ -69,7 +70,7 @@ func buildValidationResult(rule v1alpha1.TagValidationRule, validationType strin
 	return validationResult
 }
 
-func tagIsValid(tagsManager *tags.Manager, finder *find.Finder, datacenterName, clusterName, entityType string, entityName string, tagKey string) (bool, error) {
+func tagIsValid(tagsManager *tags.Manager, finder *find.Finder, datacenter string, rule v1alpha1.TagValidationRule) (bool, error) {
 	categoryID := ""
 	var inventoryPath string
 
@@ -79,29 +80,29 @@ func tagIsValid(tagsManager *tags.Manager, finder *find.Finder, datacenterName, 
 	}
 	for _, category := range cats {
 		switch category.Name {
-		case tagKey:
+		case rule.Tag:
 			categoryID = category.ID
 		}
 	}
 
-	switch entityType {
-	case "datacenter":
-		inventoryPath = entityName
-	case "folder":
-		inventoryPath = entityName
-	case "cluster":
-		inventoryPath = fmt.Sprintf(constants.ClusterInventoryPath, datacenterName, entityName)
-	case "host":
-		inventoryPath = fmt.Sprintf(constants.HostSystemInventoryPath, datacenterName, clusterName, entityName)
-	case "resourcepool":
-		inventoryPath = fmt.Sprintf(constants.ResourcePoolInventoryPath, datacenterName, clusterName, entityName)
-		if entityName == constants.ClusterDefaultResourcePoolName {
-			inventoryPath = fmt.Sprintf("/%s/host/%s/%s", datacenterName, clusterName, entityName)
+	switch rule.EntityType {
+	case vcenter.Cluster:
+		inventoryPath = fmt.Sprintf(constants.ClusterInventoryPath, datacenter, rule.EntityName)
+	case vcenter.Datacenter:
+		inventoryPath = rule.EntityName
+	case vcenter.Folder:
+		inventoryPath = rule.EntityName
+	case vcenter.Host:
+		inventoryPath = fmt.Sprintf(constants.HostSystemInventoryPath, datacenter, rule.ClusterName, rule.EntityName)
+	case vcenter.ResourcePool:
+		inventoryPath = fmt.Sprintf(constants.ResourcePoolInventoryPath, datacenter, rule.ClusterName, rule.EntityName)
+		if rule.EntityName == constants.ClusterDefaultResourcePoolName {
+			inventoryPath = fmt.Sprintf("/%s/host/%s/%s", datacenter, rule.ClusterName, rule.EntityName)
 		}
-	case "vm":
-		inventoryPath = entityName
+	case vcenter.VM:
+		inventoryPath = rule.EntityName
 	default:
-		return false, fmt.Errorf("unsupported entity type: %s", entityType)
+		return false, fmt.Errorf("unsupported entity type: %s", rule.EntityType)
 	}
 
 	// check if object has tag
