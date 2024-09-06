@@ -11,7 +11,7 @@ import (
 	corev1 "k8s.io/api/core/v1"
 
 	"github.com/validator-labs/validator-plugin-vsphere/api/v1alpha1"
-	"github.com/validator-labs/validator-plugin-vsphere/api/vcenter"
+	"github.com/validator-labs/validator-plugin-vsphere/api/vcenter/entity"
 	"github.com/validator-labs/validator-plugin-vsphere/pkg/vcsim"
 	vapi "github.com/validator-labs/validator/api/v1alpha1"
 	"github.com/validator-labs/validator/pkg/types"
@@ -39,7 +39,7 @@ func TestPrivilegeValidationService_ReconcilePrivilegeRule(t *testing.T) {
 		t.Fatal("Error in getting current VMware user from username")
 	}
 
-	validationService := NewPrivilegeValidationService(log, vcSim.Driver, "DC0", authManager, username)
+	validationService := NewPrivilegeValidationService(log, vcSim.Driver, "DC0", username, authManager)
 
 	testCases := []struct {
 		name           string
@@ -51,9 +51,8 @@ func TestPrivilegeValidationService_ReconcilePrivilegeRule(t *testing.T) {
 			name: "All privileges available",
 			rule: v1alpha1.PrivilegeValidationRule{
 				RuleName:    "VirtualMachine.Config.AddExistingDisk",
-				Username:    username,
 				ClusterName: "DC0_C0",
-				EntityType:  vcenter.Cluster,
+				EntityType:  entity.Cluster,
 				EntityName:  "DC0_C0",
 				Privileges: []string{
 					"VirtualMachine.Config.AddExistingDisk",
@@ -74,9 +73,8 @@ func TestPrivilegeValidationService_ReconcilePrivilegeRule(t *testing.T) {
 			name: "Certain privilege not available",
 			rule: v1alpha1.PrivilegeValidationRule{
 				RuleName:    "VirtualMachine.Config.AddExistingDisk",
-				Username:    username,
 				ClusterName: "DC0_C0",
-				EntityType:  vcenter.Cluster,
+				EntityType:  entity.Cluster,
 				EntityName:  "DC0_C0",
 				Privileges: []string{
 					"VirtualMachine.Config.DestroyExistingDisk",

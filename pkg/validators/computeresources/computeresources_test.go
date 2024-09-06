@@ -11,7 +11,7 @@ import (
 	corev1 "k8s.io/api/core/v1"
 
 	"github.com/validator-labs/validator-plugin-vsphere/api/v1alpha1"
-	"github.com/validator-labs/validator-plugin-vsphere/api/vcenter"
+	"github.com/validator-labs/validator-plugin-vsphere/api/vcenter/entity"
 	"github.com/validator-labs/validator-plugin-vsphere/pkg/vcsim"
 	vapi "github.com/validator-labs/validator/api/v1alpha1"
 	"github.com/validator-labs/validator/pkg/types"
@@ -39,7 +39,7 @@ func TestComputeResourcesValidationService_ReconcileComputeResourceValidationRul
 			rule: v1alpha1.ComputeResourceRule{
 				RuleName:    "Test Resource Validation rule",
 				ClusterName: "DC0_C0",
-				Scope:       vcenter.Cluster,
+				Scope:       entity.Cluster,
 				EntityName:  "DC0_C0",
 				NodepoolResourceRequirements: []v1alpha1.NodepoolResourceRequirement{
 					{
@@ -75,7 +75,7 @@ func TestComputeResourcesValidationService_ReconcileComputeResourceValidationRul
 			rule: v1alpha1.ComputeResourceRule{
 				RuleName:    "Test Resource Validation rule",
 				ClusterName: "DC0_C0",
-				Scope:       vcenter.Cluster,
+				Scope:       entity.Cluster,
 				EntityName:  "DC0_C0",
 				NodepoolResourceRequirements: []v1alpha1.NodepoolResourceRequirement{
 					{
@@ -111,7 +111,7 @@ func TestComputeResourcesValidationService_ReconcileComputeResourceValidationRul
 			rule: v1alpha1.ComputeResourceRule{
 				RuleName:    "Test Resource Validation rule",
 				ClusterName: "DC0_C0",
-				Scope:       vcenter.Cluster,
+				Scope:       entity.Cluster,
 				EntityName:  "DC0_C0",
 				NodepoolResourceRequirements: []v1alpha1.NodepoolResourceRequirement{
 					{
@@ -147,7 +147,7 @@ func TestComputeResourcesValidationService_ReconcileComputeResourceValidationRul
 			rule: v1alpha1.ComputeResourceRule{
 				RuleName:    "Test Resource Validation rule",
 				ClusterName: "DC0_C0",
-				Scope:       vcenter.Cluster,
+				Scope:       entity.Cluster,
 				EntityName:  "DC0_C0",
 				NodepoolResourceRequirements: []v1alpha1.NodepoolResourceRequirement{
 					{
@@ -181,7 +181,7 @@ func TestComputeResourcesValidationService_ReconcileComputeResourceValidationRul
 			name: "Host - All Resources available",
 			rule: v1alpha1.ComputeResourceRule{
 				RuleName:   "Test Host Resource Validation rule",
-				Scope:      vcenter.Host,
+				Scope:      entity.Host,
 				EntityName: "DC0_C0_H0",
 				NodepoolResourceRequirements: []v1alpha1.NodepoolResourceRequirement{
 					{
@@ -216,7 +216,7 @@ func TestComputeResourcesValidationService_ReconcileComputeResourceValidationRul
 			expectedErr: errInsufficientComputeResources,
 			rule: v1alpha1.ComputeResourceRule{
 				RuleName:   "Test Host Resource Validation rule",
-				Scope:      vcenter.Host,
+				Scope:      entity.Host,
 				EntityName: "DC0_C0_H0",
 				NodepoolResourceRequirements: []v1alpha1.NodepoolResourceRequirement{
 					{
@@ -251,7 +251,7 @@ func TestComputeResourcesValidationService_ReconcileComputeResourceValidationRul
 			expectedErr: errInsufficientComputeResources,
 			rule: v1alpha1.ComputeResourceRule{
 				RuleName:   "Test Host Resource Validation rule",
-				Scope:      vcenter.Host,
+				Scope:      entity.Host,
 				EntityName: "DC0_C0_H0",
 				NodepoolResourceRequirements: []v1alpha1.NodepoolResourceRequirement{
 					{
@@ -286,7 +286,7 @@ func TestComputeResourcesValidationService_ReconcileComputeResourceValidationRul
 			expectedErr: errInsufficientComputeResources,
 			rule: v1alpha1.ComputeResourceRule{
 				RuleName:   "Test Host Resource Validation rule",
-				Scope:      vcenter.Host,
+				Scope:      entity.Host,
 				EntityName: "DC0_C0_H0",
 				NodepoolResourceRequirements: []v1alpha1.NodepoolResourceRequirement{
 					{
@@ -320,7 +320,7 @@ func TestComputeResourcesValidationService_ReconcileComputeResourceValidationRul
 			name: "Resourcepool - All Resources available",
 			rule: v1alpha1.ComputeResourceRule{
 				RuleName:    "Test Host Resource Validation rule",
-				Scope:       vcenter.ResourcePool,
+				Scope:       entity.ResourcePool,
 				ClusterName: "DC0_C0",
 				EntityName:  "DC0_C0_RP0",
 				NodepoolResourceRequirements: []v1alpha1.NodepoolResourceRequirement{
@@ -356,7 +356,7 @@ func TestComputeResourcesValidationService_ReconcileComputeResourceValidationRul
 			expectedErr: errInsufficientComputeResources,
 			rule: v1alpha1.ComputeResourceRule{
 				RuleName:    "Test Host Resource Validation rule",
-				Scope:       vcenter.ResourcePool,
+				Scope:       entity.ResourcePool,
 				ClusterName: "DC0_C0",
 				EntityName:  "DC0_C0_RP0",
 				NodepoolResourceRequirements: []v1alpha1.NodepoolResourceRequirement{
@@ -392,7 +392,7 @@ func TestComputeResourcesValidationService_ReconcileComputeResourceValidationRul
 			expectedErr: errInsufficientComputeResources,
 			rule: v1alpha1.ComputeResourceRule{
 				RuleName:    "Test Resourcepool Resource Validation rule",
-				Scope:       vcenter.ResourcePool,
+				Scope:       entity.ResourcePool,
 				ClusterName: "DC0_C0",
 				EntityName:  "DC0_C0_RP0",
 				NodepoolResourceRequirements: []v1alpha1.NodepoolResourceRequirement{
@@ -428,7 +428,7 @@ func TestComputeResourcesValidationService_ReconcileComputeResourceValidationRul
 			expectedErr: errInsufficientComputeResources,
 			rule: v1alpha1.ComputeResourceRule{
 				RuleName:    "Test Resourcepool Resource Validation rule",
-				Scope:       vcenter.ResourcePool,
+				Scope:       entity.ResourcePool,
 				ClusterName: "DC0_C0",
 				EntityName:  "DC0_C0_RP0",
 				NodepoolResourceRequirements: []v1alpha1.NodepoolResourceRequirement{
@@ -464,7 +464,7 @@ func TestComputeResourcesValidationService_ReconcileComputeResourceValidationRul
 			expectedErr: errRuleAlreadyProcessed,
 			rule: v1alpha1.ComputeResourceRule{
 				RuleName:    "Test Resourcepool Resource Validation rule",
-				Scope:       vcenter.ResourcePool,
+				Scope:       entity.ResourcePool,
 				ClusterName: "DC0_C1",
 				EntityName:  "DC0_C1_RP0",
 				NodepoolResourceRequirements: []v1alpha1.NodepoolResourceRequirement{
@@ -500,7 +500,7 @@ func TestComputeResourcesValidationService_ReconcileComputeResourceValidationRul
 			expectedErr: errRuleAlreadyProcessed,
 			rule: v1alpha1.ComputeResourceRule{
 				RuleName:   "Test Resourcepool Resource Validation rule",
-				Scope:      vcenter.Cluster,
+				Scope:      entity.Cluster,
 				EntityName: "DC0_C1",
 				NodepoolResourceRequirements: []v1alpha1.NodepoolResourceRequirement{
 					{

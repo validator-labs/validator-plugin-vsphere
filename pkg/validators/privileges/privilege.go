@@ -28,33 +28,33 @@ type PrivilegeValidationService struct {
 	driver      *vsphere.VCenterDriver
 	datacenter  string
 	authManager *object.AuthorizationManager
-	userName    string
+	username    string
 }
 
 // NewPrivilegeValidationService creates a new PrivilegeValidationService
-func NewPrivilegeValidationService(log logr.Logger, driver *vsphere.VCenterDriver, datacenter string, authManager *object.AuthorizationManager, userName string) *PrivilegeValidationService {
+func NewPrivilegeValidationService(log logr.Logger, driver *vsphere.VCenterDriver, datacenter, username string, authManager *object.AuthorizationManager) *PrivilegeValidationService {
 	return &PrivilegeValidationService{
 		log:         log,
 		driver:      driver,
 		datacenter:  datacenter,
 		authManager: authManager,
-		userName:    userName,
+		username:    username,
 	}
 }
 
 // ReconcilePrivilegeRule reconciles a privilege rule
 func (s *PrivilegeValidationService) ReconcilePrivilegeRule(rule v1alpha1.PrivilegeValidationRule, finder *find.Finder) (*types.ValidationRuleResult, error) {
 	var err error
-	vr := buildPrivilegeValidationResult(rule, constants.ValidationTypePrivileges)
+	vr := s.buildPrivilegeValidationResult(rule)
 
 	ctx, cancel := context.WithCancel(context.Background())
 	defer cancel()
 
-	vr.Condition.Failures, err = s.driver.ValidateUserPrivilegeOnEntities(ctx, s.authManager, s.datacenter, finder, rule)
+	vr.Condition.Failures, err = s.driver.ValidateUserPrivilegeOnEntities(ctx, s.authManager, s.datacenter, s.username, finder, rule)
 
 	if len(vr.Condition.Failures) > 0 {
 		vr.State = util.Ptr(vapi.ValidationFailed)
-		vr.Condition.Message = fmt.Sprintf("One or more required privileges was not found, or a condition was not met for account: %s", rule.Username)
+		vr.Condition.Message = fmt.Sprintf("One or more required privileges was not found, or a condition was not met for account: %s", s.username)
 		vr.Condition.Status = corev1.ConditionFalse
 		err = errRequiredPrivilegesNotFound
 	}
@@ -62,12 +62,18 @@ func (s *PrivilegeValidationService) ReconcilePrivilegeRule(rule v1alpha1.Privil
 	return vr, err
 }
 
-func buildPrivilegeValidationResult(rule v1alpha1.PrivilegeValidationRule, validationType string) *types.ValidationRuleResult {
+func (s *PrivilegeValidationService) buildPrivilegeValidationResult(rule v1alpha1.PrivilegeValidationRule) *types.ValidationRuleResult {
 	state := vapi.ValidationSucceeded
+
+	validationRule := fmt.Sprintf("%s-%s", vapiconstants.ValidationRulePrefix, rule.EntityType)
+	if rule.EntityName != "" {
+		validationRule = fmt.Sprintf("%s-%s", validationRule, rule.EntityName)
+	}
+
 	latestCondition := vapi.DefaultValidationCondition()
-	latestCondition.Message = fmt.Sprintf("All required %s permissions were found for account: %s", validationType, rule.Username)
-	latestCondition.ValidationRule = fmt.Sprintf("%s-%s-%s", vapiconstants.ValidationRulePrefix, rule.EntityType, rule.EntityName)
-	latestCondition.ValidationType = validationType
+	latestCondition.Message = fmt.Sprintf("All required %s permissions were found for account: %s", constants.ValidationTypePrivileges, s.username)
+	latestCondition.ValidationRule = validationRule
+	latestCondition.ValidationType = constants.ValidationTypePrivileges
 
 	return &types.ValidationRuleResult{Condition: &latestCondition, State: &state}
 }

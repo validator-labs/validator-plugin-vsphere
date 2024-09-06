@@ -16,16 +16,4 @@ const (
 
 	// ValidationTypeNTP is the validation type for NTP
 	ValidationTypeNTP string = "vsphere-ntp"
-
-	// ClusterInventoryPath is the path for cluster inventory
-	ClusterInventoryPath = "/%s/host/%s"
-
-	// HostSystemInventoryPath is the path for host system inventory
-	HostSystemInventoryPath = "/%s/host/%s/%s"
-
-	// ResourcePoolInventoryPath is the path for resource pool inventory
-	ResourcePoolInventoryPath = "/%s/host/%s/Resources/%s"
-
-	// ClusterDefaultResourcePoolName is the default resource pool name for cluster
-	ClusterDefaultResourcePoolName = "Resources"
 )

@@ -9,28 +9,27 @@ import (
 	"github.com/vmware/govmomi/vim25/mo"
 )
 
-// GetVAppIfExists returns the virtual app if it exists
-func (v *VCenterDriver) GetVAppIfExists(ctx context.Context, finder *find.Finder, vAppName string) (bool, *object.VirtualApp, error) {
-	vapp, err := finder.VirtualApp(ctx, vAppName)
+// GetVApp returns the virtual app if it exists
+func (v *VCenterDriver) GetVApp(ctx context.Context, finder *find.Finder, vAppName string) (*object.VirtualApp, error) {
+	vApp, err := finder.VirtualApp(ctx, vAppName)
 	if err != nil {
-		return false, nil, err
+		return nil, err
 	}
-	return true, vapp, nil
+	return vApp, nil
 }
 
-// GetVapps returns a list of virtual apps
-func (v *VCenterDriver) GetVapps(ctx context.Context) ([]mo.VirtualApp, error) {
+// GetVApps returns a list of virtual apps
+func (v *VCenterDriver) GetVApps(ctx context.Context) ([]mo.VirtualApp, error) {
 	m := view.NewManager(v.Client.Client)
 
 	containerView, err := m.CreateContainerView(ctx, v.Client.Client.ServiceContent.RootFolder, []string{"VirtualApp"}, true)
 	if err != nil {
 		return nil, err
 	}
+
 	var vApps []mo.VirtualApp
-	err = containerView.Retrieve(ctx, []string{"VirtualApp"}, nil, &vApps)
-	if err != nil {
+	if err := containerView.Retrieve(ctx, []string{"VirtualApp"}, nil, &vApps); err != nil {
 		return nil, err
 	}
-
 	return vApps, nil
 }

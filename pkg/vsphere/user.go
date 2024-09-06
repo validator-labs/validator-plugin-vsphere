@@ -5,11 +5,12 @@ import (
 	"fmt"
 	"strings"
 
-	"github.com/validator-labs/validator-plugin-vsphere/api/v1alpha1"
-	"github.com/validator-labs/validator-plugin-vsphere/api/vcenter"
 	"github.com/vmware/govmomi/find"
 	"github.com/vmware/govmomi/object"
 	"github.com/vmware/govmomi/vim25/types"
+
+	"github.com/validator-labs/validator-plugin-vsphere/api/v1alpha1"
+	"github.com/validator-labs/validator-plugin-vsphere/api/vcenter/entity"
 )
 
 // CurrentUser returns the username of the user the vCenter driver is currently authenticated as
@@ -22,61 +23,85 @@ func (v *VCenterDriver) CurrentUser(ctx context.Context) (string, error) {
 }
 
 // ValidateUserPrivilegeOnEntities validates the user privileges on the entities
-func (v *VCenterDriver) ValidateUserPrivilegeOnEntities(ctx context.Context, authManager *object.AuthorizationManager, datacenter string, finder *find.Finder, rule v1alpha1.PrivilegeValidationRule) ([]string, error) {
+func (v *VCenterDriver) ValidateUserPrivilegeOnEntities(ctx context.Context, authManager *object.AuthorizationManager, datacenter, username string, finder *find.Finder, rule v1alpha1.PrivilegeValidationRule) ([]string, error) {
 
-	var obj object.Common
-
-	// TODO: add network, datacenter, datastore, vCenter root, VDS
+	var objRef types.ManagedObjectReference
 
 	switch rule.EntityType {
-	case vcenter.Cluster:
-		_, cluster, err := v.GetClusterIfExists(ctx, finder, datacenter, rule.EntityName)
+	case entity.Cluster:
+		cluster, err := v.GetCluster(ctx, finder, datacenter, rule.EntityName)
 		if err != nil {
 			return nil, err
 		}
-		obj = cluster.Common
-	case vcenter.Folder:
-		_, folder, err := v.GetFolderIfExists(ctx, finder, rule.EntityName)
+		objRef = cluster.Common.Reference()
+	case entity.Datacenter:
+		datacenter, err := v.GetDatacenter(ctx, finder, rule.EntityName)
 		if err != nil {
 			return nil, err
 		}
-		obj = folder.Common
-	case vcenter.Host:
-		_, host, err := v.GetHostIfExists(ctx, finder, datacenter, rule.ClusterName, rule.EntityName)
+		objRef = datacenter.Common.Reference()
+	case entity.Datastore:
+		datastore, err := v.GetDatastore(ctx, finder, rule.EntityName)
 		if err != nil {
 			return nil, err
 		}
-		obj = host.Common
-	case vcenter.ResourcePool:
-		_, resourcePool, err := v.GetResourcePoolIfExists(ctx, finder, datacenter, rule.ClusterName, rule.EntityName)
+		objRef = datastore.Common.Reference()
+	case entity.DistributedVirtualSwitch:
+		dvs, err := v.GetDistributedVirtualSwitch(ctx, finder, rule.EntityName)
 		if err != nil {
 			return nil, err
 		}
-		obj = resourcePool.Common
-	case vcenter.VApp:
-		_, vapp, err := v.GetVAppIfExists(ctx, finder, rule.EntityName)
+		objRef = dvs.Common.Reference()
+	case entity.Folder:
+		folder, err := v.GetFolder(ctx, finder, rule.EntityName)
 		if err != nil {
 			return nil, err
 		}
-		obj = vapp.Common
-	case vcenter.VM:
-		_, vm, err := v.GetVMIfExists(ctx, finder, rule.EntityName)
+		objRef = folder.Common.Reference()
+	case entity.Host:
+		host, err := v.GetHost(ctx, finder, datacenter, rule.ClusterName, rule.EntityName)
 		if err != nil {
 			return nil, err
 		}
-		obj = vm.Common
+		objRef = host.Common.Reference()
+	case entity.Network:
+		network, err := v.GetNetwork(ctx, finder, rule.EntityName)
+		if err != nil {
+			return nil, err
+		}
+		objRef = network.Common.Reference()
+	case entity.ResourcePool:
+		resourcePool, err := v.GetResourcePool(ctx, finder, datacenter, rule.ClusterName, rule.EntityName)
+		if err != nil {
+			return nil, err
+		}
+		objRef = resourcePool.Common.Reference()
+	case entity.VirtualApp:
+		vApp, err := v.GetVApp(ctx, finder, rule.EntityName)
+		if err != nil {
+			return nil, err
+		}
+		objRef = vApp.Common.Reference()
+	case entity.VCenterRoot:
+		objRef = v.Client.Client.ServiceContent.RootFolder
+	case entity.VirtualMachine:
+		vm, err := v.GetVM(ctx, finder, rule.EntityName)
+		if err != nil {
+			return nil, err
+		}
+		objRef = vm.Common.Reference()
 	default:
 		return nil, fmt.Errorf("unsupported entity type: %s", rule.EntityType)
 	}
 
 	privilegeResult, err := authManager.FetchUserPrivilegeOnEntities(ctx,
-		[]types.ManagedObjectReference{obj.Reference()},
-		getUserPrincipalFromUsername(rule.Username),
+		[]types.ManagedObjectReference{objRef},
+		getUserPrincipalFromUsername(username),
 	)
 	if err != nil {
 		return nil, fmt.Errorf(
 			"failed to fetch privileges on %s %s for user %s: %w",
-			rule.EntityType, rule.EntityName, rule.Username, err,
+			rule.EntityType, rule.EntityName, username, err,
 		)
 	}
 
@@ -89,10 +114,14 @@ func (v *VCenterDriver) ValidateUserPrivilegeOnEntities(ctx context.Context, aut
 	}
 	for _, privilege := range rule.Privileges {
 		if _, ok := privilegesMap[privilege]; !ok {
-			failures = append(failures, fmt.Sprintf(
-				"user: %s does not have privilege: %s on entity type: %s with name: %s",
-				rule.Username, privilege, rule.EntityType, rule.EntityName,
-			))
+			failure := fmt.Sprintf(
+				"user: %s does not have privilege: %s on entity type: %s",
+				username, privilege, rule.EntityType,
+			)
+			if rule.EntityName != "" {
+				failure = fmt.Sprintf("%s with name: %s", failure, rule.EntityName)
+			}
+			failures = append(failures, failure)
 		}
 	}
 

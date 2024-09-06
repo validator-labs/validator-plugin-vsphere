@@ -10,17 +10,17 @@ import (
 	"github.com/vmware/govmomi/object"
 )
 
-// GetDatacenterIfExists returns a datacenter object if it exists
-func (v *VCenterDriver) GetDatacenterIfExists(ctx context.Context, finder *find.Finder, datacenter string) (bool, *object.Datacenter, error) {
+// GetDatacenter returns a datacenter object if it exists
+func (v *VCenterDriver) GetDatacenter(ctx context.Context, finder *find.Finder, datacenter string) (*object.Datacenter, error) {
 	dc, err := finder.Datacenter(ctx, datacenter)
 	if err != nil {
-		return false, nil, err
+		return nil, err
 	}
-	return true, dc, nil
+	return dc, nil
 }
 
-// GetVSphereDatacenters returns a sorted list of datacenters in the vSphere environment
-func (v *VCenterDriver) GetVSphereDatacenters(ctx context.Context) ([]string, error) {
+// GetK8sDatacenters returns a sorted list of kubernetes-enabled datacenters in the vCenter environment
+func (v *VCenterDriver) GetK8sDatacenters(ctx context.Context) ([]string, error) {
 	finder, err := v.getFinder()
 	if err != nil {
 		return nil, err
@@ -28,15 +28,14 @@ func (v *VCenterDriver) GetVSphereDatacenters(ctx context.Context) ([]string, er
 
 	dcs, err := finder.DatacenterList(ctx, "*")
 	if err != nil {
-		return nil, errors.Wrap(err, "failed to fetch vSphere datacenters")
+		return nil, errors.Wrap(err, "failed to fetch vCenter datacenters")
 	}
-
 	if len(dcs) == 0 {
 		return nil, errors.New("No datacenters found")
 	}
 
 	client := dcs[0].Client()
-	tags, categoryID, err := v.getTagsAndCategory(ctx, client, "Datacenter", DatacenterTagCategory)
+	tags, categoryID, err := v.getTagsAndCategory(ctx, client, "Datacenter", K8sDatacenterTagCategory)
 	if err != nil {
 		return nil, err
 	}
@@ -48,9 +47,8 @@ func (v *VCenterDriver) GetVSphereDatacenters(ctx context.Context) ([]string, er
 			datacenters = append(datacenters, dcName)
 		}
 	}
-
 	if len(datacenters) == 0 {
-		return nil, errors.Errorf("No datacenter with tag category %s found", DatacenterTagCategory)
+		return nil, errors.Errorf("no datacenter with tag category %s found", K8sDatacenterTagCategory)
 	}
 
 	sort.Strings(datacenters)

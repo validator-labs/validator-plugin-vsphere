@@ -11,18 +11,18 @@ import (
 	"github.com/vmware/govmomi/object"
 )
 
-// GetClusterIfExists returns the cluster if it exists
-func (v *VCenterDriver) GetClusterIfExists(ctx context.Context, finder *find.Finder, datacenter, clusterName string) (bool, *object.ClusterComputeResource, error) {
+// GetCluster returns the cluster if it exists
+func (v *VCenterDriver) GetCluster(ctx context.Context, finder *find.Finder, datacenter, clusterName string) (*object.ClusterComputeResource, error) {
 	path := fmt.Sprintf("/%s/host/%s", datacenter, clusterName)
 	cluster, err := finder.ClusterComputeResource(ctx, path)
 	if err != nil {
-		return false, nil, err
+		return nil, err
 	}
-	return true, cluster, nil
+	return cluster, nil
 }
 
-// GetVSphereClusters returns a sorted list of vSphere clusters
-func (v *VCenterDriver) GetVSphereClusters(ctx context.Context, datacenter string) ([]string, error) {
+// GetK8sClusters returns a sorted list of kubernetes-enabled vCenter clusters
+func (v *VCenterDriver) GetK8sClusters(ctx context.Context, datacenter string) ([]string, error) {
 	finder, dc, err := v.GetFinderWithDatacenter(ctx, datacenter)
 	if err != nil {
 		return nil, err
@@ -30,16 +30,15 @@ func (v *VCenterDriver) GetVSphereClusters(ctx context.Context, datacenter strin
 
 	ccrs, err := finder.ClusterComputeResourceList(ctx, "*")
 	if err != nil {
-		return nil, errors.Wrap(err, "failed to fetch vSphere clusters")
+		return nil, errors.Wrap(err, "failed to fetch vCenter clusters")
 	}
-
 	if len(ccrs) == 0 {
-		return nil, errors.New("No compute clusters found")
+		return nil, errors.New("no compute clusters found")
 	}
 
 	client := ccrs[0].Client()
 
-	tags, categoryID, err := v.getTagsAndCategory(ctx, client, "ClusterComputeResource", ComputeClusterTagCategory)
+	tags, categoryID, err := v.getTagsAndCategory(ctx, client, "ClusterComputeResource", K8sComputeClusterTagCategory)
 	if err != nil {
 		return nil, err
 	}
@@ -52,9 +51,8 @@ func (v *VCenterDriver) GetVSphereClusters(ctx context.Context, datacenter strin
 			clusters = append(clusters, cluster)
 		}
 	}
-
 	if len(clusters) == 0 {
-		return nil, errors.Errorf("No compute clusters with tag category %s found", ComputeClusterTagCategory)
+		return nil, errors.Errorf("no compute clusters with tag category %s found", K8sComputeClusterTagCategory)
 	}
 
 	sort.Strings(clusters)

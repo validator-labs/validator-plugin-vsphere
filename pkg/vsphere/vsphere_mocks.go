@@ -7,15 +7,17 @@ import (
 	"github.com/vmware/govmomi/object"
 	"github.com/vmware/govmomi/vapi/tags"
 	"github.com/vmware/govmomi/vim25/mo"
+
+	"github.com/validator-labs/validator-plugin-vsphere/api/vcenter"
 )
 
 // MockVsphereDriver is a mock implementation of the Driver interface
 type MockVsphereDriver struct {
 	Datacenters        []string
 	Clusters           []string
-	VMs                []VM
+	VMs                []vcenter.VM
 	VMFolders          []string
-	HostSystems        map[string][]HostSystem
+	HostSystems        map[string][]vcenter.HostSystem
 	VApps              []mo.VirtualApp
 	ResourcePools      []*object.ResourcePool
 	HostClusterMapping map[string]string
@@ -25,33 +27,33 @@ type MockVsphereDriver struct {
 // ensure that MockVsphereDriver implements the Driver interface
 var _ Driver = &MockVsphereDriver{}
 
-// GetVSphereVMFolders returns a mocked response
-func (d MockVsphereDriver) GetVSphereVMFolders(_ context.Context, _ string) ([]string, error) {
+// GetVMFolders returns a mocked response
+func (d MockVsphereDriver) GetVMFolders(_ context.Context, _ string) ([]string, error) {
 	return d.VMFolders, nil
 }
 
-// GetVSphereDatacenters returns a mocked response
-func (d MockVsphereDriver) GetVSphereDatacenters(_ context.Context) ([]string, error) {
+// GetK8sDatacenters returns a mocked response
+func (d MockVsphereDriver) GetK8sDatacenters(_ context.Context) ([]string, error) {
 	return d.Datacenters, nil
 }
 
-// GetVSphereClusters returns a mocked response
-func (d MockVsphereDriver) GetVSphereClusters(_ context.Context, _ string) ([]string, error) {
+// GetK8sClusters returns a mocked response
+func (d MockVsphereDriver) GetK8sClusters(_ context.Context, _ string) ([]string, error) {
 	return d.Clusters, nil
 }
 
-// GetVSphereHostSystems returns a mocked response
-func (d MockVsphereDriver) GetVSphereHostSystems(_ context.Context, datacenter, cluster string) ([]HostSystem, error) {
+// GetHostSystems returns a mocked response
+func (d MockVsphereDriver) GetHostSystems(_ context.Context, datacenter, cluster string) ([]vcenter.HostSystem, error) {
 	return d.HostSystems[concat(datacenter, cluster)], nil
 }
 
-// IsValidVSphereCredentials returns a mocked response
-func (d MockVsphereDriver) IsValidVSphereCredentials() (bool, error) {
+// ValidateCredentials returns a mocked response
+func (d MockVsphereDriver) ValidateCredentials() (bool, error) {
 	return true, nil
 }
 
-// ValidateVsphereVersion returns a mocked response
-func (d MockVsphereDriver) ValidateVsphereVersion(_ string) error {
+// ValidateVersion returns a mocked response
+func (d MockVsphereDriver) ValidateVersion(_ string) error {
 	return nil
 }
 
@@ -60,8 +62,8 @@ func (d MockVsphereDriver) GetHostClusterMapping(_ context.Context) (map[string]
 	return d.HostClusterMapping, nil
 }
 
-// GetVSphereVms returns a mocked response
-func (d MockVsphereDriver) GetVSphereVms(_ context.Context, _ string) ([]VM, error) {
+// GetVMs returns a mocked response
+func (d MockVsphereDriver) GetVMs(_ context.Context, _ string) ([]vcenter.VM, error) {
 	return d.VMs, nil
 }
 
@@ -70,8 +72,8 @@ func (d MockVsphereDriver) GetResourcePools(_ context.Context, _ string, _ strin
 	return d.ResourcePools, nil
 }
 
-// GetVapps returns a mocked response
-func (d MockVsphereDriver) GetVapps(_ context.Context) ([]mo.VirtualApp, error) {
+// GetVApps returns a mocked response
+func (d MockVsphereDriver) GetVApps(_ context.Context) ([]mo.VirtualApp, error) {
 	return d.VApps, nil
 }
 

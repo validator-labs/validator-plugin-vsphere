@@ -9,10 +9,12 @@ import (
 	"github.com/go-logr/logr"
 	"github.com/vmware/govmomi/object"
 	vtags "github.com/vmware/govmomi/vapi/tags"
+	corev1 "k8s.io/api/core/v1"
 
 	vapi "github.com/validator-labs/validator/api/v1alpha1"
 	vconstants "github.com/validator-labs/validator/pkg/constants"
 	"github.com/validator-labs/validator/pkg/types"
+	"github.com/validator-labs/validator/pkg/util"
 
 	"github.com/validator-labs/validator-plugin-vsphere/api/v1alpha1"
 	"github.com/validator-labs/validator-plugin-vsphere/pkg/constants"
@@ -61,7 +63,7 @@ func Validate(ctx context.Context, spec v1alpha1.VsphereValidatorSpec, log logr.
 	tagsManager := vtags.NewManager(driver.RestClient)
 
 	// Get the current user
-	userName, err := driver.CurrentUser(ctx)
+	username, err := driver.CurrentUser(ctx)
 	if err != nil {
 		resp.AddResult(vrr, fmt.Errorf("failed to get current user: %w", err))
 		return resp
@@ -74,21 +76,23 @@ func Validate(ctx context.Context, spec v1alpha1.VsphereValidatorSpec, log logr.
 		if err != nil {
 			log.Error(err, "failed to reconcile NTP rule")
 		}
+		finalizeResult(vrr, err)
 		resp.AddResult(vrr, err)
 		log.Info("Validated NTP rules")
 	}
 
 	// Privilege validation rules
 	privilegeValidationService := privileges.NewPrivilegeValidationService(
-		log, driver, spec.Datacenter, authManager, userName,
+		log, driver, spec.Datacenter, username, authManager,
 	)
 	for _, rule := range spec.PrivilegeValidationRules {
 		vrr, err := privilegeValidationService.ReconcilePrivilegeRule(rule, finder)
 		if err != nil {
 			log.Error(err, "failed to reconcile privilege rule")
 		}
+		finalizeResult(vrr, err)
 		resp.AddResult(vrr, err)
-		log.Info("Validated privileges for account", "user", rule.Username)
+		log.Info("Validated privileges for account", "user", username)
 	}
 
 	// Tag validation rules
@@ -99,6 +103,7 @@ func Validate(ctx context.Context, spec v1alpha1.VsphereValidatorSpec, log logr.
 		if err != nil {
 			log.Error(err, "failed to reconcile tag validation rule")
 		}
+		finalizeResult(vrr, err)
 		resp.AddResult(vrr, err)
 		log.Info("Validated tags", "entity type", rule.EntityType, "entity name", rule.EntityName, "tag", rule.Tag)
 	}
@@ -111,8 +116,10 @@ func Validate(ctx context.Context, spec v1alpha1.VsphereValidatorSpec, log logr.
 		if err != nil {
 			log.Error(err, "failed to reconcile computeresources validation rule")
 		}
+		finalizeResult(vrr, err)
 		resp.AddResult(vrr, err)
 		log.Info("Validated compute resources", "scope", rule.Scope, "entity name", rule.EntityName)
+
 		key, err := computeresources.GetScopeKey(rule)
 		if err != nil {
 			log.Error(err, "failed to get scope key for rule")
@@ -132,4 +139,13 @@ func buildValidationResult() *types.ValidationRuleResult {
 	latestCondition.ValidationType = constants.PluginCode
 
 	return &types.ValidationRuleResult{Condition: &latestCondition, State: &state}
+}
+
+func finalizeResult(vrr *types.ValidationRuleResult, err error) {
+	if err != nil {
+		vrr.State = util.Ptr(vapi.ValidationFailed)
+		vrr.Condition.Status = corev1.ConditionFalse
+		vrr.Condition.Message = "Validation failed with an unexpected error"
+		vrr.Condition.Failures = append(vrr.Condition.Failures, err.Error())
+	}
 }

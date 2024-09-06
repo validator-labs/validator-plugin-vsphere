@@ -1,7 +1,26 @@
 // Package vcenter contains vCenter object types.
 package vcenter
 
-import "net/url"
+import (
+	"net/url"
+	"time"
+
+	"github.com/vmware/govmomi/vim25/types"
+)
+
+const (
+	// ClusterDefaultResourcePoolName is the default resource pool name for a cluster
+	ClusterDefaultResourcePoolName = "Resources"
+
+	// ClusterInventoryPath is the path for cluster inventory
+	ClusterInventoryPath = "/%s/host/%s"
+
+	// HostSystemInventoryPath is the path for host system inventory
+	HostSystemInventoryPath = "/%s/host/%s/%s"
+
+	// ResourcePoolInventoryPath is the path for resource pool inventory
+	ResourcePoolInventoryPath = "/%s/host/%s/Resources/%s"
+)
 
 // Account contains vCenter account details.
 type Account struct {
@@ -23,41 +42,91 @@ func (a Account) Userinfo() *url.Userinfo {
 	return url.UserPassword(a.Username, a.Password)
 }
 
-// Entity represents a vCenter entity, referenceable via govmomi.
-type Entity int
+// Datastore defines a datastore
+type Datastore struct {
+	Name string
+	ID   string
+}
 
-// nolint:revive
-const (
-	Cluster Entity = iota
-	Datacenter
-	Datastore
-	Folder
-	Host
-	Network
-	ResourcePool
-	VApp
-	VCenterRoot
-	VDS
-	VM
-)
+// HostSystem defines a vCenter host system.
+type HostSystem struct {
+	Name      string
+	Reference string
+}
 
-// String converts an Entity to a string.
-func (e Entity) String() string {
-	names := []string{
-		"cluster",
-		"datacenter",
-		"datastore",
-		"folder",
-		"host",
-		"network",
-		"resourcepool",
-		"vapp",
-		"",
-		"vds",
-		"vm",
-	}
-	if e > VM || e < Cluster {
-		return "Unknown"
-	}
-	return names[e]
+// HostDateInfo defines date information for a vCenter host system.
+type HostDateInfo struct {
+	types.HostDateTimeInfo
+	HostName      string
+	NTPServers    []string
+	Service       *types.HostService
+	Current       *time.Time
+	ClientStatus  string
+	ServiceStatus string
+}
+
+// Servers returns a slice of NTP servers for a vCenter host system.
+func (i *HostDateInfo) Servers() []string {
+	return i.NtpConfig.Server
+}
+
+// Network defines a vCenter network.
+type Network struct {
+	Type      string
+	IP        string
+	Interface string
+}
+
+// SSHInfo defines the SSH information.
+type SSHInfo struct {
+	Username   string
+	Password   string
+	PublicKey  []string
+	PrivateKey []string
+}
+
+// VMInfo defines scope information for a vCenter VM.
+type VMInfo struct {
+	Folder    string
+	Cluster   string
+	Datastore string
+	Network   string
+}
+
+// AdditionalDisk defines an additional disk.
+type AdditionalDisk struct {
+	Name      string
+	Device    string
+	Capacity  string
+	Used      string
+	Available string
+	Usage     string
+}
+
+// Metrics defines the VM metrics.
+type Metrics struct {
+	CPUCores        string
+	CPUUsage        string
+	MemoryBytes     string
+	MemoryUsage     string
+	DiskUsage       string
+	DiskProvisioned string
+}
+
+// VM defines a vCenter virtual machine.
+type VM struct {
+	Name           string
+	Type           string
+	Status         string
+	IPAddress      string
+	Host           string
+	CPU            int32
+	Memory         int32
+	RootDiskSize   int32
+	Network        []Network
+	VMInfo         VMInfo
+	SSHInfo        SSHInfo
+	AdditionalDisk []AdditionalDisk
+	Metrics        Metrics
+	Storage        []Datastore
 }

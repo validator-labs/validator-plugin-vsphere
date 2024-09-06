@@ -3,7 +3,6 @@ package vsphere
 import (
 	"context"
 	"fmt"
-	"time"
 
 	"github.com/pkg/errors"
 	"github.com/vmware/govmomi/find"
@@ -14,41 +13,28 @@ import (
 	"github.com/vmware/govmomi/vim25/mo"
 	"github.com/vmware/govmomi/vim25/types"
 	"golang.org/x/exp/slices"
+
+	"github.com/validator-labs/validator-plugin-vsphere/api/vcenter"
 )
 
-// HostSystem defines a vSphere host system
-type HostSystem struct {
-	Name      string
-	Reference string
-}
-
-// HostDateInfo defines the host date information
-type HostDateInfo struct {
-	HostName   string
-	NtpServers []string
-	types.HostDateTimeInfo
-	Service       *types.HostService
-	Current       *time.Time
-	ClientStatus  string
-	ServiceStatus string
-}
-
-// GetHostIfExists returns the host system if it exists
-func (v *VCenterDriver) GetHostIfExists(ctx context.Context, finder *find.Finder, datacenter, clusterName, hostName string) (bool, *object.HostSystem, error) {
+// GetHost returns the host system if it exists
+func (v *VCenterDriver) GetHost(ctx context.Context, finder *find.Finder, datacenter, clusterName, hostName string) (*object.HostSystem, error) {
 	path := fmt.Sprintf("/%s/host/%s/%s", datacenter, clusterName, hostName)
+
 	// Handle datacenter level hosts
 	if clusterName == "" {
 		path = fmt.Sprintf("/%s/host/%s", datacenter, hostName)
 	}
+
 	host, err := finder.HostSystem(ctx, path)
 	if err != nil {
-		return false, nil, err
+		return nil, err
 	}
-	return true, host, nil
+	return host, nil
 }
 
-// GetVSphereHostSystems returns the vSphere host systems
-func (v *VCenterDriver) GetVSphereHostSystems(ctx context.Context, datacenter, cluster string) ([]HostSystem, error) {
+// GetHostSystems returns vCenter host systems
+func (v *VCenterDriver) GetHostSystems(ctx context.Context, datacenter, cluster string) ([]vcenter.HostSystem, error) {
 	finder, _, err := v.GetFinderWithDatacenter(ctx, datacenter)
 	if err != nil {
 		return nil, err
@@ -67,9 +53,9 @@ func (v *VCenterDriver) GetVSphereHostSystems(ctx context.Context, datacenter, c
 		return nil, errors.New("No host systems found")
 	}
 
-	hostSystems := make([]HostSystem, 0)
+	hostSystems := make([]vcenter.HostSystem, 0)
 	for _, hs := range hss {
-		hostSystems = append(hostSystems, HostSystem{
+		hostSystems = append(hostSystems, vcenter.HostSystem{
 			Name:      hs.Name(),
 			Reference: hs.Reference().String(),
 		})
@@ -115,10 +101,6 @@ func (v *VCenterDriver) getHostSystems(ctx context.Context, v1 *view.ContainerVi
 	return hs, nil
 }
 
-func (info *HostDateInfo) servers() []string {
-	return info.NtpConfig.Server
-}
-
 func getHostSystem(hostNameObj *types.ManagedObjectReference, hostSystems []mo.HostSystem) *mo.HostSystem {
 	if hostNameObj == nil {
 		return nil
@@ -135,9 +117,9 @@ func getHostSystem(hostNameObj *types.ManagedObjectReference, hostSystems []mo.H
 func (v *VCenterDriver) ValidateHostNTPSettings(ctx context.Context, finder *find.Finder, datacenter, clusterName string, hosts []string) (bool, []string, error) {
 	var failures []string
 
-	hostsDateInfo := make([]HostDateInfo, 0, len(hosts))
+	hostsDateInfo := make([]vcenter.HostDateInfo, 0, len(hosts))
 	for _, host := range hosts {
-		_, hostObj, err := v.GetHostIfExists(ctx, finder, datacenter, clusterName, host)
+		hostObj, err := v.GetHost(ctx, finder, datacenter, clusterName, host)
 		if err != nil {
 			return false, nil, err
 		}
@@ -162,7 +144,7 @@ func (v *VCenterDriver) ValidateHostNTPSettings(ctx context.Context, finder *fin
 			return false, nil, err
 		}
 
-		res := &HostDateInfo{HostDateTimeInfo: hs.DateTimeInfo}
+		res := &vcenter.HostDateInfo{HostDateTimeInfo: hs.DateTimeInfo}
 
 		for i, service := range services {
 			if service.Key == "ntpd" {
@@ -184,7 +166,7 @@ func (v *VCenterDriver) ValidateHostNTPSettings(ctx context.Context, finder *fin
 		res.ClientStatus = service.Policy(*res.Service)
 		res.ServiceStatus = service.Status(*res.Service)
 		res.HostName = host
-		res.NtpServers = res.servers()
+		res.NTPServers = res.Servers()
 
 		hostsDateInfo = append(hostsDateInfo, *res)
 	}
@@ -213,13 +195,13 @@ func (v *VCenterDriver) ValidateHostNTPSettings(ctx context.Context, finder *fin
 	return true, failures, nil
 }
 
-func validateHostNTPServers(hostsDateInfo []HostDateInfo) error {
+func validateHostNTPServers(hostsDateInfo []vcenter.HostDateInfo) error {
 	var intersectionList []string
 	for i := 0; i < len(hostsDateInfo)-1; i++ {
 		if intersectionList == nil {
-			intersectionList = intersection(hostsDateInfo[i].NtpServers, hostsDateInfo[i+1].NtpServers)
+			intersectionList = intersection(hostsDateInfo[i].NTPServers, hostsDateInfo[i+1].NTPServers)
 		} else {
-			intersectionList = intersection(intersectionList, hostsDateInfo[i+1].NtpServers)
+			intersectionList = intersection(intersectionList, hostsDateInfo[i+1].NTPServers)
 		}
 
 		if intersectionList == nil {

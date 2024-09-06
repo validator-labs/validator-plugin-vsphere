@@ -32,7 +32,32 @@ func init() {
 type VCSimulator struct {
 	Account vcenter.Account
 	Driver  *vsphere.VCenterDriver
+	Options govcOptions
 	log     logr.Logger
+}
+
+type govcOptions struct {
+	InsecureConnection string
+	RefreshRestClient  bool
+
+	Datacenter string
+	Cluster    string
+	Datastore  string
+	VM         string
+
+	Folder       string
+	Host         string
+	Network      network
+	ResourcePool string
+	Portgroup    string
+
+	Template            string
+	ImageTemplateFolder string
+}
+
+type network struct {
+	Name    string
+	Network string
 }
 
 // NewVCSim creates a new VCSimulator
@@ -59,15 +84,32 @@ func NewTestVsphereAccount(username string, port int) vcenter.Account {
 // Start starts the mock vcsim server
 func (v *VCSimulator) Start() {
 	model := simulator.VPX()
-	model.Datacenter = 1
+
+	model.Autostart = false
 	model.Cluster = 2
 	model.ClusterHost = 1
-	model.Host = 1
-	model.Pool = 2
-	model.Machine = 1
+	model.Datacenter = 1
 	model.Datastore = 2
-	model.Autostart = false
+	model.Host = 1
+	model.Machine = 1
+	model.Pool = 2
+	model.Portgroup = 1
 	model.ServiceContent.About.ApiVersion = "6.7.3"
+
+	v.Options = govcOptions{
+		InsecureConnection: strconv.FormatBool(true),
+		Datacenter:         "DC0",
+		Cluster:            "DC0_C0",
+		ResourcePool:       "DC0_C0_RP0",
+		VM:                 "DC0_C0_RP0_VM0",
+		Datastore:          "LocalDS_0",
+		Folder:             "SC_Tyler",
+		Network: network{
+			Name:    "VM Network",
+			Network: "VM Network",
+		},
+		Portgroup: "DVPG0",
+	}
 
 	cleanUp, err := v.createVCenterSimulator(model)
 	if err != nil {
@@ -98,53 +140,27 @@ func (v *VCSimulator) Shutdown() {
 }
 
 func (v *VCSimulator) createFolders() {
-
-	gOpts := v.getOpts()
-
 	folders := []string{}
 
-	folder := gOpts.Folder
+	folder := v.Options.Folder
 	if folder != "" {
-		folderPath := filepath.Join("/", gOpts.Datacenter, "vm", folder)
+		folderPath := filepath.Join("/", v.Options.Datacenter, "vm", folder)
 		folders = append(folders, folderPath)
 	}
 
-	folder = gOpts.ImageTemplateFolder
+	folder = v.Options.ImageTemplateFolder
 	if folder == "" {
 		folder = "spectro-templates"
 	}
-	spectroTemplatePath := filepath.Join("/", gOpts.Datacenter, "vm", folder)
+	spectroTemplatePath := filepath.Join("/", v.Options.Datacenter, "vm", folder)
 	folders = append(folders, spectroTemplatePath)
 
 	ctx, cancel := context.WithCancel(context.Background())
 	defer cancel()
 
-	if err := v.Driver.CreateVSphereVMFolder(ctx, gOpts.Datacenter, folders); err != nil {
-		log.Fatalf("failed to create folder: %v", err)
+	if err := v.Driver.CreateVMFolders(ctx, v.Options.Datacenter, folders); err != nil {
+		log.Fatalf("failed to create folders: %v", err)
 	}
-}
-
-type govcOptions struct {
-	VCenterServer       string
-	VCenterUsername     string
-	VCenterPassword     string
-	InsecureConnection  string
-	Datacenter          string
-	Datastore           string
-	Cluster             string
-	Host                string
-	ResourcePool        string
-	VMName              string
-	Template            string
-	ImageTemplateFolder string
-	Folder              string
-	Network             network
-	RefreshRestClient   bool
-}
-
-type network struct {
-	Name    string
-	Network string
 }
 
 // createvCenterSimulator creates a vCenter simulator
@@ -175,23 +191,4 @@ func (v *VCSimulator) createVCenterSimulator(model *simulator.Model) (func(), er
 	return func() {
 		s.Close()
 	}, nil
-}
-
-func (v *VCSimulator) getOpts() govcOptions {
-	return govcOptions{
-		VCenterServer:      v.Account.Host,
-		VCenterUsername:    v.Account.Username,
-		VCenterPassword:    v.Account.Password,
-		InsecureConnection: strconv.FormatBool(true),
-		Datacenter:         "DC0",
-		Cluster:            "DC0_C0",
-		ResourcePool:       "DC0_C0_RP0",
-		VMName:             "DC0_C0_RP0_VM0",
-		Datastore:          "LocalDS_0",
-		Folder:             "SC_Tyler",
-		Network: network{
-			Name:    "VM Network",
-			Network: "VM Network",
-		},
-	}
 }

@@ -12,25 +12,25 @@ import (
 	"github.com/vmware/govmomi/object"
 )
 
-// FolderExists checks if a folder exists in the vSphere inventory
-func (v *VCenterDriver) FolderExists(ctx context.Context, finder *find.Finder, folderName string) (bool, error) {
-	if _, err := finder.Folder(ctx, folderName); err != nil {
-		return false, nil
+// FolderExists checks if a folder exists in the vCenter inventory
+func (v *VCenterDriver) FolderExists(ctx context.Context, finder *find.Finder, name string) bool {
+	if _, err := finder.Folder(ctx, name); err != nil {
+		return false
 	}
-	return true, nil
+	return true
 }
 
-// GetFolderIfExists returns the folder if it exists
-func (v *VCenterDriver) GetFolderIfExists(ctx context.Context, finder *find.Finder, folderName string) (bool, *object.Folder, error) {
-	folder, err := finder.Folder(ctx, folderName)
+// GetFolder returns the vCenter VM folder if it exists
+func (v *VCenterDriver) GetFolder(ctx context.Context, finder *find.Finder, name string) (*object.Folder, error) {
+	folder, err := finder.Folder(ctx, name)
 	if err != nil {
-		return false, nil, err
+		return nil, err
 	}
-	return true, folder, nil
+	return folder, nil
 }
 
-// GetVSphereVMFolders returns a list of vSphere VM folders
-func (v *VCenterDriver) GetVSphereVMFolders(ctx context.Context, datacenter string) ([]string, error) {
+// GetVMFolders returns a list of vCenter VM folders
+func (v *VCenterDriver) GetVMFolders(ctx context.Context, datacenter string) ([]string, error) {
 	finder, dc, err := v.GetFinderWithDatacenter(ctx, datacenter)
 	if err != nil {
 		return nil, err
@@ -90,15 +90,15 @@ func (v *VCenterDriver) GetFolderNameByID(ctx context.Context, datacenter, id st
 	return "", fmt.Errorf("unable to find folder with id: %s", id)
 }
 
-// CreateVSphereVMFolder creates a vSphere VM folder
-func (v *VCenterDriver) CreateVSphereVMFolder(ctx context.Context, datacenter string, folders []string) error {
+// CreateVMFolders creates one or more vCenter VM folder(s)
+func (v *VCenterDriver) CreateVMFolders(ctx context.Context, datacenter string, folders []string) error {
 	finder, _, err := v.GetFinderWithDatacenter(ctx, datacenter)
 	if err != nil {
 		return err
 	}
 
 	for _, folder := range folders {
-		folderExists, _, err := v.GetFolderIfExists(ctx, finder, folder)
+		f, err := v.GetFolder(ctx, finder, folder)
 		if err != nil {
 			if strings.HasSuffix(err.Error(), "not found") {
 				v.log.V(1).Info("folder does not exist; will create it", "path", folder)
@@ -106,7 +106,8 @@ func (v *VCenterDriver) CreateVSphereVMFolder(ctx context.Context, datacenter st
 				return errors.Wrap(err, fmt.Sprintf("failed to check if folder %s exists", folder))
 			}
 		}
-		if folderExists {
+		if f != nil {
+			v.log.V(1).Info("folder already exists; skipping", "path", folder)
 			continue
 		}
 
@@ -119,11 +120,11 @@ func (v *VCenterDriver) CreateVSphereVMFolder(ctx context.Context, datacenter st
 
 		folder, err := finder.Folder(ctx, dir)
 		if err != nil {
-			return fmt.Errorf("error fetching folder from directory %s: %w", dir, err)
+			return fmt.Errorf("failed to fetch folder from directory %s: %w", dir, err)
 		}
 
 		if _, err := folder.CreateFolder(ctx, name); err != nil {
-			return fmt.Errorf("error creating folder %s: %w", name, err)
+			return fmt.Errorf("failed to create folder %s: %w", name, err)
 		}
 	}
 

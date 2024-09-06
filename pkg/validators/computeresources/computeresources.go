@@ -16,14 +16,16 @@ import (
 	corev1 "k8s.io/api/core/v1"
 	"k8s.io/apimachinery/pkg/api/resource"
 
-	"github.com/validator-labs/validator-plugin-vsphere/api/v1alpha1"
-	"github.com/validator-labs/validator-plugin-vsphere/api/vcenter"
-	"github.com/validator-labs/validator-plugin-vsphere/pkg/constants"
-	"github.com/validator-labs/validator-plugin-vsphere/pkg/vsphere"
 	vapi "github.com/validator-labs/validator/api/v1alpha1"
 	vapiconstants "github.com/validator-labs/validator/pkg/constants"
 	"github.com/validator-labs/validator/pkg/types"
 	"github.com/validator-labs/validator/pkg/util"
+
+	"github.com/validator-labs/validator-plugin-vsphere/api/v1alpha1"
+	"github.com/validator-labs/validator-plugin-vsphere/api/vcenter"
+	"github.com/validator-labs/validator-plugin-vsphere/api/vcenter/entity"
+	"github.com/validator-labs/validator-plugin-vsphere/pkg/constants"
+	"github.com/validator-labs/validator-plugin-vsphere/pkg/vsphere"
 )
 
 var (
@@ -126,11 +128,11 @@ func (c *ValidationService) ReconcileComputeResourceValidationRule(rule v1alpha1
 
 	var res *Usage
 	switch rule.Scope {
-	case vcenter.Cluster:
+	case entity.Cluster:
 		res, err = clusterUsage(ctx, rule, finder)
-	case vcenter.ResourcePool:
+	case entity.ResourcePool:
 		res, err = resourcePoolUsage(ctx, rule, finder, driver)
-	case vcenter.Host:
+	case entity.Host:
 		res, err = hostUsage(ctx, rule, finder)
 	default:
 		err = fmt.Errorf("unsupported scope: %s", rule.Scope)
@@ -216,8 +218,8 @@ func resourcePoolUsage(ctx context.Context, rule v1alpha1.ComputeResourceRule, f
 	var res Usage
 
 	// cpu & memory
-	inventoryPath := fmt.Sprintf(constants.ResourcePoolInventoryPath, driver.Datacenter, rule.ClusterName, rule.EntityName)
-	if rule.EntityName == constants.ClusterDefaultResourcePoolName {
+	inventoryPath := fmt.Sprintf(vcenter.ResourcePoolInventoryPath, driver.Datacenter, rule.ClusterName, rule.EntityName)
+	if rule.EntityName == vcenter.ClusterDefaultResourcePoolName {
 		inventoryPath = fmt.Sprintf("/%s/host/%s/%s", driver.Datacenter, rule.ClusterName, rule.EntityName)
 	}
 	resourcePool, virtualMachines, err := GetResourcePoolAndVMs(ctx, inventoryPath, finder)
@@ -367,11 +369,11 @@ func getTotalQuantity(quantity string, numberOfNodes int) resource.Quantity {
 // GetScopeKey returns a formatted key depending on the scope of a rule
 func GetScopeKey(rule v1alpha1.ComputeResourceRule) (string, error) {
 	switch rule.Scope {
-	case vcenter.Cluster:
+	case entity.Cluster:
 		return fmt.Sprintf("%s-%s", rule.Scope, rule.EntityName), nil
-	case vcenter.Host:
+	case entity.Host:
 		return fmt.Sprintf("%s-%s", rule.Scope, rule.EntityName), nil
-	case vcenter.ResourcePool:
+	case entity.ResourcePool:
 		return fmt.Sprintf("%s-%s", rule.Scope, rule.ClusterName), nil
 	default:
 		return "", fmt.Errorf("unsupported scope: %s", rule.Scope)

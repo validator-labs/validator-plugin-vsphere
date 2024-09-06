@@ -12,14 +12,16 @@ import (
 	"github.com/vmware/govmomi/vim25/mo"
 	corev1 "k8s.io/api/core/v1"
 
-	"github.com/validator-labs/validator-plugin-vsphere/api/v1alpha1"
-	"github.com/validator-labs/validator-plugin-vsphere/api/vcenter"
-	"github.com/validator-labs/validator-plugin-vsphere/pkg/constants"
-	"github.com/validator-labs/validator-plugin-vsphere/pkg/vsphere"
 	vapi "github.com/validator-labs/validator/api/v1alpha1"
 	vapiconstants "github.com/validator-labs/validator/pkg/constants"
 	vapitypes "github.com/validator-labs/validator/pkg/types"
 	"github.com/validator-labs/validator/pkg/util"
+
+	"github.com/validator-labs/validator-plugin-vsphere/api/v1alpha1"
+	"github.com/validator-labs/validator-plugin-vsphere/api/vcenter"
+	"github.com/validator-labs/validator-plugin-vsphere/api/vcenter/entity"
+	"github.com/validator-labs/validator-plugin-vsphere/pkg/constants"
+	"github.com/validator-labs/validator-plugin-vsphere/pkg/vsphere"
 )
 
 var (
@@ -86,20 +88,20 @@ func tagIsValid(tagsManager *tags.Manager, finder *find.Finder, datacenter strin
 	}
 
 	switch rule.EntityType {
-	case vcenter.Cluster:
-		inventoryPath = fmt.Sprintf(constants.ClusterInventoryPath, datacenter, rule.EntityName)
-	case vcenter.Datacenter:
+	case entity.Cluster:
+		inventoryPath = fmt.Sprintf(vcenter.ClusterInventoryPath, datacenter, rule.EntityName)
+	case entity.Datacenter:
 		inventoryPath = rule.EntityName
-	case vcenter.Folder:
+	case entity.Folder:
 		inventoryPath = rule.EntityName
-	case vcenter.Host:
-		inventoryPath = fmt.Sprintf(constants.HostSystemInventoryPath, datacenter, rule.ClusterName, rule.EntityName)
-	case vcenter.ResourcePool:
-		inventoryPath = fmt.Sprintf(constants.ResourcePoolInventoryPath, datacenter, rule.ClusterName, rule.EntityName)
-		if rule.EntityName == constants.ClusterDefaultResourcePoolName {
+	case entity.Host:
+		inventoryPath = fmt.Sprintf(vcenter.HostSystemInventoryPath, datacenter, rule.ClusterName, rule.EntityName)
+	case entity.ResourcePool:
+		inventoryPath = fmt.Sprintf(vcenter.ResourcePoolInventoryPath, datacenter, rule.ClusterName, rule.EntityName)
+		if rule.EntityName == vcenter.ClusterDefaultResourcePoolName {
 			inventoryPath = fmt.Sprintf("/%s/host/%s/%s", datacenter, rule.ClusterName, rule.EntityName)
 		}
-	case vcenter.VM:
+	case entity.VirtualMachine:
 		inventoryPath = rule.EntityName
 	default:
 		return false, fmt.Errorf("unsupported entity type: %s", rule.EntityType)

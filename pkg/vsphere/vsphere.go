@@ -32,11 +32,11 @@ const (
 	// KeepAliveIntervalInMinute is the interval in minutes for keep alive in the govmomi vim25 client
 	KeepAliveIntervalInMinute = 10
 
-	// DatacenterTagCategory is the tag category for datacenter
-	DatacenterTagCategory = "k8s-region"
+	// K8sDatacenterTagCategory is the tag category for kubernetes-enabled datacenters
+	K8sDatacenterTagCategory = "k8s-region"
 
-	// ComputeClusterTagCategory is the tag category for compute cluster
-	ComputeClusterTagCategory = "k8s-zone"
+	// K8sComputeClusterTagCategory is the tag category for kubernetes-enabled compute clusters
+	K8sComputeClusterTagCategory = "k8s-zone"
 )
 
 var (
@@ -47,16 +47,16 @@ var (
 
 // Driver is an interface that defines the functions to interact with vSphere
 type Driver interface {
-	GetVSphereVMFolders(ctx context.Context, datacenter string) ([]string, error)
-	GetVSphereDatacenters(ctx context.Context) ([]string, error)
-	GetVSphereClusters(ctx context.Context, datacenter string) ([]string, error)
-	GetVSphereHostSystems(ctx context.Context, datacenter, cluster string) ([]HostSystem, error)
-	IsValidVSphereCredentials() (bool, error)
-	ValidateVsphereVersion(constraint string) error
+	GetVMFolders(ctx context.Context, datacenter string) ([]string, error)
+	GetK8sDatacenters(ctx context.Context) ([]string, error)
+	GetK8sClusters(ctx context.Context, datacenter string) ([]string, error)
+	GetHostSystems(ctx context.Context, datacenter, cluster string) ([]vcenter.HostSystem, error)
+	ValidateCredentials() (bool, error)
+	ValidateVersion(constraint string) error
 	GetHostClusterMapping(ctx context.Context) (map[string]string, error)
-	GetVSphereVms(ctx context.Context, dcName string) ([]VM, error)
+	GetVMs(ctx context.Context, dcName string) ([]vcenter.VM, error)
 	GetResourcePools(ctx context.Context, datacenter string, cluster string) ([]*object.ResourcePool, error)
-	GetVapps(ctx context.Context) ([]mo.VirtualApp, error)
+	GetVApps(ctx context.Context) ([]mo.VirtualApp, error)
 	GetResourceTags(ctx context.Context, resourceType string) (map[string]tags.AttachedTags, error)
 }
 
@@ -94,18 +94,16 @@ func NewVCenterDriver(account vcenter.Account, datacenter string, log logr.Logge
 	}, nil
 }
 
-// IsValidVSphereCredentials checks if the vSphere credentials are valid
-func (v *VCenterDriver) IsValidVSphereCredentials() (bool, error) {
-	_, err := v.getFinder()
-	if err != nil {
+// ValidateCredentials ensures that vCenter account credentials are valid
+func (v *VCenterDriver) ValidateCredentials() (bool, error) {
+	if _, err := v.getFinder(); err != nil {
 		return false, err
 	}
-
 	return true, nil
 }
 
-// ValidateVsphereVersion validates the vSphere version satisfies the given constraint
-func (v *VCenterDriver) ValidateVsphereVersion(constraint string) error {
+// ValidateVersion ensures that the vSphere version satisfies the given constraint
+func (v *VCenterDriver) ValidateVersion(constraint string) error {
 	vsphereVersion := v.Client.ServiceContent.About.Version
 	vn, err := version.NewVersion(vsphereVersion)
 	if err != nil {
@@ -116,7 +114,7 @@ func (v *VCenterDriver) ValidateVsphereVersion(constraint string) error {
 		return err
 	}
 	if !constraints.Check(vn) {
-		return fmt.Errorf("vSphere version %s does not satisfies the constraints %s", vsphereVersion, constraints)
+		return fmt.Errorf("vSphere version %s does not satisfy the constraints: %s", vsphereVersion, constraints)
 	}
 	return nil
 }
