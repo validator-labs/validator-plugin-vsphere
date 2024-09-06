@@ -25,14 +25,14 @@ var errRequiredPrivilegesNotFound = errors.New("one or more required privileges 
 // PrivilegeValidationService is a service that validates user privileges
 type PrivilegeValidationService struct {
 	log         logr.Logger
-	driver      *vsphere.CloudDriver
+	driver      *vsphere.VCenterDriver
 	datacenter  string
 	authManager *object.AuthorizationManager
 	userName    string
 }
 
 // NewPrivilegeValidationService creates a new PrivilegeValidationService
-func NewPrivilegeValidationService(log logr.Logger, driver *vsphere.CloudDriver, datacenter string, authManager *object.AuthorizationManager, userName string) *PrivilegeValidationService {
+func NewPrivilegeValidationService(log logr.Logger, driver *vsphere.VCenterDriver, datacenter string, authManager *object.AuthorizationManager, userName string) *PrivilegeValidationService {
 	return &PrivilegeValidationService{
 		log:         log,
 		driver:      driver,

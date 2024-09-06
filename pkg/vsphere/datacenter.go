@@ -11,7 +11,7 @@ import (
 )
 
 // GetDatacenterIfExists returns a datacenter object if it exists
-func (v *CloudDriver) GetDatacenterIfExists(ctx context.Context, finder *find.Finder, datacenter string) (bool, *object.Datacenter, error) {
+func (v *VCenterDriver) GetDatacenterIfExists(ctx context.Context, finder *find.Finder, datacenter string) (bool, *object.Datacenter, error) {
 	dc, err := finder.Datacenter(ctx, datacenter)
 	if err != nil {
 		return false, nil, err
@@ -20,7 +20,7 @@ func (v *CloudDriver) GetDatacenterIfExists(ctx context.Context, finder *find.Fi
 }
 
 // GetVSphereDatacenters returns a sorted list of datacenters in the vSphere environment
-func (v *CloudDriver) GetVSphereDatacenters(ctx context.Context) ([]string, error) {
+func (v *VCenterDriver) GetVSphereDatacenters(ctx context.Context) ([]string, error) {
 	finder, err := v.getFinder()
 	if err != nil {
 		return nil, err

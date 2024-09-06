@@ -12,18 +12,17 @@ import (
 	"github.com/vmware/govmomi/vim25/types"
 )
 
-// GetCurrentVmwareUser returns the user name the CloudDriver is currently authenticated with
-func (v *CloudDriver) GetCurrentVmwareUser(ctx context.Context) (string, error) {
-	userSession, err := v.Client.SessionManager.UserSession(ctx)
+// CurrentUser returns the username of the user the vCenter driver is currently authenticated as
+func (v *VCenterDriver) CurrentUser(ctx context.Context) (string, error) {
+	session, err := v.Client.SessionManager.UserSession(ctx)
 	if err != nil {
 		return "", err
 	}
-
-	return userSession.UserName, nil
+	return session.UserName, nil
 }
 
 // ValidateUserPrivilegeOnEntities validates the user privileges on the entities
-func (v *CloudDriver) ValidateUserPrivilegeOnEntities(ctx context.Context, authManager *object.AuthorizationManager, datacenter string, finder *find.Finder, rule v1alpha1.PrivilegeValidationRule) ([]string, error) {
+func (v *VCenterDriver) ValidateUserPrivilegeOnEntities(ctx context.Context, authManager *object.AuthorizationManager, datacenter string, finder *find.Finder, rule v1alpha1.PrivilegeValidationRule) ([]string, error) {
 
 	var obj object.Common
 

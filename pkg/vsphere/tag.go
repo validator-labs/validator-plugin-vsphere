@@ -2,7 +2,6 @@ package vsphere
 
 import (
 	"context"
-	"net/url"
 
 	"github.com/pkg/errors"
 	"github.com/vmware/govmomi/property"
@@ -14,7 +13,7 @@ import (
 )
 
 // GetResourceTags returns a map of resource tags
-func (v *CloudDriver) GetResourceTags(ctx context.Context, resourceType string) (map[string]tags.AttachedTags, error) {
+func (v *VCenterDriver) GetResourceTags(ctx context.Context, resourceType string) (map[string]tags.AttachedTags, error) {
 	tags, err := v.getResourceTags(ctx, v.Client.Client, resourceType)
 	if err != nil {
 		return nil, err
@@ -23,7 +22,7 @@ func (v *CloudDriver) GetResourceTags(ctx context.Context, resourceType string) 
 	return tags, nil
 }
 
-func (v *CloudDriver) getTagsAndCategory(ctx context.Context, client *vim25.Client, resourceType, tagCategory string) (map[string]tags.AttachedTags, string, error) {
+func (v *VCenterDriver) getTagsAndCategory(ctx context.Context, client *vim25.Client, resourceType, tagCategory string) (map[string]tags.AttachedTags, string, error) {
 	categoryID, e := v.getCategoryID(ctx, client, tagCategory)
 	if e != nil {
 		return nil, "", e
@@ -44,9 +43,9 @@ func (v *CloudDriver) getTagsAndCategory(ctx context.Context, client *vim25.Clie
 	return tags, categoryID, e
 }
 
-func (v *CloudDriver) getTagManager(ctx context.Context, client *vim25.Client) (*tags.Manager, error) {
+func (v *VCenterDriver) getTagManager(ctx context.Context, client *vim25.Client) (*tags.Manager, error) {
 	c := rest.NewClient(client)
-	err := c.Login(ctx, url.UserPassword(v.VCenterUsername, v.VCenterPassword))
+	err := c.Login(ctx, v.Account.Userinfo())
 	if err != nil {
 		return nil, err
 	}
@@ -54,7 +53,7 @@ func (v *CloudDriver) getTagManager(ctx context.Context, client *vim25.Client) (
 	return tags.NewManager(c), nil
 }
 
-func (v *CloudDriver) getResourceTags(ctx context.Context, client *vim25.Client, resourceType string) (map[string]tags.AttachedTags, error) {
+func (v *VCenterDriver) getResourceTags(ctx context.Context, client *vim25.Client, resourceType string) (map[string]tags.AttachedTags, error) {
 	t, err := v.getTagManager(ctx, client)
 	if err != nil {
 		return nil, err
@@ -85,7 +84,7 @@ func (v *CloudDriver) getResourceTags(ctx context.Context, client *vim25.Client,
 	return tags, nil
 }
 
-func (v *CloudDriver) getCategoryID(ctx context.Context, client *vim25.Client, name string) (string, error) {
+func (v *VCenterDriver) getCategoryID(ctx context.Context, client *vim25.Client, name string) (string, error) {
 	t, err := v.getTagManager(ctx, client)
 	if err != nil {
 		return "", err
@@ -102,7 +101,7 @@ func (v *CloudDriver) getCategoryID(ctx context.Context, client *vim25.Client, n
 	return "", nil
 }
 
-func (v *CloudDriver) ifTagHasCategory(tags []tags.Tag, categoryID string) bool {
+func (v *VCenterDriver) ifTagHasCategory(tags []tags.Tag, categoryID string) bool {
 	for _, tag := range tags {
 		if tag.CategoryID == categoryID {
 			return true

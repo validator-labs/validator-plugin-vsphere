@@ -1,6 +1,8 @@
 // Package vcenter contains vCenter object types.
 package vcenter
 
+import "net/url"
+
 // Account contains vCenter account details.
 type Account struct {
 	// Insecure controls whether to validate the vCenter server's certificate.
@@ -14,6 +16,11 @@ type Account struct {
 
 	// Host is the vCenter URL.
 	Host string `json:"host" yaml:"host"`
+}
+
+// Userinfo returns a vCenter account's credentials in Userinfo format.
+func (a Account) Userinfo() *url.Userinfo {
+	return url.UserPassword(a.Username, a.Password)
 }
 
 // Entity represents a vCenter entity, referenceable via govmomi.

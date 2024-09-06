@@ -36,11 +36,11 @@ var (
 // ValidationService is a service that validates compute resource rules
 type ValidationService struct {
 	log    logr.Logger
-	driver *vsphere.CloudDriver
+	driver *vsphere.VCenterDriver
 }
 
 // NewValidationService creates a new ValidationService
-func NewValidationService(log logr.Logger, driver *vsphere.CloudDriver) *ValidationService {
+func NewValidationService(log logr.Logger, driver *vsphere.VCenterDriver) *ValidationService {
 	return &ValidationService{
 		log:    log,
 		driver: driver,
@@ -105,7 +105,7 @@ type Usage struct {
 }
 
 // ReconcileComputeResourceValidationRule reconciles the compute resource rule
-func (c *ValidationService) ReconcileComputeResourceValidationRule(rule v1alpha1.ComputeResourceRule, finder *find.Finder, driver *vsphere.CloudDriver, seenScopes map[string]bool) (*types.ValidationRuleResult, error) {
+func (c *ValidationService) ReconcileComputeResourceValidationRule(rule v1alpha1.ComputeResourceRule, finder *find.Finder, driver *vsphere.VCenterDriver, seenScopes map[string]bool) (*types.ValidationRuleResult, error) {
 
 	vr := buildValidationResult(rule, constants.ValidationTypeComputeResources)
 
@@ -212,7 +212,7 @@ func hostUsage(ctx context.Context, rule v1alpha1.ComputeResourceRule, finder *f
 	return &res, nil
 }
 
-func resourcePoolUsage(ctx context.Context, rule v1alpha1.ComputeResourceRule, finder *find.Finder, driver *vsphere.CloudDriver) (*Usage, error) {
+func resourcePoolUsage(ctx context.Context, rule v1alpha1.ComputeResourceRule, finder *find.Finder, driver *vsphere.VCenterDriver) (*Usage, error) {
 	var res Usage
 
 	// cpu & memory

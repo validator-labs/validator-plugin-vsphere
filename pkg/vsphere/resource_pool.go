@@ -15,7 +15,7 @@ import (
 )
 
 // GetResourcePoolIfExists returns the resource pool if it exists
-func (v *CloudDriver) GetResourcePoolIfExists(ctx context.Context, finder *find.Finder, datacenter, cluster, resourcePoolName string) (bool, *object.ResourcePool, error) {
+func (v *VCenterDriver) GetResourcePoolIfExists(ctx context.Context, finder *find.Finder, datacenter, cluster, resourcePoolName string) (bool, *object.ResourcePool, error) {
 	path := fmt.Sprintf("/%s/host/%s/Resources/%s", datacenter, cluster, resourcePoolName)
 	// Handle Cluster level defaut resource pool called 'Resources'
 	if resourcePoolName == constants.ClusterDefaultResourcePoolName {
@@ -29,7 +29,7 @@ func (v *CloudDriver) GetResourcePoolIfExists(ctx context.Context, finder *find.
 }
 
 // GetResourcePools returns a list of resource pools
-func (v *CloudDriver) GetResourcePools(ctx context.Context, datacenter string, cluster string) ([]*object.ResourcePool, error) {
+func (v *VCenterDriver) GetResourcePools(ctx context.Context, datacenter string, cluster string) ([]*object.ResourcePool, error) {
 	path := fmt.Sprintf("/%s/host/%s/Resources/*", datacenter, cluster)
 
 	if cluster == "" {
@@ -45,7 +45,7 @@ func (v *CloudDriver) GetResourcePools(ctx context.Context, datacenter string, c
 }
 
 // GetVSphereResourcePools returns a sorted list of resource pool paths
-func (v *CloudDriver) GetVSphereResourcePools(ctx context.Context, datacenter string, cluster string) (resourcePools []string, err error) {
+func (v *VCenterDriver) GetVSphereResourcePools(ctx context.Context, datacenter string, cluster string) (resourcePools []string, err error) {
 	finder, dc, err := v.GetFinderWithDatacenter(ctx, datacenter)
 	if err != nil {
 		return nil, err
@@ -76,7 +76,7 @@ func (v *CloudDriver) GetVSphereResourcePools(ctx context.Context, datacenter st
 	return resourcePools, nil
 }
 
-func (v *CloudDriver) getResourcePools(ctx context.Context, datacenter, path string) ([]*object.ResourcePool, error) {
+func (v *VCenterDriver) getResourcePools(ctx context.Context, datacenter, path string) ([]*object.ResourcePool, error) {
 	finder, _, err := v.GetFinderWithDatacenter(ctx, datacenter)
 	if err != nil {
 		return nil, errors.Wrap(err, "failed to get finder with datacenter")

@@ -43,7 +43,7 @@ func NewValidationService(log logr.Logger) *ValidationService {
 }
 
 // ReconcileTagRules reconciles the tag rules
-func (s *ValidationService) ReconcileTagRules(tagsManager *tags.Manager, finder *find.Finder, driver *vsphere.CloudDriver, rule v1alpha1.TagValidationRule) (*vapitypes.ValidationRuleResult, error) {
+func (s *ValidationService) ReconcileTagRules(tagsManager *tags.Manager, finder *find.Finder, driver *vsphere.VCenterDriver, rule v1alpha1.TagValidationRule) (*vapitypes.ValidationRuleResult, error) {
 	vr := buildValidationResult(rule, constants.ValidationTypeTag)
 
 	valid, err := tagIsValid(tagsManager, finder, driver.Datacenter, rule)

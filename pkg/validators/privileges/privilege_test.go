@@ -34,12 +34,12 @@ func TestPrivilegeValidationService_ReconcilePrivilegeRule(t *testing.T) {
 	ctx, cancel := context.WithCancel(context.Background())
 	defer cancel()
 
-	userName, err := vcSim.Driver.GetCurrentVmwareUser(ctx)
+	username, err := vcSim.Driver.CurrentUser(ctx)
 	if err != nil {
 		t.Fatal("Error in getting current VMware user from username")
 	}
 
-	validationService := NewPrivilegeValidationService(log, vcSim.Driver, "DC0", authManager, userName)
+	validationService := NewPrivilegeValidationService(log, vcSim.Driver, "DC0", authManager, username)
 
 	testCases := []struct {
 		name           string
@@ -51,7 +51,7 @@ func TestPrivilegeValidationService_ReconcilePrivilegeRule(t *testing.T) {
 			name: "All privileges available",
 			rule: v1alpha1.PrivilegeValidationRule{
 				RuleName:    "VirtualMachine.Config.AddExistingDisk",
-				Username:    userName,
+				Username:    username,
 				ClusterName: "DC0_C0",
 				EntityType:  vcenter.Cluster,
 				EntityName:  "DC0_C0",
@@ -62,7 +62,7 @@ func TestPrivilegeValidationService_ReconcilePrivilegeRule(t *testing.T) {
 			expectedResult: types.ValidationRuleResult{Condition: &vapi.ValidationCondition{
 				ValidationType: "vsphere-privileges",
 				ValidationRule: "validation-cluster-DC0_C0",
-				Message:        fmt.Sprintf("All required vsphere-privileges permissions were found for account: %s", userName),
+				Message:        fmt.Sprintf("All required vsphere-privileges permissions were found for account: %s", username),
 				Details:        []string{},
 				Failures:       nil,
 				Status:         corev1.ConditionTrue,
@@ -74,7 +74,7 @@ func TestPrivilegeValidationService_ReconcilePrivilegeRule(t *testing.T) {
 			name: "Certain privilege not available",
 			rule: v1alpha1.PrivilegeValidationRule{
 				RuleName:    "VirtualMachine.Config.AddExistingDisk",
-				Username:    userName,
+				Username:    username,
 				ClusterName: "DC0_C0",
 				EntityType:  vcenter.Cluster,
 				EntityName:  "DC0_C0",
@@ -85,7 +85,7 @@ func TestPrivilegeValidationService_ReconcilePrivilegeRule(t *testing.T) {
 			expectedResult: types.ValidationRuleResult{Condition: &vapi.ValidationCondition{
 				ValidationType: "vsphere-privileges",
 				ValidationRule: "validation-cluster-DC0_C0",
-				Message:        fmt.Sprintf("One or more required privileges was not found, or a condition was not met for account: %s", userName),
+				Message:        fmt.Sprintf("One or more required privileges was not found, or a condition was not met for account: %s", username),
 				Details:        []string{},
 				Failures:       []string{"user: admin2@vsphere.local does not have privilege: VirtualMachine.Config.DestroyExistingDisk on entity type: cluster with name: DC0_C0"},
 				Status:         corev1.ConditionFalse,

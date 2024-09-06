@@ -22,12 +22,12 @@ import (
 // ValidationService is a service that validates NTP rules
 type ValidationService struct {
 	log        logr.Logger
-	driver     *vsphere.CloudDriver
+	driver     *vsphere.VCenterDriver
 	datacenter string
 }
 
 // NewValidationService creates a new ValidationService
-func NewValidationService(log logr.Logger, driver *vsphere.CloudDriver, datacenter string) *ValidationService {
+func NewValidationService(log logr.Logger, driver *vsphere.VCenterDriver, datacenter string) *ValidationService {
 	return &ValidationService{
 		log:        log,
 		driver:     driver,

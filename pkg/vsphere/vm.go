@@ -91,7 +91,7 @@ type Datastore struct {
 }
 
 // GetVMIfExists returns the VM if it exists
-func (v *CloudDriver) GetVMIfExists(ctx context.Context, finder *find.Finder, vmName string) (bool, *object.VirtualMachine, error) {
+func (v *VCenterDriver) GetVMIfExists(ctx context.Context, finder *find.Finder, vmName string) (bool, *object.VirtualMachine, error) {
 	vm, err := finder.VirtualMachine(ctx, vmName)
 	if err != nil {
 		return false, nil, err
@@ -100,7 +100,7 @@ func (v *CloudDriver) GetVMIfExists(ctx context.Context, finder *find.Finder, vm
 }
 
 // GetVSphereVms returns a list of vSphere VMs
-func (v *CloudDriver) GetVSphereVms(ctx context.Context, dcName string) ([]VM, error) {
+func (v *VCenterDriver) GetVSphereVms(ctx context.Context, dcName string) ([]VM, error) {
 	finder, v1, client, err := v.getVMClient(ctx, dcName)
 	if err != nil {
 		return nil, err
@@ -114,7 +114,7 @@ func (v *CloudDriver) GetVSphereVms(ctx context.Context, dcName string) ([]VM, e
 	return v.getVMInfo(ctx, finder, client, v1, vms)
 }
 
-func (v *CloudDriver) getVMClient(ctx context.Context, dcName string) (*find.Finder, *view.ContainerView, *vim25.Client, error) {
+func (v *VCenterDriver) getVMClient(ctx context.Context, dcName string) (*find.Finder, *view.ContainerView, *vim25.Client, error) {
 	finder, _, err := v.GetFinderWithDatacenter(ctx, dcName)
 	if err != nil {
 		return nil, nil, nil, err
@@ -135,7 +135,7 @@ func (v *CloudDriver) getVMClient(ctx context.Context, dcName string) (*find.Fin
 	return finder, v1, client, nil
 }
 
-func (v *CloudDriver) getVms(ctx context.Context, v1 *view.ContainerView, filter *property.Match) ([]mo.VirtualMachine, error) {
+func (v *VCenterDriver) getVms(ctx context.Context, v1 *view.ContainerView, filter *property.Match) ([]mo.VirtualMachine, error) {
 	vms := make([]mo.VirtualMachine, 0)
 	var err error
 	kind := []string{"VirtualMachine"}
@@ -154,7 +154,7 @@ func (v *CloudDriver) getVms(ctx context.Context, v1 *view.ContainerView, filter
 	return vms, nil
 }
 
-func (v *CloudDriver) getVMInfo(ctx context.Context, finder *find.Finder, client *vim25.Client, v1 *view.ContainerView, vms []mo.VirtualMachine) ([]VM, error) {
+func (v *VCenterDriver) getVMInfo(ctx context.Context, finder *find.Finder, client *vim25.Client, v1 *view.ContainerView, vms []mo.VirtualMachine) ([]VM, error) {
 	metrics, err := v.GetMetrics(ctx, client)
 	if err != nil {
 		return nil, errors.Wrap(err, "failed to get view manager while fetching vSphere vms")
@@ -193,7 +193,7 @@ func (v *CloudDriver) getVMInfo(ctx context.Context, finder *find.Finder, client
 	return ToVSphereVMs(vms, metrics, networks, datastores, folders, hostSystems, ccrs, vmParentRefs), nil
 }
 
-func (v *CloudDriver) getVMParentRefs(ctx context.Context, v1 *view.ContainerView) ([]mo.VirtualMachine, error) {
+func (v *VCenterDriver) getVMParentRefs(ctx context.Context, v1 *view.ContainerView) ([]mo.VirtualMachine, error) {
 	var vms []mo.VirtualMachine
 	err := v1.Retrieve(ctx, []string{"VirtualMachine"}, []string{"parent", "summary"}, &vms)
 	if err != nil {
@@ -203,7 +203,7 @@ func (v *CloudDriver) getVMParentRefs(ctx context.Context, v1 *view.ContainerVie
 }
 
 // GetMetrics returns the metrics for the given VMs
-func (v *CloudDriver) GetMetrics(ctx context.Context, c *vim25.Client) ([]performance.EntityMetric, error) {
+func (v *VCenterDriver) GetMetrics(ctx context.Context, c *vim25.Client) ([]performance.EntityMetric, error) {
 	m := view.NewManager(c)
 
 	v1, err := m.CreateContainerView(ctx, c.ServiceContent.RootFolder, nil, true)
