@@ -11,6 +11,7 @@ import (
 	v1 "k8s.io/apimachinery/pkg/apis/meta/v1"
 
 	"github.com/validator-labs/validator-plugin-vsphere/api/v1alpha1"
+	"github.com/validator-labs/validator-plugin-vsphere/api/vcenter"
 	"github.com/validator-labs/validator-plugin-vsphere/pkg/vcsim"
 )
 
@@ -33,7 +34,7 @@ func TestValidate(t *testing.T) {
 				Datacenter: "DC0",
 				PrivilegeValidationRules: testRules([]privilegeRuleInput{
 					{
-						EntityType: "cluster",
+						EntityType: vcenter.Cluster,
 						EntityName: "DC0_C0",
 						Privileges: []string{"Alarm.Acknowledge"},
 					},
@@ -50,7 +51,7 @@ func TestValidate(t *testing.T) {
 				Datacenter: "DC0",
 				PrivilegeValidationRules: testRules([]privilegeRuleInput{
 					{
-						EntityType: "cluster",
+						EntityType: vcenter.Cluster,
 						EntityName: "DC0_C0",
 						Privileges: []string{"Nonexistent"},
 					},
@@ -76,7 +77,7 @@ func TestValidate(t *testing.T) {
 }
 
 type privilegeRuleInput struct {
-	EntityType string
+	EntityType vcenter.Entity
 	EntityName string
 	Privileges []string
 }

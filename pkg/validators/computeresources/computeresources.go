@@ -17,6 +17,7 @@ import (
 	"k8s.io/apimachinery/pkg/api/resource"
 
 	"github.com/validator-labs/validator-plugin-vsphere/api/v1alpha1"
+	"github.com/validator-labs/validator-plugin-vsphere/api/vcenter"
 	"github.com/validator-labs/validator-plugin-vsphere/pkg/constants"
 	"github.com/validator-labs/validator-plugin-vsphere/pkg/vsphere"
 	vapi "github.com/validator-labs/validator/api/v1alpha1"
@@ -125,11 +126,11 @@ func (c *ValidationService) ReconcileComputeResourceValidationRule(rule v1alpha1
 
 	var res *Usage
 	switch rule.Scope {
-	case "cluster":
+	case vcenter.Cluster:
 		res, err = clusterUsage(ctx, rule, finder)
-	case "resourcepool":
+	case vcenter.ResourcePool:
 		res, err = resourcePoolUsage(ctx, rule, finder, driver)
-	case "host":
+	case vcenter.Host:
 		res, err = hostUsage(ctx, rule, finder)
 	default:
 		err = fmt.Errorf("unsupported scope: %s", rule.Scope)
@@ -366,11 +367,11 @@ func getTotalQuantity(quantity string, numberOfNodes int) resource.Quantity {
 // GetScopeKey returns a formatted key depending on the scope of a rule
 func GetScopeKey(rule v1alpha1.ComputeResourceRule) (string, error) {
 	switch rule.Scope {
-	case "cluster":
+	case vcenter.Cluster:
 		return fmt.Sprintf("%s-%s", rule.Scope, rule.EntityName), nil
-	case "host":
+	case vcenter.Host:
 		return fmt.Sprintf("%s-%s", rule.Scope, rule.EntityName), nil
-	case "resourcepool":
+	case vcenter.ResourcePool:
 		return fmt.Sprintf("%s-%s", rule.Scope, rule.ClusterName), nil
 	default:
 		return "", fmt.Errorf("unsupported scope: %s", rule.Scope)

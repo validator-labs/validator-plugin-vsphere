@@ -33,8 +33,8 @@ import (
 	"sigs.k8s.io/controller-runtime/pkg/client"
 
 	"github.com/validator-labs/validator-plugin-vsphere/api/v1alpha1"
+	"github.com/validator-labs/validator-plugin-vsphere/api/vcenter"
 	"github.com/validator-labs/validator-plugin-vsphere/pkg/validate"
-	"github.com/validator-labs/validator-plugin-vsphere/pkg/vsphere"
 	vapi "github.com/validator-labs/validator/api/v1alpha1"
 	vres "github.com/validator-labs/validator/pkg/validationresult"
 )
@@ -149,7 +149,7 @@ func (r *VsphereValidatorReconciler) secretKeyAuth(req ctrl.Request, validator *
 		return fmt.Errorf("failed to convert insecureSkipVerify to bool: %w", err)
 	}
 
-	validator.Spec.Auth.Account = &vsphere.Account{
+	validator.Spec.Auth.Account = &vcenter.Account{
 		Insecure: skipVerify,
 		Username: string(username),
 		Password: string(password),

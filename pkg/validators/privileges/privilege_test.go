@@ -11,6 +11,7 @@ import (
 	corev1 "k8s.io/api/core/v1"
 
 	"github.com/validator-labs/validator-plugin-vsphere/api/v1alpha1"
+	"github.com/validator-labs/validator-plugin-vsphere/api/vcenter"
 	"github.com/validator-labs/validator-plugin-vsphere/pkg/vcsim"
 	vapi "github.com/validator-labs/validator/api/v1alpha1"
 	"github.com/validator-labs/validator/pkg/types"
@@ -52,7 +53,7 @@ func TestPrivilegeValidationService_ReconcilePrivilegeRule(t *testing.T) {
 				RuleName:    "VirtualMachine.Config.AddExistingDisk",
 				Username:    userName,
 				ClusterName: "DC0_C0",
-				EntityType:  "cluster",
+				EntityType:  vcenter.Cluster,
 				EntityName:  "DC0_C0",
 				Privileges: []string{
 					"VirtualMachine.Config.AddExistingDisk",
@@ -75,7 +76,7 @@ func TestPrivilegeValidationService_ReconcilePrivilegeRule(t *testing.T) {
 				RuleName:    "VirtualMachine.Config.AddExistingDisk",
 				Username:    userName,
 				ClusterName: "DC0_C0",
-				EntityType:  "cluster",
+				EntityType:  vcenter.Cluster,
 				EntityName:  "DC0_C0",
 				Privileges: []string{
 					"VirtualMachine.Config.DestroyExistingDisk",

@@ -44,13 +44,13 @@ spec:
                   an VsphereValidator.
                 properties:
                   account:
-                    description: Account is the vSphere account to use for authentication
+                    description: Account is the vCenter account to use for authentication
                     properties:
                       host:
                         description: Host is the vCenter URL.
                         type: string
                       insecure:
-                        description: Insecure controls whether to validate the vSphere
+                        description: Insecure controls whether to validate the vCenter
                           server's certificate.
                         type: boolean
                       password:
@@ -122,11 +122,7 @@ spec:
                     scope:
                       description: Scope is the scope of the compute resource validation
                         rule
-                      enum:
-                      - cluster
-                      - host
-                      - resourcepool
-                      type: string
+                      type: integer
                   required:
                   - entityName
                   - name
@@ -172,19 +168,7 @@ spec:
                       type: string
                     entityType:
                       description: EntityType is the type of the entity to validate
-                      enum:
-                      - cluster
-                      - datacenter
-                      - datastore
-                      - folder
-                      - host
-                      - network
-                      - resourcepool
-                      - vapp
-                      - vcenterroot
-                      - vds
-                      - vm
-                      type: string
+                      type: integer
                     name:
                       description: RuleName is the name of the entity privilege validation
                         rule
@@ -219,14 +203,7 @@ spec:
                       type: string
                     entityType:
                       description: EntityType is the type of the entity to validate
-                      enum:
-                      - cluster
-                      - datacenter
-                      - folder
-                      - host
-                      - resourcepool
-                      - vm
-                      type: string
+                      type: integer
                     name:
                       description: RuleName is the name of the tag validation rule
                       type: string

@@ -21,7 +21,7 @@ limitations under the License.
 package v1alpha1
 
 import (
-	"github.com/validator-labs/validator-plugin-vsphere/pkg/vsphere"
+	"github.com/validator-labs/validator-plugin-vsphere/api/vcenter"
 	runtime "k8s.io/apimachinery/pkg/runtime"
 )
 
@@ -124,7 +124,7 @@ func (in *VsphereAuth) DeepCopyInto(out *VsphereAuth) {
 	*out = *in
 	if in.Account != nil {
 		in, out := &in.Account, &out.Account
-		*out = new(vsphere.Account)
+		*out = new(vcenter.Account)
 		**out = **in
 	}
 }
