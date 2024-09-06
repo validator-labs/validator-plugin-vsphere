@@ -50,10 +50,7 @@ func (s *PrivilegeValidationService) ReconcilePrivilegeRule(rule v1alpha1.Privil
 	ctx, cancel := context.WithCancel(context.Background())
 	defer cancel()
 
-	valid, failures, err := s.driver.ValidateUserPrivilegeOnEntities(ctx, s.authManager, s.datacenter, finder, rule)
-	if !valid {
-		vr.Condition.Failures = failures
-	}
+	vr.Condition.Failures, err = s.driver.ValidateUserPrivilegeOnEntities(ctx, s.authManager, s.datacenter, finder, rule)
 
 	if len(vr.Condition.Failures) > 0 {
 		vr.State = util.Ptr(vapi.ValidationFailed)

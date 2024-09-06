@@ -23,75 +23,73 @@ func (v *CloudDriver) GetCurrentVmwareUser(ctx context.Context) (string, error) 
 }
 
 // ValidateUserPrivilegeOnEntities validates the user privileges on the entities
-func (v *CloudDriver) ValidateUserPrivilegeOnEntities(ctx context.Context, authManager *object.AuthorizationManager, datacenter string, finder *find.Finder, rule v1alpha1.PrivilegeValidationRule) (isValid bool, failures []string, err error) {
+func (v *CloudDriver) ValidateUserPrivilegeOnEntities(ctx context.Context, authManager *object.AuthorizationManager, datacenter string, finder *find.Finder, rule v1alpha1.PrivilegeValidationRule) ([]string, error) {
 
-	var moID types.ManagedObjectReference
+	var obj object.Common
 
 	// TODO: add network, datacenter, datastore, vCenter root, VDS
 
 	switch rule.EntityType {
 	case vcenter.Cluster:
-		var cluster *object.ClusterComputeResource
-		_, cluster, err = v.GetClusterIfExists(ctx, finder, datacenter, rule.EntityName)
+		_, cluster, err := v.GetClusterIfExists(ctx, finder, datacenter, rule.EntityName)
 		if err != nil {
-			return false, failures, err
+			return nil, err
 		}
-		moID = cluster.Reference()
+		obj = cluster.Common
 	case vcenter.Folder:
-		var folder *object.Folder
-		_, folder, err = v.GetFolderIfExists(ctx, finder, rule.EntityName)
+		_, folder, err := v.GetFolderIfExists(ctx, finder, rule.EntityName)
 		if err != nil {
-			return false, failures, err
+			return nil, err
 		}
-		moID = folder.Reference()
+		obj = folder.Common
 	case vcenter.Host:
-		var host *object.HostSystem
-		_, host, err = v.GetHostIfExists(ctx, finder, datacenter, rule.ClusterName, rule.EntityName)
+		_, host, err := v.GetHostIfExists(ctx, finder, datacenter, rule.ClusterName, rule.EntityName)
 		if err != nil {
-			return false, failures, err
+			return nil, err
 		}
-		moID = host.Reference()
+		obj = host.Common
 	case vcenter.ResourcePool:
-		var resourcePool *object.ResourcePool
-		_, resourcePool, err = v.GetResourcePoolIfExists(ctx, finder, datacenter, rule.ClusterName, rule.EntityName)
+		_, resourcePool, err := v.GetResourcePoolIfExists(ctx, finder, datacenter, rule.ClusterName, rule.EntityName)
 		if err != nil {
-			return false, failures, err
+			return nil, err
 		}
-		moID = resourcePool.Reference()
+		obj = resourcePool.Common
 	case vcenter.VApp:
-		var vapp *object.VirtualApp
-		_, vapp, err = v.GetVAppIfExists(ctx, finder, rule.EntityName)
+		_, vapp, err := v.GetVAppIfExists(ctx, finder, rule.EntityName)
 		if err != nil {
-			return false, failures, err
+			return nil, err
 		}
-		moID = vapp.Reference()
+		obj = vapp.Common
 	case vcenter.VM:
-		var vm *object.VirtualMachine
-		_, vm, err = v.GetVMIfExists(ctx, finder, rule.EntityName)
+		_, vm, err := v.GetVMIfExists(ctx, finder, rule.EntityName)
 		if err != nil {
-			return false, failures, err
+			return nil, err
 		}
-		moID = vm.Reference()
+		obj = vm.Common
 	default:
-		return false, failures, fmt.Errorf("unsupported entity type: %s", rule.EntityType)
+		return nil, fmt.Errorf("unsupported entity type: %s", rule.EntityType)
 	}
 
-	userPrincipal := getUserPrincipalFromUsername(rule.Username)
-	privilegeResult, err := authManager.FetchUserPrivilegeOnEntities(ctx, []types.ManagedObjectReference{moID}, userPrincipal)
+	privilegeResult, err := authManager.FetchUserPrivilegeOnEntities(ctx,
+		[]types.ManagedObjectReference{obj.Reference()},
+		getUserPrincipalFromUsername(rule.Username),
+	)
 	if err != nil {
-		return false, failures, err
+		return nil, fmt.Errorf(
+			"failed to fetch privileges on %s %s for user %s: %w",
+			rule.EntityType, rule.EntityName, rule.Username, err,
+		)
 	}
 
+	failures := make([]string, 0)
 	privilegesMap := make(map[string]bool)
 	for _, result := range privilegeResult {
 		for _, privilege := range result.Privileges {
 			privilegesMap[privilege] = true
 		}
 	}
-
 	for _, privilege := range rule.Privileges {
 		if _, ok := privilegesMap[privilege]; !ok {
-			err = fmt.Errorf("some entity privileges were not found for user: %s", rule.Username)
 			failures = append(failures, fmt.Sprintf(
 				"user: %s does not have privilege: %s on entity type: %s with name: %s",
 				rule.Username, privilege, rule.EntityType, rule.EntityName,
@@ -99,11 +97,7 @@ func (v *CloudDriver) ValidateUserPrivilegeOnEntities(ctx context.Context, authM
 		}
 	}
 
-	if len(failures) == 0 {
-		isValid = true
-	}
-
-	return isValid, failures, err
+	return failures, nil
 }
 
 func getUserPrincipalFromUsername(username string) string {
