@@ -12,7 +12,7 @@ import (
 )
 
 // GetClusterIfExists returns the cluster if it exists
-func (v *CloudDriver) GetClusterIfExists(ctx context.Context, finder *find.Finder, datacenter, clusterName string) (bool, *object.ClusterComputeResource, error) {
+func (v *VCenterDriver) GetClusterIfExists(ctx context.Context, finder *find.Finder, datacenter, clusterName string) (bool, *object.ClusterComputeResource, error) {
 	path := fmt.Sprintf("/%s/host/%s", datacenter, clusterName)
 	cluster, err := finder.ClusterComputeResource(ctx, path)
 	if err != nil {
@@ -22,7 +22,7 @@ func (v *CloudDriver) GetClusterIfExists(ctx context.Context, finder *find.Finde
 }
 
 // GetVSphereClusters returns a sorted list of vSphere clusters
-func (v *CloudDriver) GetVSphereClusters(ctx context.Context, datacenter string) ([]string, error) {
+func (v *VCenterDriver) GetVSphereClusters(ctx context.Context, datacenter string) ([]string, error) {
 	finder, dc, err := v.GetFinderWithDatacenter(ctx, datacenter)
 	if err != nil {
 		return nil, err
@@ -61,7 +61,7 @@ func (v *CloudDriver) GetVSphereClusters(ctx context.Context, datacenter string)
 	return clusters, nil
 }
 
-func (v *CloudDriver) getClusterComputeResources(ctx context.Context, finder *find.Finder) ([]*object.ClusterComputeResource, error) {
+func (v *VCenterDriver) getClusterComputeResources(ctx context.Context, finder *find.Finder) ([]*object.ClusterComputeResource, error) {
 	ccrs, err := finder.ClusterComputeResourceList(ctx, "*")
 	if err != nil {
 		return nil, fmt.Errorf("failed to get compute cluster resources: %s", err.Error())

@@ -31,7 +31,7 @@ func init() {
 // VCSimulator is used to mock interactions with a vCenter server
 type VCSimulator struct {
 	Account vcenter.Account
-	Driver  *vsphere.CloudDriver
+	Driver  *vsphere.VCenterDriver
 	log     logr.Logger
 }
 
@@ -74,7 +74,7 @@ func (v *VCSimulator) Start() {
 		log.Fatalf("failed to create vCenter simulator: %s", err)
 	}
 
-	v.Driver, err = vsphere.NewVSphereDriver(v.Account, "DC0", v.log)
+	v.Driver, err = vsphere.NewVCenterDriver(v.Account, "DC0", v.log)
 	if err != nil {
 		log.Fatalf("failed to create driver for vCenter simulator: %s", err)
 	}
@@ -165,7 +165,7 @@ func (v *VCSimulator) createVCenterSimulator(model *simulator.Model) (func(), er
 
 	model.Service.RegisterEndpoints = true
 	model.Service.Listen = &url.URL{
-		User: url.UserPassword(v.Account.Username, v.Account.Password),
+		User: v.Account.Userinfo(),
 		Host: host,
 	}
 	model.Service.TLS = new(tls.Config)

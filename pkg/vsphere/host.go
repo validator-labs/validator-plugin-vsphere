@@ -34,7 +34,7 @@ type HostDateInfo struct {
 }
 
 // GetHostIfExists returns the host system if it exists
-func (v *CloudDriver) GetHostIfExists(ctx context.Context, finder *find.Finder, datacenter, clusterName, hostName string) (bool, *object.HostSystem, error) {
+func (v *VCenterDriver) GetHostIfExists(ctx context.Context, finder *find.Finder, datacenter, clusterName, hostName string) (bool, *object.HostSystem, error) {
 	path := fmt.Sprintf("/%s/host/%s/%s", datacenter, clusterName, hostName)
 	// Handle datacenter level hosts
 	if clusterName == "" {
@@ -48,7 +48,7 @@ func (v *CloudDriver) GetHostIfExists(ctx context.Context, finder *find.Finder, 
 }
 
 // GetVSphereHostSystems returns the vSphere host systems
-func (v *CloudDriver) GetVSphereHostSystems(ctx context.Context, datacenter, cluster string) ([]HostSystem, error) {
+func (v *VCenterDriver) GetVSphereHostSystems(ctx context.Context, datacenter, cluster string) ([]HostSystem, error) {
 	finder, _, err := v.GetFinderWithDatacenter(ctx, datacenter)
 	if err != nil {
 		return nil, err
@@ -79,7 +79,7 @@ func (v *CloudDriver) GetVSphereHostSystems(ctx context.Context, datacenter, clu
 }
 
 // GetHostClusterMapping returns the host cluster mapping
-func (v *CloudDriver) GetHostClusterMapping(ctx context.Context) (map[string]string, error) {
+func (v *VCenterDriver) GetHostClusterMapping(ctx context.Context) (map[string]string, error) {
 	m := view.NewManager(v.Client.Client)
 	pc := property.DefaultCollector(v.Client.Client)
 	var hostClusterMapping = make(map[string]string)
@@ -106,7 +106,7 @@ func (v *CloudDriver) GetHostClusterMapping(ctx context.Context) (map[string]str
 	return hostClusterMapping, nil
 }
 
-func (v *CloudDriver) getHostSystems(ctx context.Context, v1 *view.ContainerView) ([]mo.HostSystem, error) {
+func (v *VCenterDriver) getHostSystems(ctx context.Context, v1 *view.ContainerView) ([]mo.HostSystem, error) {
 	var hs []mo.HostSystem
 	e := v1.Retrieve(ctx, []string{"HostSystem"}, []string{"summary", "name", "parent"}, &hs)
 	if e != nil {
@@ -132,7 +132,7 @@ func getHostSystem(hostNameObj *types.ManagedObjectReference, hostSystems []mo.H
 }
 
 // ValidateHostNTPSettings validates the NTP settings for the hosts
-func (v *CloudDriver) ValidateHostNTPSettings(ctx context.Context, finder *find.Finder, datacenter, clusterName string, hosts []string) (bool, []string, error) {
+func (v *VCenterDriver) ValidateHostNTPSettings(ctx context.Context, finder *find.Finder, datacenter, clusterName string, hosts []string) (bool, []string, error) {
 	var failures []string
 
 	hostsDateInfo := make([]HostDateInfo, 0, len(hosts))

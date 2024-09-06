@@ -95,7 +95,7 @@ func (r *VsphereValidatorReconciler) Reconcile(ctx context.Context, req ctrl.Req
 	// Always update the expected result count in case the validator's rules have changed
 	vr.Spec.ExpectedResults = validator.Spec.ResultCount()
 
-	// Initialize Vsphere driver
+	// Initialize vCenter auth
 	if validator.Spec.Auth.SecretName == "" && validator.Spec.Auth.Account == nil {
 		l.Error(errCredentialsRequired, "failed to reconcile VsphereValidator with empty credentials")
 		return ctrl.Result{}, errCredentialsRequired

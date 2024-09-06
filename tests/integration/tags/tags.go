@@ -127,15 +127,15 @@ func (t *TagValidationTest) Execute(ctx *test.TestContext) (tr *test.TestResult)
 
 func (t *TagValidationTest) testTagsOnObjects(ctx *test.TestContext) (tr *test.TestResult) {
 	vcSim := ctx.Get("vcsim")
-	vsphereAccount := vcSim.(*vcsim.VCSimulator).Account
+	account := vcSim.(*vcsim.VCSimulator).Account
 
-	vsphereDriver, err := vsphere.NewVSphereDriver(vsphereAccount, "DC0", t.log)
+	driver, err := vsphere.NewVCenterDriver(account, "DC0", t.log)
 	if err != nil {
 		return tr
 	}
 
-	tm := vtags.NewManager(vsphereDriver.RestClient)
-	finder := find.NewFinder(vsphereDriver.Client.Client)
+	tm := vtags.NewManager(driver.RestClient)
+	finder := find.NewFinder(driver.Client.Client)
 
 	var log logr.Logger
 	tagService := tags.NewValidationService(log)
@@ -196,7 +196,7 @@ func (t *TagValidationTest) testTagsOnObjects(ctx *test.TestContext) (tr *test.T
 		}
 
 		for _, rule := range rules {
-			vr, err := tagService.ReconcileTagRules(tm, finder, vsphereDriver, rule)
+			vr, err := tagService.ReconcileTagRules(tm, finder, driver, rule)
 			if vr.Condition.Status != tc.expectedStatus {
 				test.Failure("Expected status is not equal to condition status")
 			}

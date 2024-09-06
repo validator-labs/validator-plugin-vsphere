@@ -37,17 +37,17 @@ func Validate(ctx context.Context, spec v1alpha1.VsphereValidatorSpec, log logr.
 		return resp
 	}
 
-	// Create a new vSphere driver
-	driver, err := vsphere.NewVSphereDriver(*spec.Auth.Account, spec.Datacenter, log)
+	// Create a new vCenter driver
+	driver, err := vsphere.NewVCenterDriver(*spec.Auth.Account, spec.Datacenter, log)
 	if err != nil {
-		resp.AddResult(vrr, fmt.Errorf("failed to create vSphere driver: %w", err))
+		resp.AddResult(vrr, fmt.Errorf("failed to create vCenter driver: %w", err))
 		return resp
 	}
 
 	// Get the authorization manager from the driver
 	authManager := object.NewAuthorizationManager(driver.Client.Client)
 	if authManager == nil {
-		resp.AddResult(vrr, errors.New("invalid vSphere driver; failed to get vim25 authorization manager"))
+		resp.AddResult(vrr, errors.New("invalid vCenter driver; failed to get vim25 authorization manager"))
 		return resp
 	}
 
@@ -61,7 +61,7 @@ func Validate(ctx context.Context, spec v1alpha1.VsphereValidatorSpec, log logr.
 	tagsManager := vtags.NewManager(driver.RestClient)
 
 	// Get the current user
-	userName, err := driver.GetCurrentVmwareUser(ctx)
+	userName, err := driver.CurrentUser(ctx)
 	if err != nil {
 		resp.AddResult(vrr, fmt.Errorf("failed to get current user: %w", err))
 		return resp

@@ -4,54 +4,61 @@ import (
 	"testing"
 
 	"github.com/stretchr/testify/assert"
+	"github.com/validator-labs/validator-plugin-vsphere/api/vcenter"
 )
 
-func TestGetVCenterUrl(t *testing.T) {
+func Test_getVCenterURL(t *testing.T) {
 	tests := []struct {
-		name            string
-		vCenterServer   string
-		vCenterUsername string
-		vCenterPassword string
-		expectedURL     string
-		expectError     bool
+		name        string
+		account     vcenter.Account
+		expectedURL string
+		expectError bool
 	}{
 		{
-			name:            "Valid HTTPS URL",
-			vCenterServer:   "vcenter.example.com",
-			vCenterUsername: "admin",
-			vCenterPassword: "password",
-			expectedURL:     "https://admin:password@vcenter.example.com/sdk",
-			expectError:     false,
+			name: "Valid HTTPS URL",
+			account: vcenter.Account{
+				Host:     "vcenter.example.com",
+				Username: "admin",
+				Password: "password",
+			},
+			expectedURL: "https://admin:password@vcenter.example.com/sdk",
+			expectError: false,
 		},
 		{
-			name:            "Valid HTTP URL Converted to HTTPS",
-			vCenterServer:   "http://vcenter.example.com",
-			vCenterUsername: "admin",
-			vCenterPassword: "password",
-			expectedURL:     "https://admin:password@vcenter.example.com/sdk",
-			expectError:     false,
+			name: "Valid HTTP URL Converted to HTTPS",
+			account: vcenter.Account{
+				Host:     "http://vcenter.example.com",
+				Username: "admin",
+				Password: "password",
+			},
+			expectedURL: "https://admin:password@vcenter.example.com/sdk",
+			expectError: false,
 		},
 		{
-			name:            "Invalid URL",
-			vCenterServer:   "not a url",
-			vCenterUsername: "admin",
-			vCenterPassword: "password",
-			expectedURL:     "",
-			expectError:     true,
+			name: "Invalid URL",
+			account: vcenter.Account{
+				Host:     "not a url",
+				Username: "admin",
+				Password: "password",
+			},
+			expectedURL: "",
+			expectError: true,
 		},
 		{
-			name:            "Trailing Slash Removed",
-			vCenterServer:   "vcenter.example.com/",
-			vCenterUsername: "admin",
-			vCenterPassword: "password",
-			expectedURL:     "https://admin:password@vcenter.example.com/sdk",
-			expectError:     false,
+			name: "Trailing Slash Removed",
+			account: vcenter.Account{
+				Host:     "vcenter.example.com/",
+				Username: "admin",
+				Password: "password",
+			},
+			expectedURL: "https://admin:password@vcenter.example.com/sdk",
+			expectError: false,
 		},
 	}
 
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
-			resultURL, err := getVCenterURL(tt.vCenterServer, tt.vCenterUsername, tt.vCenterPassword)
+			resultURL, err := getVCenterURL(tt.account)
 			if tt.expectError {
 				assert.Error(t, err)
 				assert.Nil(t, resultURL)
@@ -59,9 +66,9 @@ func TestGetVCenterUrl(t *testing.T) {
 				assert.NoError(t, err)
 				assert.NotNil(t, resultURL)
 				assert.Equal(t, tt.expectedURL, resultURL.String())
-				assert.Equal(t, tt.vCenterUsername, resultURL.User.Username())
+				assert.Equal(t, tt.account.Username, resultURL.User.Username())
 				password, _ := resultURL.User.Password()
-				assert.Equal(t, tt.vCenterPassword, password)
+				assert.Equal(t, tt.account.Password, password)
 			}
 		})
 	}
