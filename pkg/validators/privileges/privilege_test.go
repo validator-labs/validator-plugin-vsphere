@@ -10,12 +10,14 @@ import (
 	"github.com/vmware/govmomi/object"
 	corev1 "k8s.io/api/core/v1"
 
+	vapi "github.com/validator-labs/validator/api/v1alpha1"
+	"github.com/validator-labs/validator/pkg/test"
+	"github.com/validator-labs/validator/pkg/types"
+	"github.com/validator-labs/validator/pkg/util"
+
 	"github.com/validator-labs/validator-plugin-vsphere/api/v1alpha1"
 	"github.com/validator-labs/validator-plugin-vsphere/api/vcenter/entity"
 	"github.com/validator-labs/validator-plugin-vsphere/pkg/vcsim"
-	vapi "github.com/validator-labs/validator/api/v1alpha1"
-	"github.com/validator-labs/validator/pkg/types"
-	"github.com/validator-labs/validator/pkg/util"
 )
 
 func TestPrivilegeValidationService_ReconcilePrivilegeRule(t *testing.T) {
@@ -90,12 +92,12 @@ func TestPrivilegeValidationService_ReconcilePrivilegeRule(t *testing.T) {
 			},
 				State: util.Ptr(vapi.ValidationFailed),
 			},
-			expectedErr: errRequiredPrivilegesNotFound,
+			expectedErr: nil,
 		},
 	}
 
 	for _, tc := range testCases {
 		vr, err := validationService.ReconcilePrivilegeRule(tc.rule, finder)
-		util.CheckTestCase(t, vr, tc.expectedResult, err, tc.expectedErr)
+		test.CheckTestCase(t, vr, tc.expectedResult, err, tc.expectedErr)
 	}
 }

@@ -37,11 +37,12 @@ spec:
           metadata:
             type: object
           spec:
-            description: VsphereValidatorSpec defines the desired state of VsphereValidator.
+            description: VsphereValidatorSpec defines the desired state of a vSphere
+              validator.
             properties:
               auth:
                 description: VsphereAuth defines authentication configuration for
-                  a VsphereValidator.
+                  a vSphere validator.
                 properties:
                   account:
                     description: Account is the vCenter account to use for authentication.
@@ -66,8 +67,8 @@ spec:
                     - username
                     type: object
                   secretName:
-                    description: SecretName is the name of the secret containing the
-                      vSphere credentials.
+                    description: SecretName is the name of the secret containing vCenter
+                      credentials.
                     type: string
                 type: object
               computeResourceRules:
@@ -91,25 +92,25 @@ spec:
                         resource requirements.
                       items:
                         description: NodepoolResourceRequirement defines the resource
-                          requirements for a nodepool.
+                          requirements for a node pool.
                         properties:
                           cpu:
-                            description: CPU is the CPU requirement for the nodepool.
+                            description: CPU is the CPU requirement for the node pool.
                             type: string
                           diskSpace:
                             description: DiskSpace is the disk space requirement for
-                              the nodepool.
+                              the node pool.
                             type: string
                           memory:
                             description: Memory is the memory requirement for the
-                              nodepool.
+                              node pool.
                             type: string
                           name:
-                            description: Name is the name of the nodepool.
+                            description: Name is the name of the node pool.
                             type: string
                           numberOfNodes:
                             description: NumberOfNodes is the number of nodes in the
-                              nodepool.
+                              node pool.
                             type: integer
                         required:
                         - cpu
@@ -134,7 +135,7 @@ spec:
                 type: string
               ntpValidationRules:
                 items:
-                  description: NTPValidationRule defines a NTP validation rule.
+                  description: NTPValidationRule defines an NTP validation rule.
                   properties:
                     clusterName:
                       description: ClusterName is required when the vCenter Host(s)
@@ -142,7 +143,7 @@ spec:
                       type: string
                     hosts:
                       description: Hosts is the list of vCenter Hosts to validate
-                        NTP configuration.
+                        NTP configuration for.
                       items:
                         type: string
                       type: array
@@ -156,7 +157,7 @@ spec:
                 type: array
               privilegeValidationRules:
                 items:
-                  description: PrivilegeValidationRule defines the privilege validation
+                  description: PrivilegeValidationRule defines a privilege validation
                     rule.
                   properties:
                     clusterName:
@@ -168,7 +169,8 @@ spec:
                         validate privileges on.
                       type: string
                     entityType:
-                      description: EntityType is the vCenter entity type.
+                      description: EntityType is the type of the vCenter entity to
+                        validate.
                       type: integer
                     name:
                       description: RuleName is the name of the privilege validation
@@ -176,7 +178,7 @@ spec:
                       type: string
                     privileges:
                       description: Privileges is the list of privileges to validate
-                        that the user has with respect to the designated entity.
+                        that the user has with respect to the designated vCenter entity.
                       items:
                         type: string
                       type: array
@@ -197,7 +199,7 @@ spec:
                       type: string
                     entityName:
                       description: EntityName is the name of the vCenter entity to
-                        validate tags for.
+                        validate tags on.
                       type: string
                     entityType:
                       description: EntityType is the type of the vCenter entity to
@@ -221,7 +223,8 @@ spec:
             - datacenter
             type: object
           status:
-            description: VsphereValidatorStatus defines the observed state of VsphereValidator.
+            description: VsphereValidatorStatus defines the observed state of a vSphere
+              validator.
             type: object
         type: object
     served: true

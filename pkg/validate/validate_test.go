@@ -59,7 +59,7 @@ func TestValidate(t *testing.T) {
 					},
 				}),
 			},
-			expected: `{"ValidationRuleResults":[{"Condition":{"validationType":"vsphere-privileges","validationRule":"validation-cluster-DC0_C0","message":"One or more required privileges was not found, or a condition was not met for account: admin@vsphere.local","failures":["user: admin@vsphere.local does not have privilege: Nonexistent on entity type: cluster with name: DC0_C0"],"status":"False","lastValidationTime":null},"State":"Failed"}],"ValidationRuleErrors":[{}]}`,
+			expected: `{"ValidationRuleResults":[{"Condition":{"validationType":"vsphere-privileges","validationRule":"validation-cluster-DC0_C0","message":"One or more required privileges was not found, or a condition was not met for account: admin@vsphere.local","failures":["user: admin@vsphere.local does not have privilege: Nonexistent on entity type: cluster with name: DC0_C0"],"status":"False","lastValidationTime":null},"State":"Failed"}],"ValidationRuleErrors":[null]}`,
 		},
 		{
 			name: "Root_Pass",

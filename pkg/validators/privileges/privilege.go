@@ -3,7 +3,6 @@ package privileges
 
 import (
 	"context"
-	"errors"
 	"fmt"
 
 	"github.com/go-logr/logr"
@@ -19,8 +18,6 @@ import (
 	"github.com/validator-labs/validator/pkg/types"
 	"github.com/validator-labs/validator/pkg/util"
 )
-
-var errRequiredPrivilegesNotFound = errors.New("one or more required privileges was not found")
 
 // PrivilegeValidationService is a service that validates user privileges
 type PrivilegeValidationService struct {
@@ -56,7 +53,6 @@ func (s *PrivilegeValidationService) ReconcilePrivilegeRule(rule v1alpha1.Privil
 		vr.State = util.Ptr(vapi.ValidationFailed)
 		vr.Condition.Message = fmt.Sprintf("One or more required privileges was not found, or a condition was not met for account: %s", s.username)
 		vr.Condition.Status = corev1.ConditionFalse
-		err = errRequiredPrivilegesNotFound
 	}
 
 	return vr, err
