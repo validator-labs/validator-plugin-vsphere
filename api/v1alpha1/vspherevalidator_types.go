@@ -13,7 +13,7 @@ import (
 	"github.com/validator-labs/validator-plugin-vsphere/pkg/constants"
 )
 
-// VsphereValidatorSpec defines the desired state of VsphereValidator.
+// VsphereValidatorSpec defines the desired state of a vSphere validator.
 type VsphereValidatorSpec struct {
 	Auth                     VsphereAuth               `json:"auth" yaml:"auth"`
 	Datacenter               string                    `json:"datacenter" yaml:"datacenter"`
@@ -30,22 +30,22 @@ func (s VsphereValidatorSpec) PluginCode() string {
 	return constants.PluginCode
 }
 
-// ResultCount returns the number of validation results expected for an VsphereValidatorSpec.
+// ResultCount returns the number of validation results expected for a VsphereValidatorSpec.
 func (s VsphereValidatorSpec) ResultCount() int {
 	return len(s.PrivilegeValidationRules) + len(s.ComputeResourceRules) +
 		len(s.TagValidationRules) + len(s.NTPValidationRules)
 }
 
-// VsphereAuth defines authentication configuration for a VsphereValidator.
+// VsphereAuth defines authentication configuration for a vSphere validator.
 type VsphereAuth struct {
-	// SecretName is the name of the secret containing the vSphere credentials.
+	// SecretName is the name of the secret containing vCenter credentials.
 	SecretName string `json:"secretName,omitempty" yaml:"secretName,omitempty"`
 
 	// Account is the vCenter account to use for authentication.
 	Account *vcenter.Account `json:"account,omitempty" yaml:"account,omitempty"`
 }
 
-// NTPValidationRule defines a NTP validation rule.
+// NTPValidationRule defines an NTP validation rule.
 type NTPValidationRule struct {
 	validationrule.ManuallyNamed `json:",inline" yaml:",omitempty"`
 
@@ -55,18 +55,18 @@ type NTPValidationRule struct {
 	// ClusterName is required when the vCenter Host(s) reside beneath a Cluster in the vCenter object hierarchy.
 	ClusterName string `json:"clusterName,omitempty" yaml:"clusterName,omitempty"`
 
-	// Hosts is the list of vCenter Hosts to validate NTP configuration.
+	// Hosts is the list of vCenter Hosts to validate NTP configuration for.
 	Hosts []string `json:"hosts" yaml:"hosts"`
 }
 
 var _ validationrule.Interface = (*NTPValidationRule)(nil)
 
-// Name returns the name of the NTPValidationRule.
+// Name returns the name of the NTP validation rule.
 func (r NTPValidationRule) Name() string {
 	return r.RuleName
 }
 
-// SetName sets the name of the NTPValidationRule.
+// SetName sets the name of the NTP validation rule.
 func (r *NTPValidationRule) SetName(name string) {
 	r.RuleName = name
 }
@@ -93,17 +93,17 @@ type ComputeResourceRule struct {
 
 var _ validationrule.Interface = (*ComputeResourceRule)(nil)
 
-// Name returns the name of the ComputeResourceRule.
+// Name returns the name of the compute resource validation rule.
 func (r ComputeResourceRule) Name() string {
 	return r.RuleName
 }
 
-// SetName sets the name of the ComputeResourceRule.
+// SetName sets the name of the compute resource validation rule.
 func (r *ComputeResourceRule) SetName(name string) {
 	r.RuleName = name
 }
 
-// PrivilegeValidationRule defines the privilege validation rule.
+// PrivilegeValidationRule defines a privilege validation rule.
 type PrivilegeValidationRule struct {
 	validationrule.ManuallyNamed `json:",inline" yaml:",omitempty"`
 
@@ -113,13 +113,13 @@ type PrivilegeValidationRule struct {
 	// ClusterName is required when the vCenter entity resides beneath a Cluster in the vCenter object hierarchy.
 	ClusterName string `json:"clusterName,omitempty" yaml:"clusterName,omitempty"`
 
-	// EntityType is the vCenter entity type.
+	// EntityType is the type of the vCenter entity to validate.
 	EntityType entity.Entity `json:"entityType" yaml:"entityType"`
 
 	// EntityName is the name of the vCenter entity to validate privileges on.
 	EntityName string `json:"entityName" yaml:"entityName"`
 
-	// Privileges is the list of privileges to validate that the user has with respect to the designated entity.
+	// Privileges is the list of privileges to validate that the user has with respect to the designated vCenter entity.
 	Privileges []string `json:"privileges" yaml:"privileges"`
 
 	// TODO: consider propagation somehow
@@ -127,12 +127,12 @@ type PrivilegeValidationRule struct {
 
 var _ validationrule.Interface = (*PrivilegeValidationRule)(nil)
 
-// Name returns the name of the PrivilegeValidationRule.
+// Name returns the name of the privilege validation rule.
 func (r PrivilegeValidationRule) Name() string {
 	return r.RuleName
 }
 
-// SetName sets the name of the PrivilegeValidationRule.
+// SetName sets the name of the privilege validation rule.
 func (r *PrivilegeValidationRule) SetName(name string) {
 	r.RuleName = name
 }
@@ -150,7 +150,7 @@ type TagValidationRule struct {
 	// EntityType is the type of the vCenter entity to validate.
 	EntityType entity.Entity `json:"entityType" yaml:"entityType"`
 
-	// EntityName is the name of the vCenter entity to validate tags for.
+	// EntityName is the name of the vCenter entity to validate tags on.
 	EntityName string `json:"entityName" yaml:"entityName"`
 
 	// Tag is the tag to validate on the vCenter entity.
@@ -159,35 +159,35 @@ type TagValidationRule struct {
 
 var _ validationrule.Interface = (*TagValidationRule)(nil)
 
-// Name returns the name of the TagValidationRule.
+// Name returns the name of the tag validation rule.
 func (r TagValidationRule) Name() string {
 	return r.RuleName
 }
 
-// SetName sets the name of the TagValidationRule.
+// SetName sets the name of the tag validation rule.
 func (r *TagValidationRule) SetName(name string) {
 	r.RuleName = name
 }
 
-// NodepoolResourceRequirement defines the resource requirements for a nodepool.
+// NodepoolResourceRequirement defines the resource requirements for a node pool.
 type NodepoolResourceRequirement struct {
-	// Name is the name of the nodepool.
+	// Name is the name of the node pool.
 	Name string `json:"name" yaml:"name"`
 
-	// NumberOfNodes is the number of nodes in the nodepool.
+	// NumberOfNodes is the number of nodes in the node pool.
 	NumberOfNodes int `json:"numberOfNodes" yaml:"numberOfNodes"`
 
-	// CPU is the CPU requirement for the nodepool.
+	// CPU is the CPU requirement for the node pool.
 	CPU string `json:"cpu" yaml:"cpu"`
 
-	// Memory is the memory requirement for the nodepool.
+	// Memory is the memory requirement for the node pool.
 	Memory string `json:"memory" yaml:"memory"`
 
-	// DiskSpace is the disk space requirement for the nodepool.
+	// DiskSpace is the disk space requirement for the node pool.
 	DiskSpace string `json:"diskSpace" yaml:"diskSpace"`
 }
 
-// VsphereValidatorStatus defines the observed state of VsphereValidator.
+// VsphereValidatorStatus defines the observed state of a vSphere validator.
 type VsphereValidatorStatus struct{}
 
 //+kubebuilder:object:root=true
@@ -212,14 +212,14 @@ func (v VsphereValidator) PluginCode() string {
 	return v.Spec.PluginCode()
 }
 
-// ResultCount returns the number of validation results expected for a VsphereValidator.
+// ResultCount returns the number of validation results expected for a vSphere validator.
 func (v VsphereValidator) ResultCount() int {
 	return v.Spec.ResultCount()
 }
 
 //+kubebuilder:object:root=true
 
-// VsphereValidatorList contains a list of VsphereValidator.
+// VsphereValidatorList contains a list of vSphere validator.
 type VsphereValidatorList struct {
 	metav1.TypeMeta `json:",inline"`
 	metav1.ListMeta `json:"metadata,omitempty"`
