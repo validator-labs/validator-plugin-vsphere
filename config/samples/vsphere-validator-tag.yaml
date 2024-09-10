@@ -10,12 +10,12 @@ metadata:
   name: vspherevalidator
   namespace: validator
 spec:
-  datacenter: "Datacenter"
   auth:
     secretName: vsphere-creds
+  datacenter: "Datacenter"
   tagValidationRules:
     - name: "Folder tag validation"
       clusterName: "Cluster2"
-      entityType: "folder"
+      entityType: "Folder"
       entityName: "sp-prakash"
       tag: "owner"
