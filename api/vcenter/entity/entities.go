@@ -1,7 +1,12 @@
 // Package entity contains vCenter objects/entities.
 package entity
 
-import "slices"
+import (
+	"fmt"
+	"slices"
+
+	"gopkg.in/yaml.v3"
+)
 
 var (
 	// Labels contains the pretty names of all vCenter entities.
@@ -68,4 +73,22 @@ func (e Entity) String() string {
 		return "Unknown"
 	}
 	return LabelMap[e]
+}
+
+// MarshalYAML implements the yaml.Marshaler interface.
+func (e Entity) MarshalYAML() (interface{}, error) {
+	return e.String(), nil
+}
+
+// UnmarshalYAML implements the yaml.Unmarshaler interface.
+func (e *Entity) UnmarshalYAML(value *yaml.Node) error {
+	var entityStr string
+	if err := value.Decode(&entityStr); err != nil {
+		return err
+	}
+	if entityVal, ok := Map[entityStr]; ok {
+		*e = entityVal
+		return nil
+	}
+	return fmt.Errorf("invalid entity value: %v", value)
 }
