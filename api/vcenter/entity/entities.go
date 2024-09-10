@@ -82,7 +82,14 @@ func (e Entity) MarshalYAML() (interface{}, error) {
 
 // UnmarshalYAML implements the yaml.Unmarshaler interface.
 func (e *Entity) UnmarshalYAML(unmarshal func(interface{}) error) error {
-	var entityStr string
+	var (
+		entityInt int
+		entityStr string
+	)
+	if err := unmarshal(&entityInt); err == nil {
+		*e = Entity(entityInt)
+		return nil
+	}
 	if err := unmarshal(&entityStr); err != nil {
 		return err
 	}
