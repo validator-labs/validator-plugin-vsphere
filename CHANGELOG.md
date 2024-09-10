@@ -1,5 +1,41 @@
 # Changelog
 
+## [0.1.0](https://github.com/validator-labs/validator-plugin-vsphere/compare/v0.0.34...v0.1.0) (2024-09-10)
+
+
+### ⚠ BREAKING CHANGES
+
+* support additional vCenter entities for privilege rules ([#362](https://github.com/validator-labs/validator-plugin-vsphere/issues/362))
+* remove RolePrivilegeValidationRules, add enums to API, remove "cloud" refs and simplify account handling ([#357](https://github.com/validator-labs/validator-plugin-vsphere/issues/357))
+
+### Features
+
+* support additional vCenter entities for privilege rules ([#362](https://github.com/validator-labs/validator-plugin-vsphere/issues/362)) ([abe3a94](https://github.com/validator-labs/validator-plugin-vsphere/commit/abe3a941d6323bffec43fce1815737186b532a1b))
+
+
+### Docs
+
+* fix typos ([f9b63d8](https://github.com/validator-labs/validator-plugin-vsphere/commit/f9b63d85c04784cb15ef50ee43f36d6e2713fb9f))
+* update CR samples ([#367](https://github.com/validator-labs/validator-plugin-vsphere/issues/367)) ([e6968ba](https://github.com/validator-labs/validator-plugin-vsphere/commit/e6968ba4267b78d9c4dc007ed378e988d2698837))
+
+
+### Dependency Updates
+
+* **deps:** update golang.org/x/exp digest to 701f63a ([#364](https://github.com/validator-labs/validator-plugin-vsphere/issues/364)) ([37af6b3](https://github.com/validator-labs/validator-plugin-vsphere/commit/37af6b34ae7ecfdede9c5cda8fd32066d2047753))
+* **deps:** update golang.org/x/exp digest to e7e105d ([#355](https://github.com/validator-labs/validator-plugin-vsphere/issues/355)) ([b67befa](https://github.com/validator-labs/validator-plugin-vsphere/commit/b67befa22876df44572fe4467667d1cb4f006b44))
+* **deps:** update module github.com/onsi/ginkgo/v2 to v2.20.2 ([#353](https://github.com/validator-labs/validator-plugin-vsphere/issues/353)) ([f9eab82](https://github.com/validator-labs/validator-plugin-vsphere/commit/f9eab82fe992e32c4d36345b64b6a450bcaa9870))
+* **deps:** update module github.com/onsi/gomega to v1.34.2 ([#354](https://github.com/validator-labs/validator-plugin-vsphere/issues/354)) ([d834600](https://github.com/validator-labs/validator-plugin-vsphere/commit/d83460082d88c483ffd2f391e5035c9b7bd99aa4))
+* **deps:** update module github.com/validator-labs/validator to v0.1.10 ([#356](https://github.com/validator-labs/validator-plugin-vsphere/issues/356)) ([3c0c928](https://github.com/validator-labs/validator-plugin-vsphere/commit/3c0c9283e38d762d5dd29885495e659cc9361b71))
+* **deps:** update module github.com/validator-labs/validator to v0.1.9 ([#347](https://github.com/validator-labs/validator-plugin-vsphere/issues/347)) ([cd8ff75](https://github.com/validator-labs/validator-plugin-vsphere/commit/cd8ff75f25578e49b77afde74407fdb857b18bf1))
+* **deps:** update module sigs.k8s.io/cluster-api to v1.8.2 ([#358](https://github.com/validator-labs/validator-plugin-vsphere/issues/358)) ([0f7c799](https://github.com/validator-labs/validator-plugin-vsphere/commit/0f7c799b6fdef23307da32ed6e9adb18cf45135b))
+
+
+### Refactoring
+
+* remove RolePrivilegeValidationRules, add enums to API, remove "cloud" refs and simplify account handling ([#357](https://github.com/validator-labs/validator-plugin-vsphere/issues/357)) ([4388804](https://github.com/validator-labs/validator-plugin-vsphere/commit/4388804d552f4ea0151293fe696a6391bbef9f9d))
+* rename CloudDriver -&gt; VCenterDriver ([#361](https://github.com/validator-labs/validator-plugin-vsphere/issues/361)) ([8943ff6](https://github.com/validator-labs/validator-plugin-vsphere/commit/8943ff64342aa1730b338b356a0b85fb60065403))
+* vCenter entity type constants ([#360](https://github.com/validator-labs/validator-plugin-vsphere/issues/360)) ([3fb6f51](https://github.com/validator-labs/validator-plugin-vsphere/commit/3fb6f51cad19424fa3c1dd124f083df69ab6b54e))
+
 ## [0.0.34](https://github.com/validator-labs/validator-plugin-vsphere/compare/v0.0.33...v0.0.34) (2024-08-24)
 
 
