@@ -21,8 +21,8 @@ func TestGetDistributedVirtualPortgroups(t *testing.T) {
 	}
 
 	expected := []string{
-		"DVS0-DVUplinks-9",
 		"DC0_DVPG0",
+		"DVS0-DVUplinks-9",
 	}
 
 	result, err := driver.GetDistributedVirtualPortgroups(context.Background(), vcSim.Options.Datacenter)
