@@ -220,6 +220,7 @@ func (v *VCenterDriver) getPermissionPropagation(ctx context.Context, authManage
 	groupPermissions := make([]types.Permission, 0)
 
 	for _, p := range permissions {
+		p := p
 		if p.Principal == userPrincipal {
 			userScopedPermission = &p
 			break
