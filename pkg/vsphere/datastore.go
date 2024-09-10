@@ -3,6 +3,7 @@ package vsphere
 import (
 	"context"
 	"fmt"
+	"sort"
 	"strings"
 
 	"github.com/pkg/errors"
@@ -32,6 +33,7 @@ func (v *VCenterDriver) GetDatastores(ctx context.Context, datacenter string) ([
 		datastores[i] = datastore
 	}
 
+	sort.Strings(datastores)
 	return datastores, nil
 }
 

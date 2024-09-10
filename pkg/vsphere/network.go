@@ -3,6 +3,7 @@ package vsphere
 import (
 	"context"
 	"fmt"
+	"sort"
 	"strings"
 
 	"github.com/pkg/errors"
@@ -70,6 +71,7 @@ func (v *VCenterDriver) GetNetworks(ctx context.Context, datacenter string) ([]s
 		networks = append(networks, network)
 	}
 
+	sort.Strings(networks)
 	return networks, nil
 }
 
@@ -123,6 +125,7 @@ func (v *VCenterDriver) GetDistributedVirtualPortgroups(ctx context.Context, dat
 		networks = append(networks, network)
 	}
 
+	sort.Strings(networks)
 	return networks, nil
 }
 
@@ -158,6 +161,7 @@ func (v *VCenterDriver) GetDistributedVirtualSwitches(ctx context.Context, datac
 		networks = append(networks, network)
 	}
 
+	sort.Strings(networks)
 	return networks, nil
 }
 
@@ -193,5 +197,6 @@ func (v *VCenterDriver) GetOpaqueNetworks(ctx context.Context, datacenter string
 		networks = append(networks, network)
 	}
 
+	sort.Strings(networks)
 	return networks, nil
 }
