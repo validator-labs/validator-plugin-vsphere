@@ -73,13 +73,15 @@ func (s *ValidationService) ReconcileTagRules(tagsManager *tags.Manager, finder 
 
 func buildValidationResult(rule v1alpha1.TagValidationRule, validationType string) *vapitypes.ValidationRuleResult {
 	state := vapi.ValidationSucceeded
+
+	validationRule := fmt.Sprintf("%s-%s-%s-%s", vapiconstants.ValidationRulePrefix, "tag", rule.EntityType, rule.Tag)
+
 	latestCondition := vapi.DefaultValidationCondition()
 	latestCondition.Message = "Required entity tags were found"
-	latestCondition.ValidationRule = fmt.Sprintf("%s-%s-%s-%s", vapiconstants.ValidationRulePrefix, "tag", rule.EntityType, rule.Tag)
+	latestCondition.ValidationRule = util.Sanitize(validationRule)
 	latestCondition.ValidationType = validationType
-	validationResult := &vapitypes.ValidationRuleResult{Condition: &latestCondition, State: &state}
 
-	return validationResult
+	return &vapitypes.ValidationRuleResult{Condition: &latestCondition, State: &state}
 }
 
 func tagIsValid(tagsManager *tags.Manager, finder *find.Finder, datacenter string, rule v1alpha1.TagValidationRule) (bool, error) {

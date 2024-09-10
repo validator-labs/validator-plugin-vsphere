@@ -3,6 +3,7 @@ package vsphere
 import (
 	"context"
 	"fmt"
+	"os"
 	"strings"
 
 	"github.com/vmware/govmomi/find"
@@ -34,6 +35,10 @@ func (v *VCenterDriver) CurrentDomains(ctx context.Context) ([]string, error) {
 	}
 	if !slices.Contains(ud.DomainList, vcenter.DefaultDomain) {
 		ud.DomainList = append(ud.DomainList, vcenter.DefaultDomain)
+	}
+	if os.Getenv("IS_TEST") == "true" {
+		// required for vcsim because its permission principals aren't formatted as DOMAIN\principal
+		ud.DomainList = append(ud.DomainList, "")
 	}
 	v.log.V(1).Info("Retrieved current domains", "domains", ud.DomainList)
 	return ud.DomainList, nil
@@ -194,7 +199,8 @@ func (v *VCenterDriver) getPermissionPropagation(ctx context.Context, authManage
 	// Build a map of group principals associated with the user.
 	// Ensure that each group principal is formatted as DOMAIN\group-name,
 	// and that DOMAIN is listed in the active user's domains.
-	groupPrincipals := make(map[string]bool, 0)
+	groupPrincipals := make([]string, 0)
+	groupPrincipalsMap := make(map[string]bool, 0)
 	for _, g := range rule.GroupPrincipals {
 		var gpOk bool
 		for _, d := range currentDomains {
@@ -209,7 +215,8 @@ func (v *VCenterDriver) getPermissionPropagation(ctx context.Context, authManage
 				g, currentDomains, err,
 			)
 		}
-		groupPrincipals[g] = true
+		groupPrincipals = append(groupPrincipals, g)
+		groupPrincipalsMap[g] = true
 	}
 
 	// Determine if a permission exists on the entity that's scoped to the user's principal.
@@ -225,7 +232,7 @@ func (v *VCenterDriver) getPermissionPropagation(ctx context.Context, authManage
 			userScopedPermission = &p
 			break
 		}
-		if _, ok := groupPrincipals[p.Principal]; ok {
+		if _, ok := groupPrincipalsMap[p.Principal]; ok {
 			groupPermissions = append(groupPermissions, p)
 		}
 	}

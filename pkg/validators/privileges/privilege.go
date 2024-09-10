@@ -10,13 +10,14 @@ import (
 	"github.com/vmware/govmomi/object"
 	corev1 "k8s.io/api/core/v1"
 
-	"github.com/validator-labs/validator-plugin-vsphere/api/v1alpha1"
-	"github.com/validator-labs/validator-plugin-vsphere/pkg/constants"
-	"github.com/validator-labs/validator-plugin-vsphere/pkg/vsphere"
 	vapi "github.com/validator-labs/validator/api/v1alpha1"
 	vapiconstants "github.com/validator-labs/validator/pkg/constants"
 	"github.com/validator-labs/validator/pkg/types"
 	"github.com/validator-labs/validator/pkg/util"
+
+	"github.com/validator-labs/validator-plugin-vsphere/api/v1alpha1"
+	"github.com/validator-labs/validator-plugin-vsphere/pkg/constants"
+	"github.com/validator-labs/validator-plugin-vsphere/pkg/vsphere"
 )
 
 // PrivilegeValidationService is a service that validates user privileges
@@ -68,7 +69,7 @@ func (s *PrivilegeValidationService) buildPrivilegeValidationResult(rule v1alpha
 
 	latestCondition := vapi.DefaultValidationCondition()
 	latestCondition.Message = fmt.Sprintf("All required %s permissions were found for account: %s", constants.ValidationTypePrivileges, s.username)
-	latestCondition.ValidationRule = validationRule
+	latestCondition.ValidationRule = util.Sanitize(validationRule)
 	latestCondition.ValidationType = constants.ValidationTypePrivileges
 
 	return &types.ValidationRuleResult{Condition: &latestCondition, State: &state}

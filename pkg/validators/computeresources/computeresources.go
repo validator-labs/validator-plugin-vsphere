@@ -3,7 +3,6 @@ package computeresources
 
 import (
 	"context"
-	"errors"
 	"fmt"
 	"strings"
 
@@ -30,9 +29,7 @@ import (
 
 var (
 	// GetResourcePoolAndVMs is defined to enable monkey patching the getResourcePoolAndVMs function in integration tests
-	GetResourcePoolAndVMs           = getResourcePoolAndVMs
-	errInsufficientComputeResources = errors.New("compute resources rule not satisfied")
-	errRuleAlreadyProcessed         = errors.New("rule for scope already processed")
+	GetResourcePoolAndVMs = getResourcePoolAndVMs
 )
 
 // ValidationService is a service that validates compute resource rules
@@ -56,10 +53,11 @@ type resourceRequirement struct {
 }
 
 func buildValidationResult(rule v1alpha1.ComputeResourceRule, validationType string) *types.ValidationRuleResult {
+	validationRule := fmt.Sprintf("%s-%s-%s", vapiconstants.ValidationRulePrefix, rule.Scope, rule.EntityName)
 	state := vapi.ValidationSucceeded
 	latestCondition := vapi.DefaultValidationCondition()
 	latestCondition.Message = "All required compute resources were satisfied"
-	latestCondition.ValidationRule = fmt.Sprintf("%s-%s-%s", vapiconstants.ValidationRulePrefix, rule.Scope, rule.EntityName)
+	latestCondition.ValidationRule = util.Sanitize(validationRule)
 	latestCondition.ValidationType = validationType
 
 	return &types.ValidationRuleResult{Condition: &latestCondition, State: &state}
@@ -120,7 +118,7 @@ func (c *ValidationService) ReconcileComputeResourceValidationRule(rule v1alpha1
 		vr.Condition.Message = "Rule for scope already processed"
 		vr.Condition.Failures = append(vr.Condition.Failures, fmt.Sprintf("Rule for scope %s already processed", key))
 		vr.Condition.Status = corev1.ConditionFalse
-		return vr, errRuleAlreadyProcessed
+		return vr, nil
 	}
 
 	ctx, cancel := context.WithCancel(context.Background())
@@ -161,10 +159,12 @@ func (c *ValidationService) ReconcileComputeResourceValidationRule(rule v1alpha1
 
 	if !cpuCapacityAvailable || !memoryCapacityAvailable || !diskCapacityAvailable {
 		vr.State = util.Ptr(vapi.ValidationFailed)
-		vr.Condition.Failures = append(vr.Condition.Failures, fmt.Sprintf("Not enough resources available. CPU available: %t, Memory available: %t, Storage available: %t", cpuCapacityAvailable, memoryCapacityAvailable, diskCapacityAvailable))
+		vr.Condition.Failures = append(vr.Condition.Failures, fmt.Sprintf(
+			"Not enough resources available. CPU available: %t, Memory available: %t, Storage available: %t",
+			cpuCapacityAvailable, memoryCapacityAvailable, diskCapacityAvailable,
+		))
 		vr.Condition.Message = "One or more resource requirements were not satisfied"
 		vr.Condition.Status = corev1.ConditionFalse
-		return vr, errInsufficientComputeResources
 	}
 
 	return vr, nil
@@ -368,14 +368,16 @@ func getTotalQuantity(quantity string, numberOfNodes int) resource.Quantity {
 
 // GetScopeKey returns a formatted key depending on the scope of a rule
 func GetScopeKey(rule v1alpha1.ComputeResourceRule) (string, error) {
+	var key string
 	switch rule.Scope {
 	case entity.Cluster:
-		return fmt.Sprintf("%s-%s", rule.Scope, rule.EntityName), nil
+		key = fmt.Sprintf("%s-%s", rule.Scope, rule.EntityName)
 	case entity.Host:
-		return fmt.Sprintf("%s-%s", rule.Scope, rule.EntityName), nil
+		key = fmt.Sprintf("%s-%s", rule.Scope, rule.EntityName)
 	case entity.ResourcePool:
-		return fmt.Sprintf("%s-%s", rule.Scope, rule.ClusterName), nil
+		key = fmt.Sprintf("%s-%s", rule.Scope, rule.ClusterName)
 	default:
 		return "", fmt.Errorf("unsupported scope: %s", rule.Scope)
 	}
+	return util.Sanitize(key), nil
 }
