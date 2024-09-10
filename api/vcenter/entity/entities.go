@@ -2,10 +2,8 @@
 package entity
 
 import (
-	"fmt"
+	"errors"
 	"slices"
-
-	"gopkg.in/yaml.v3"
 )
 
 var (
@@ -81,14 +79,14 @@ func (e Entity) MarshalYAML() (interface{}, error) {
 }
 
 // UnmarshalYAML implements the yaml.Unmarshaler interface.
-func (e *Entity) UnmarshalYAML(value *yaml.Node) error {
+func (e *Entity) UnmarshalYAML(unmarshal func(interface{}) error) error {
 	var entityStr string
-	if err := value.Decode(&entityStr); err != nil {
+	if err := unmarshal(&entityStr); err != nil {
 		return err
 	}
 	if entityVal, ok := Map[entityStr]; ok {
 		*e = entityVal
 		return nil
 	}
-	return fmt.Errorf("invalid entity value: %v", value)
+	return errors.New("invalid entity value")
 }
