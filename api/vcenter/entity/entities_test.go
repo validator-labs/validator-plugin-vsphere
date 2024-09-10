@@ -12,6 +12,7 @@ type estruct struct {
 }
 
 func TestMarshalYAML(t *testing.T) {
+	// string: correct casing
 	e := ResourcePool
 	expected := []byte("Resource Pool\n")
 
@@ -23,6 +24,7 @@ func TestMarshalYAML(t *testing.T) {
 		t.Errorf("got %s != expected %s", string(out), string(expected))
 	}
 
+	// struct
 	entityStruct := estruct{
 		EntityType: ResourcePool,
 	}
@@ -38,6 +40,7 @@ func TestMarshalYAML(t *testing.T) {
 }
 
 func TestUnMarshalYAML(t *testing.T) {
+	// string: correct casing
 	in := []byte("Resource Pool\n")
 	expected := ResourcePool
 
@@ -49,7 +52,8 @@ func TestUnMarshalYAML(t *testing.T) {
 		t.Errorf("got %v != expected %v", e, expected)
 	}
 
-	in = []byte("entityType: Resource Pool\n")
+	// struct + case-insensitive
+	in = []byte("entityType: resource pool\n")
 	expectedS := estruct{EntityType: ResourcePool}
 
 	var eS estruct

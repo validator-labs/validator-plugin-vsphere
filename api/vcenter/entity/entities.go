@@ -4,6 +4,7 @@ package entity
 import (
 	"fmt"
 	"slices"
+	"strings"
 )
 
 var (
@@ -19,6 +20,7 @@ func init() {
 	for entity, label := range LabelMap {
 		Labels = append(Labels, label)
 		Map[label] = entity
+		Map[strings.ToLower(label)] = entity // handle case-insensitive YAML keys
 	}
 	slices.Sort(Labels)
 }
