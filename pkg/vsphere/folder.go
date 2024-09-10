@@ -45,14 +45,10 @@ func (v *VCenterDriver) GetVMFolders(ctx context.Context, datacenter string) ([]
 	folders := make([]string, 0)
 	for _, fo := range fos {
 		inventoryPath := fo.InventoryPath
-		//get vm folders, items with path prefix '/{Datacenter}/vm'
+		// get vm folders: items with path prefix '/{Datacenter}/vm'
 		if strings.HasPrefix(inventoryPath, prefix) {
 			folder := strings.TrimPrefix(inventoryPath, prefix)
-			//skip spectro folders & sub-folders
-			if !strings.HasPrefix(folder, "spc-") &&
-				!strings.Contains(folder, "/spc-") {
-				folders = append(folders, folder)
-			}
+			folders = append(folders, folder)
 		}
 	}
 
@@ -75,14 +71,11 @@ func (v *VCenterDriver) GetFolderNameByID(ctx context.Context, datacenter, id st
 	prefix := fmt.Sprintf("/%s/vm/", dc)
 	for _, fo := range fos {
 		inventoryPath := fo.InventoryPath
-		//get vm folders, items with path prefix '/{Datacenter}/vm'
+		// get vm folders: items with path prefix '/{Datacenter}/vm'
 		if strings.HasPrefix(inventoryPath, prefix) {
 			folderName := strings.TrimPrefix(inventoryPath, prefix)
-			//skip spectro folders & sub-folders
-			if !strings.HasPrefix(folderName, "spc-") && !strings.Contains(folderName, "/spc-") {
-				if fo.Reference().Value == id {
-					return folderName, nil
-				}
+			if fo.Reference().Value == id {
+				return folderName, nil
 			}
 		}
 	}

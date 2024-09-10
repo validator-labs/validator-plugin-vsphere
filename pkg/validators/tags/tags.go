@@ -30,6 +30,16 @@ var (
 
 	// GetAttachedTagsOnObjects is defined to enable monkey patching the getAttachedTagsOnObjects function in integration tests
 	GetAttachedTagsOnObjects = getAttachedTagsOnObjects
+
+	// SupportedEntities indicates which vCenter entities may be referenced in a tag validation rule.
+	SupportedEntities = []string{
+		entity.Cluster.String(),
+		entity.Datacenter.String(),
+		entity.Folder.String(),
+		entity.Host.String(),
+		entity.ResourcePool.String(),
+		entity.VirtualMachine.String(),
+	}
 )
 
 // ValidationService is a service that validates tag rules

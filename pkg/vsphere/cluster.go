@@ -21,48 +21,66 @@ func (v *VCenterDriver) GetCluster(ctx context.Context, finder *find.Finder, dat
 	return cluster, nil
 }
 
-// GetK8sClusters returns a sorted list of kubernetes-enabled vCenter clusters
-func (v *VCenterDriver) GetK8sClusters(ctx context.Context, datacenter string) ([]string, error) {
-	finder, dc, err := v.GetFinderWithDatacenter(ctx, datacenter)
-	if err != nil {
-		return nil, err
-	}
-
-	ccrs, err := finder.ClusterComputeResourceList(ctx, "*")
-	if err != nil {
-		return nil, errors.Wrap(err, "failed to fetch vCenter clusters")
-	}
-	if len(ccrs) == 0 {
-		return nil, errors.New("no compute clusters found")
-	}
-
-	client := ccrs[0].Client()
-
-	tags, categoryID, err := v.getTagsAndCategory(ctx, client, "ClusterComputeResource", K8sComputeClusterTagCategory)
+// GetClusters returns a sorted list of all vCenter clusters within a datacenter.
+func (v *VCenterDriver) GetClusters(ctx context.Context, datacenter string) ([]string, error) {
+	prefix, ccrs, err := v.getClusterComputeResources(ctx, datacenter)
 	if err != nil {
 		return nil, err
 	}
 
 	clusters := make([]string, 0)
 	for _, ccr := range ccrs {
-		if v.ifTagHasCategory(tags[ccr.Reference().Value].Tags, categoryID) {
-			prefix := fmt.Sprintf("/%s/host/", dc)
-			cluster := strings.TrimPrefix(ccr.InventoryPath, prefix)
-			clusters = append(clusters, cluster)
-		}
-	}
-	if len(clusters) == 0 {
-		return nil, errors.Errorf("no compute clusters with tag category %s found", K8sComputeClusterTagCategory)
+		cluster := strings.TrimPrefix(ccr.InventoryPath, prefix)
+		clusters = append(clusters, cluster)
 	}
 
 	sort.Strings(clusters)
 	return clusters, nil
 }
 
-func (v *VCenterDriver) getClusterComputeResources(ctx context.Context, finder *find.Finder) ([]*object.ClusterComputeResource, error) {
+// GetClusters returns a sorted list of vCenter clusters within a datacenter, filtered by a tag category.
+func (v *VCenterDriver) GetClustersByTag(ctx context.Context, datacenter, tagCategory string) ([]string, error) {
+	prefix, ccrs, err := v.getClusterComputeResources(ctx, datacenter)
+	if err != nil {
+		return nil, err
+	}
+	client := ccrs[0].Client()
+
+	tags, categoryID, err := v.getTagsAndCategory(ctx, client, "ClusterComputeResource", tagCategory)
+	if err != nil {
+		return nil, err
+	}
+
+	clusters := make([]string, 0)
+	for _, ccr := range ccrs {
+		if !v.ifTagHasCategory(tags[ccr.Reference().Value].Tags, categoryID) {
+			continue
+		}
+		cluster := strings.TrimPrefix(ccr.InventoryPath, prefix)
+		clusters = append(clusters, cluster)
+	}
+	if len(clusters) == 0 {
+		return nil, errors.Errorf("no compute clusters with tag category %s found", tagCategory)
+	}
+
+	sort.Strings(clusters)
+	return clusters, nil
+}
+
+func (v *VCenterDriver) getClusterComputeResources(ctx context.Context, datacenter string) (string, []*object.ClusterComputeResource, error) {
+	finder, dc, err := v.GetFinderWithDatacenter(ctx, datacenter)
+	if err != nil {
+		return "", nil, err
+	}
+	prefix := fmt.Sprintf("/%s/host/", dc)
+
 	ccrs, err := finder.ClusterComputeResourceList(ctx, "*")
 	if err != nil {
-		return nil, fmt.Errorf("failed to get compute cluster resources: %s", err.Error())
+		return "", nil, errors.Wrap(err, "failed to fetch vCenter clusters")
 	}
-	return ccrs, nil
+	if len(ccrs) == 0 {
+		return "", nil, errors.New("no compute clusters found")
+	}
+
+	return prefix, ccrs, nil
 }

@@ -18,6 +18,7 @@ import (
 	"github.com/validator-labs/validator-plugin-vsphere/api/v1alpha1"
 	"github.com/validator-labs/validator-plugin-vsphere/api/vcenter/entity"
 	"github.com/validator-labs/validator-plugin-vsphere/pkg/vcsim"
+	"github.com/validator-labs/validator-plugin-vsphere/pkg/vsphere"
 )
 
 func TestPrivilegeValidationService_ReconcilePrivilegeRule(t *testing.T) {
@@ -27,8 +28,14 @@ func TestPrivilegeValidationService_ReconcilePrivilegeRule(t *testing.T) {
 	vcSim.Start()
 	defer vcSim.Shutdown()
 
-	finder := find.NewFinder(vcSim.Driver.Client.Client)
-	authManager := object.NewAuthorizationManager(vcSim.Driver.Client.Client)
+	driver, err := vsphere.NewVCenterDriver(vcSim.Account, vcSim.Options.Datacenter, logr.Logger{})
+	if err != nil {
+		t.Fatal(err)
+	}
+
+	finder := find.NewFinder(driver.Client.Client)
+
+	authManager := object.NewAuthorizationManager(driver.Client.Client)
 	if authManager == nil {
 		t.Fatal("Error in creating auth manager")
 	}
@@ -36,12 +43,12 @@ func TestPrivilegeValidationService_ReconcilePrivilegeRule(t *testing.T) {
 	ctx, cancel := context.WithCancel(context.Background())
 	defer cancel()
 
-	username, err := vcSim.Driver.CurrentUser(ctx)
+	username, err := driver.CurrentUser(ctx)
 	if err != nil {
 		t.Fatal("Error in getting current VMware user from username")
 	}
 
-	validationService := NewPrivilegeValidationService(log, vcSim.Driver, "DC0", username, authManager)
+	validationService := NewPrivilegeValidationService(log, driver, vcSim.Options.Datacenter, username, authManager)
 
 	testCases := []struct {
 		name           string
@@ -56,8 +63,8 @@ func TestPrivilegeValidationService_ReconcilePrivilegeRule(t *testing.T) {
 				ClusterName: "DC0_C0",
 				EntityType:  entity.Cluster,
 				EntityName:  "DC0_C0",
-				Privileges: []string{
-					"VirtualMachine.Config.AddExistingDisk",
+				Privileges: []v1alpha1.Privilege{
+					{Name: "VirtualMachine.Config.AddExistingDisk"},
 				},
 			},
 			expectedResult: types.ValidationRuleResult{Condition: &vapi.ValidationCondition{
@@ -78,8 +85,8 @@ func TestPrivilegeValidationService_ReconcilePrivilegeRule(t *testing.T) {
 				ClusterName: "DC0_C0",
 				EntityType:  entity.Cluster,
 				EntityName:  "DC0_C0",
-				Privileges: []string{
-					"VirtualMachine.Config.DestroyExistingDisk",
+				Privileges: []v1alpha1.Privilege{
+					{Name: "VirtualMachine.Config.DestroyExistingDisk"},
 				},
 			},
 			expectedResult: types.ValidationRuleResult{Condition: &vapi.ValidationCondition{

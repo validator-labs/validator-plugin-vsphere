@@ -18,6 +18,7 @@ import (
 	"github.com/validator-labs/validator-plugin-vsphere/api/v1alpha1"
 	"github.com/validator-labs/validator-plugin-vsphere/api/vcenter/entity"
 	"github.com/validator-labs/validator-plugin-vsphere/pkg/vcsim"
+	"github.com/validator-labs/validator-plugin-vsphere/pkg/vsphere"
 )
 
 func TestComputeResourcesValidationService_ReconcileComputeResourceValidationRule(t *testing.T) {
@@ -27,9 +28,14 @@ func TestComputeResourcesValidationService_ReconcileComputeResourceValidationRul
 	vcSim.Start()
 	defer vcSim.Shutdown()
 
-	finder := find.NewFinder(vcSim.Driver.Client.Client)
+	driver, err := vsphere.NewVCenterDriver(vcSim.Account, vcSim.Options.Datacenter, logr.Logger{})
+	if err != nil {
+		t.Fatal(err)
+	}
 
-	validationService := NewValidationService(log, vcSim.Driver)
+	finder := find.NewFinder(driver.Client.Client)
+
+	validationService := NewValidationService(log, driver)
 	testCases := []struct {
 		name           string
 		expectedErr    error
@@ -567,7 +573,7 @@ func TestComputeResourcesValidationService_ReconcileComputeResourceValidationRul
 	}
 
 	for _, tc := range testCases {
-		vr, err := validationService.ReconcileComputeResourceValidationRule(tc.rule, finder, vcSim.Driver, seenScopes)
+		vr, err := validationService.ReconcileComputeResourceValidationRule(tc.rule, finder, driver, seenScopes)
 		test.CheckTestCase(t, vr, tc.expectedResult, err, tc.expectedErr)
 	}
 }

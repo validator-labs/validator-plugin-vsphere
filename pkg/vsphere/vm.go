@@ -28,8 +28,8 @@ func (v *VCenterDriver) GetVM(ctx context.Context, finder *find.Finder, vmName s
 }
 
 // GetVMs returns a list of vCenter VMs
-func (v *VCenterDriver) GetVMs(ctx context.Context, dcName string) ([]vcenter.VM, error) {
-	finder, v1, client, err := v.getVMClient(ctx, dcName)
+func (v *VCenterDriver) GetVMs(ctx context.Context, datacenter string) ([]vcenter.VM, error) {
+	finder, v1, client, err := v.getVMClient(ctx, datacenter)
 	if err != nil {
 		return nil, err
 	}
@@ -39,11 +39,11 @@ func (v *VCenterDriver) GetVMs(ctx context.Context, dcName string) ([]vcenter.VM
 		return nil, e
 	}
 
-	return v.getVMInfo(ctx, finder, client, v1, vms)
+	return v.getVMInfo(ctx, finder, client, datacenter, v1, vms)
 }
 
-func (v *VCenterDriver) getVMClient(ctx context.Context, dcName string) (*find.Finder, *view.ContainerView, *vim25.Client, error) {
-	finder, _, err := v.GetFinderWithDatacenter(ctx, dcName)
+func (v *VCenterDriver) getVMClient(ctx context.Context, datacenter string) (*find.Finder, *view.ContainerView, *vim25.Client, error) {
+	finder, _, err := v.GetFinderWithDatacenter(ctx, datacenter)
 	if err != nil {
 		return nil, nil, nil, err
 	}
@@ -82,7 +82,7 @@ func (v *VCenterDriver) getVMs(ctx context.Context, v1 *view.ContainerView, filt
 	return vms, nil
 }
 
-func (v *VCenterDriver) getVMInfo(ctx context.Context, finder *find.Finder, client *vim25.Client, v1 *view.ContainerView, vms []mo.VirtualMachine) ([]vcenter.VM, error) {
+func (v *VCenterDriver) getVMInfo(ctx context.Context, finder *find.Finder, client *vim25.Client, datacenter string, v1 *view.ContainerView, vms []mo.VirtualMachine) ([]vcenter.VM, error) {
 	metrics, err := v.GetMetrics(ctx, client)
 	if err != nil {
 		return nil, errors.Wrap(err, "failed to get view manager while fetching vSphere vms")
@@ -108,7 +108,7 @@ func (v *VCenterDriver) getVMInfo(ctx context.Context, finder *find.Finder, clie
 		return nil, err
 	}
 
-	ccrs, err := v.getClusterComputeResources(ctx, finder)
+	_, ccrs, err := v.getClusterComputeResources(ctx, datacenter)
 	if err != nil {
 		return nil, err
 	}

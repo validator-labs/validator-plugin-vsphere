@@ -47,17 +47,23 @@ var (
 
 // Driver is an interface that defines the functions to interact with vSphere
 type Driver interface {
-	GetVMFolders(ctx context.Context, datacenter string) ([]string, error)
-	GetK8sDatacenters(ctx context.Context) ([]string, error)
-	GetK8sClusters(ctx context.Context, datacenter string) ([]string, error)
-	GetHostSystems(ctx context.Context, datacenter, cluster string) ([]vcenter.HostSystem, error)
-	ValidateCredentials() (bool, error)
-	ValidateVersion(constraint string) error
+	GetClusters(ctx context.Context, datacenter string) ([]string, error)
+	GetClustersByTag(ctx context.Context, datacenter, tagCategory string) ([]string, error)
+	GetDatacenters(ctx context.Context) ([]string, error)
+	GetDatacentersByTag(ctx context.Context, tagCategory string) ([]string, error)
+	GetDatastores(ctx context.Context, datacenter string) ([]string, error)
+	GetDistributedVirtualPortgroups(ctx context.Context, datacenter string) ([]string, error)
+	GetDistributedVirtualSwitches(ctx context.Context, datacenter string) ([]string, error)
 	GetHostClusterMapping(ctx context.Context) (map[string]string, error)
-	GetVMs(ctx context.Context, dcName string) ([]vcenter.VM, error)
+	GetHostSystems(ctx context.Context, datacenter, cluster string) ([]vcenter.HostSystem, error)
+	GetNetworks(ctx context.Context, datacenter string) ([]string, error)
 	GetResourcePools(ctx context.Context, datacenter string, cluster string) ([]*object.ResourcePool, error)
 	GetVApps(ctx context.Context) ([]mo.VirtualApp, error)
+	GetVMFolders(ctx context.Context, datacenter string) ([]string, error)
+	GetVMs(ctx context.Context, dcName string) ([]vcenter.VM, error)
 	GetResourceTags(ctx context.Context, resourceType string) (map[string]tags.AttachedTags, error)
+	ValidateCredentials() (bool, error)
+	ValidateVersion(constraint string) error
 }
 
 // ensure that VCenterDriver implements the Driver interface

@@ -13,15 +13,19 @@ import (
 
 // MockVsphereDriver is a mock implementation of the Driver interface
 type MockVsphereDriver struct {
-	Datacenters        []string
-	Clusters           []string
-	VMs                []vcenter.VM
-	VMFolders          []string
-	HostSystems        map[string][]vcenter.HostSystem
-	VApps              []mo.VirtualApp
-	ResourcePools      []*object.ResourcePool
-	HostClusterMapping map[string]string
-	ResourceTags       map[string]tags.AttachedTags
+	Clusters                     []string
+	Datacenters                  []string
+	Datastores                   []string
+	DistributedVirtualPortgroups []string
+	DistributedVirtualSwitches   []string
+	HostClusterMapping           map[string]string
+	HostSystems                  map[string][]vcenter.HostSystem
+	Networks                     []string
+	ResourcePools                []*object.ResourcePool
+	ResourceTags                 map[string]tags.AttachedTags
+	VApps                        []mo.VirtualApp
+	VMFolders                    []string
+	VMs                          []vcenter.VM
 }
 
 // ensure that MockVsphereDriver implements the Driver interface
@@ -32,13 +36,28 @@ func (d MockVsphereDriver) GetVMFolders(_ context.Context, _ string) ([]string, 
 	return d.VMFolders, nil
 }
 
-// GetK8sDatacenters returns a mocked response
-func (d MockVsphereDriver) GetK8sDatacenters(_ context.Context) ([]string, error) {
+// GetDatacenters returns a mocked response
+func (d MockVsphereDriver) GetDatacenters(_ context.Context) ([]string, error) {
 	return d.Datacenters, nil
 }
 
-// GetK8sClusters returns a mocked response
-func (d MockVsphereDriver) GetK8sClusters(_ context.Context, _ string) ([]string, error) {
+// GetDatacentersByTag returns a mocked response
+func (d MockVsphereDriver) GetDatacentersByTag(_ context.Context, _ string) ([]string, error) {
+	return d.Datacenters, nil
+}
+
+// GetDatastores returns a mocked response
+func (d MockVsphereDriver) GetDatastores(_ context.Context, _ string) ([]string, error) {
+	return d.Datastores, nil
+}
+
+// GetClusters returns a mocked response
+func (d MockVsphereDriver) GetClusters(_ context.Context, _ string) ([]string, error) {
+	return d.Clusters, nil
+}
+
+// GetClustersByTag returns a mocked response
+func (d MockVsphereDriver) GetClustersByTag(_ context.Context, _, _ string) ([]string, error) {
 	return d.Clusters, nil
 }
 
@@ -80,6 +99,21 @@ func (d MockVsphereDriver) GetVApps(_ context.Context) ([]mo.VirtualApp, error) 
 // GetResourceTags returns a mocked response
 func (d MockVsphereDriver) GetResourceTags(_ context.Context, _ string) (map[string]tags.AttachedTags, error) {
 	return d.ResourceTags, nil
+}
+
+// GetNetworks returns a mocked response
+func (d MockVsphereDriver) GetNetworks(_ context.Context, _ string) ([]string, error) {
+	return d.Networks, nil
+}
+
+// GetDistributedVirtualPortgroups returns a mocked response
+func (d MockVsphereDriver) GetDistributedVirtualPortgroups(_ context.Context, _ string) ([]string, error) {
+	return d.DistributedVirtualPortgroups, nil
+}
+
+// GetDistributedVirtualSwitches returns a mocked response
+func (d MockVsphereDriver) GetDistributedVirtualSwitches(_ context.Context, _ string) ([]string, error) {
+	return d.DistributedVirtualSwitches, nil
 }
 
 func concat(ss ...string) string {
