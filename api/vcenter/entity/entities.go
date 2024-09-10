@@ -2,7 +2,7 @@
 package entity
 
 import (
-	"errors"
+	"fmt"
 	"slices"
 )
 
@@ -88,5 +88,5 @@ func (e *Entity) UnmarshalYAML(unmarshal func(interface{}) error) error {
 		*e = entityVal
 		return nil
 	}
-	return errors.New("invalid entity value")
+	return fmt.Errorf("invalid entity value: %s", entityStr)
 }
