@@ -10,6 +10,8 @@ metadata:
   name: vspherevalidator-ntp
   namespace: validator
 spec:
+  auth:
+    secretName: vsphere-creds
   datacenter: "Datacenter"
   ntpValidationRules:
     - name: "validate ntp on hosts"
@@ -18,5 +20,3 @@ spec:
         - 10.10.20.110
         - 10.10.20.111
         - 10.10.20.112
-  auth:
-    secretName: vsphere-creds
