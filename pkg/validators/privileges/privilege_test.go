@@ -61,12 +61,15 @@ func TestPrivilegeValidationService_ReconcilePrivilegeRule(t *testing.T) {
 		{
 			name: "All privileges available",
 			rule: v1alpha1.PrivilegeValidationRule{
-				RuleName:        "VirtualMachine.Config.AddExistingDisk",
-				ClusterName:     opts.Cluster,
-				EntityType:      entity.Cluster,
-				EntityName:      opts.Cluster,
-				Privileges:      []string{"VirtualMachine.Config.AddExistingDisk"},
-				GroupPrincipals: []string{"admin"},
+				RuleName:    "VirtualMachine.Config.AddExistingDisk",
+				ClusterName: opts.Cluster,
+				EntityType:  entity.Cluster,
+				EntityName:  opts.Cluster,
+				Privileges:  []string{"VirtualMachine.Config.AddExistingDisk"},
+				Propagation: v1alpha1.Propagation{
+					Enabled:         true,
+					GroupPrincipals: []string{"admin"},
+				},
 			},
 			expectedResult: types.ValidationRuleResult{Condition: &vapi.ValidationCondition{
 				ValidationType: "vsphere-privileges",
@@ -82,12 +85,15 @@ func TestPrivilegeValidationService_ReconcilePrivilegeRule(t *testing.T) {
 		{
 			name: "Certain privilege not available",
 			rule: v1alpha1.PrivilegeValidationRule{
-				RuleName:        "VirtualMachine.Config.MagicCarpet",
-				ClusterName:     opts.Cluster,
-				EntityType:      entity.Cluster,
-				EntityName:      opts.Cluster,
-				Privileges:      []string{"VirtualMachine.Config.MagicCarpet"},
-				GroupPrincipals: []string{"admin"},
+				RuleName:    "VirtualMachine.Config.MagicCarpet",
+				ClusterName: opts.Cluster,
+				EntityType:  entity.Cluster,
+				EntityName:  opts.Cluster,
+				Privileges:  []string{"VirtualMachine.Config.MagicCarpet"},
+				Propagation: v1alpha1.Propagation{
+					Enabled:         true,
+					GroupPrincipals: []string{"admin"},
+				},
 			},
 			expectedResult: types.ValidationRuleResult{Condition: &vapi.ValidationCondition{
 				ValidationType: "vsphere-privileges",

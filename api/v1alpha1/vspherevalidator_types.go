@@ -122,13 +122,23 @@ type PrivilegeValidationRule struct {
 	// Privileges is the list of privileges to validate that the user has with respect to the designated vCenter entity.
 	Privileges []string `json:"privileges" yaml:"privileges"`
 
+	// Propagation validation configuration for permissions that grant the user privileges on the vCenter entity.
+	Propagation Propagation `json:"propagation,omitempty" yaml:"propagation,omitempty"`
+}
+
+// Propagation contains configuration related to propagation validation.
+type Propagation struct {
+	// Enabled controls whether propagation validation is performed.
+	Enabled bool `json:"enabled" yaml:"enabled"`
+
 	// GroupPrincipals is an optional list of vCenter group principals that the user is a member of.
 	// Group membership can be determined dynamically by a vSphere admin user, but specifying
 	// group principals manually allows privilege validation for non-admin users.
 	// Group principals must be of the format DOMAIN\group-name, e.g., VSPHERE.LOCAL\my-custom-group.
 	GroupPrincipals []string `json:"groupPrincipals,omitempty" yaml:"groupPrincipals,omitempty"`
 
-	// Propagated indicates whether the permission that grants this privilege is expected to be propagated or not.
+	// Propagated indicates whether the permission that grants privileges to the user for the rule's
+	// entity is expected to be propagated or not.
 	Propagated bool `json:"propagated" yaml:"propagated"`
 }
 

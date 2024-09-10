@@ -172,15 +172,6 @@ spec:
                       description: EntityType is the type of the vCenter entity to
                         validate.
                       type: integer
-                    groupPrincipals:
-                      description: |-
-                        GroupPrincipals is an optional list of vCenter group principals that the user is a member of.
-                        Group membership can be determined dynamically by a vSphere admin user, but specifying
-                        group principals manually allows privilege validation for non-admin users.
-                        Group principals must be of the format DOMAIN\group-name, e.g., VSPHERE.LOCAL\my-custom-group.
-                      items:
-                        type: string
-                      type: array
                     name:
                       description: RuleName is the name of the privilege validation
                         rule.
@@ -191,16 +182,37 @@ spec:
                       items:
                         type: string
                       type: array
-                    propagated:
-                      description: Propagated indicates whether the permission that
-                        grants this privilege is expected to be propagated or not.
-                      type: boolean
+                    propagation:
+                      description: Propagation validation configuration for permissions
+                        that grant the user privileges on the vCenter entity.
+                      properties:
+                        enabled:
+                          description: Enabled controls whether propagation validation
+                            is performed.
+                          type: boolean
+                        groupPrincipals:
+                          description: |-
+                            GroupPrincipals is an optional list of vCenter group principals that the user is a member of.
+                            Group membership can be determined dynamically by a vSphere admin user, but specifying
+                            group principals manually allows privilege validation for non-admin users.
+                            Group principals must be of the format DOMAIN\group-name, e.g., VSPHERE.LOCAL\my-custom-group.
+                          items:
+                            type: string
+                          type: array
+                        propagated:
+                          description: |-
+                            Propagated indicates whether the permission that grants privileges to the user for the rule's
+                            entity is expected to be propagated or not.
+                          type: boolean
+                      required:
+                      - enabled
+                      - propagated
+                      type: object
                   required:
                   - entityName
                   - entityType
                   - name
                   - privileges
-                  - propagated
                   type: object
                 type: array
               tagValidationRules:

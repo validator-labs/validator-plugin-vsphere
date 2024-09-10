@@ -87,20 +87,22 @@ func (v *VCenterDriver) ValidateUserPrivilegeOnEntities(ctx context.Context, aut
 		}
 	}
 
-	// Determine whether the privileges were granted to the user via a permission with propagation enabled
-	permissionPropagated, err := v.getPermissionPropagation(ctx, authManager, username, rule, objRef)
-	if err != nil {
-		return nil, err
-	}
-	if rule.Propagated && !permissionPropagated {
-		failure := fmt.Sprintf(
-			"propagation is not enabled on the permission that grants privileges to %s on %s",
-			username, rule.EntityType,
-		)
-		if rule.EntityName != "" {
-			failure = fmt.Sprintf("%s with name: %s", failure, rule.EntityName)
+	if rule.Propagation.Enabled {
+		// Determine whether the privileges were granted to the user via a permission with propagation enabled
+		permissionPropagated, err := v.getPermissionPropagation(ctx, authManager, username, rule, objRef)
+		if err != nil {
+			return nil, err
 		}
-		failures = append(failures, failure)
+		if rule.Propagation.Propagated && !permissionPropagated {
+			failure := fmt.Sprintf(
+				"propagation is not enabled on the permission that grants privileges to %s on %s",
+				username, rule.EntityType,
+			)
+			if rule.EntityName != "" {
+				failure = fmt.Sprintf("%s with name: %s", failure, rule.EntityName)
+			}
+			failures = append(failures, failure)
+		}
 	}
 
 	return failures, nil
@@ -201,7 +203,7 @@ func (v *VCenterDriver) getPermissionPropagation(ctx context.Context, authManage
 	// and that DOMAIN is listed in the active user's domains.
 	groupPrincipals := make([]string, 0)
 	groupPrincipalsMap := make(map[string]bool, 0)
-	for _, g := range rule.GroupPrincipals {
+	for _, g := range rule.Propagation.GroupPrincipals {
 		var gpOk bool
 		for _, d := range currentDomains {
 			if strings.HasPrefix(g, d) {
