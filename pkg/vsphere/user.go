@@ -130,6 +130,12 @@ func (v *VCenterDriver) getObjRef(ctx context.Context, datacenter string, finder
 			return nil, err
 		}
 		objRef = datastore.Common.Reference()
+	case entity.DistributedVirtualPortgroup:
+		dvp, err := v.GetDistributedVirtualPortgroup(ctx, finder, rule.EntityName)
+		if err != nil {
+			return nil, err
+		}
+		objRef = dvp.Common.Reference()
 	case entity.DistributedVirtualSwitch:
 		dvs, err := v.GetDistributedVirtualSwitch(ctx, finder, rule.EntityName)
 		if err != nil {
