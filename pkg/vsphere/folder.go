@@ -32,6 +32,7 @@ func (v *VCenterDriver) GetFolder(ctx context.Context, finder *find.Finder, name
 			}
 			for _, f := range folders {
 				if strings.Contains(f.InventoryPath, name) {
+					v.log.V(1).Info("multiple folders found; returning first match", "name", name, "path", f.InventoryPath)
 					return f, nil
 				}
 			}
