@@ -10,13 +10,13 @@ metadata:
   name: vspherevalidator-explicit-auth
   namespace: validator
 spec:
-  datacenter: "Datacenter"
   auth:
-    cloudAccount:
+    account:
       insecure: true
       username: "user@vsphere.local"
       password: "password"
-      vcenterServer: "vcenter.example.com"
+      host: "vcenter.example.com"
+  datacenter: "Datacenter"
   tagValidationRules:
     - name: "Folder tag validation"
       clusterName: "Cluster2"

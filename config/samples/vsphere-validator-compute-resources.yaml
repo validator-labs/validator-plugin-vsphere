@@ -10,6 +10,8 @@ metadata:
   name: vspherevalidator-compute
   namespace: validator
 spec:
+  auth:
+    secretName: vsphere-creds
   datacenter: "Datacenter"
   computeResourceRules:
    - name: "rp-cluster2-palette-advanced-projects check resources"
@@ -27,5 +29,3 @@ spec:
          cpu: "2GHz"
          memory: 8Gi
          diskSpace: 100Gi
-  auth:
-    secretName: vsphere-creds

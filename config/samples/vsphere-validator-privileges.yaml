@@ -10,14 +10,18 @@ metadata:
   name: vspherevalidator-entity-privilege
   namespace: validator
 spec:
-  datacenter: "Datacenter"
   auth:
     secretName: vsphere-creds
-  entityPrivilegeValidationRules:
+  datacenter: "Datacenter"
+  privilegeValidationRules:
     - name: "Deploy VM to vapp test-vapp"
-      username: prakash@vsphere.local
       entityName: "sp-prakash"
-      entityType: "folder"
+      entityType: "Folder"
       privileges:
       - "VirtualMachine.Config.AddExistingDisk"
       - "VirtualMachine.Config.AddNewDisk"
+      propagation:
+        enabled: true
+        groupPrincipals:
+        - VSPHERE.LOCAL\my-group
+        propagated: true
