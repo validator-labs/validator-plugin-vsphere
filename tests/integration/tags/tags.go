@@ -9,7 +9,7 @@ import (
 	v1 "k8s.io/api/core/v1"
 
 	"github.com/validator-labs/validator-plugin-vsphere/api/v1alpha1"
-	"github.com/validator-labs/validator-plugin-vsphere/api/vcenter"
+	"github.com/validator-labs/validator-plugin-vsphere/api/vcenter/entity"
 	tags "github.com/validator-labs/validator-plugin-vsphere/pkg/validators/tags"
 	"github.com/validator-labs/validator-plugin-vsphere/pkg/vcsim"
 	"github.com/validator-labs/validator-plugin-vsphere/pkg/vsphere"
@@ -143,20 +143,20 @@ func (t *TagValidationTest) testTagsOnObjects(ctx *test.TestContext) (tr *test.T
 	rules := []v1alpha1.TagValidationRule{
 		{
 			RuleName:   "Datacenter validation rule",
-			EntityType: vcenter.Datacenter,
+			EntityType: entity.Datacenter,
 			EntityName: "DC0",
 			Tag:        "k8s-region",
 		},
 		{
 			RuleName:   "Cluster validation rule",
-			EntityType: vcenter.Cluster,
+			EntityType: entity.Cluster,
 			EntityName: "DC0_C0",
 			Tag:        "k8s-zone",
 		},
 		{
 			RuleName:    "Host validation rule",
 			ClusterName: "DC0_C0",
-			EntityType:  vcenter.Host,
+			EntityType:  entity.Host,
 			EntityName:  "DC0_C0_H0",
 			Tag:         "owner",
 		},

@@ -8,6 +8,8 @@ import (
 	"github.com/stretchr/testify/assert"
 	"github.com/vmware/govmomi/vim25/mo"
 	"github.com/vmware/govmomi/vim25/types"
+
+	"github.com/validator-labs/validator-plugin-vsphere/api/vcenter"
 )
 
 func TestGetHostSystem(t *testing.T) {
@@ -100,109 +102,109 @@ func TestValidateHostNTPServers(t *testing.T) {
 	testCases := []struct {
 		name          string
 		expectedErr   error
-		hostsDateInfo []HostDateInfo
+		hostsDateInfo []vcenter.HostDateInfo
 	}{
 		{
 			name:        "all valid case",
 			expectedErr: nil,
-			hostsDateInfo: []HostDateInfo{
+			hostsDateInfo: []vcenter.HostDateInfo{
 				{
 					HostName:   "host0",
-					NtpServers: []string{"ntp.a.com", "ntp.b.com", "ntp.c.com"},
+					NTPServers: []string{"ntp.a.com", "ntp.b.com", "ntp.c.com"},
 				},
 				{
 					HostName:   "host1",
-					NtpServers: []string{"ntp.e.com", "ntp.c.com", "ntp.z.com"},
+					NTPServers: []string{"ntp.e.com", "ntp.c.com", "ntp.z.com"},
 				},
 				{
 					HostName:   "host2",
-					NtpServers: []string{"ntp.c.com"},
+					NTPServers: []string{"ntp.c.com"},
 				},
 				{
 					HostName:   "host3",
-					NtpServers: []string{"ntp.x.com", "ntp.y.com", "ntp.c.com"},
+					NTPServers: []string{"ntp.x.com", "ntp.y.com", "ntp.c.com"},
 				},
 				{
 					HostName:   "host4",
-					NtpServers: []string{"ntp.l.com", "ntp.m.com", "ntp.c.com"},
+					NTPServers: []string{"ntp.l.com", "ntp.m.com", "ntp.c.com"},
 				},
 			},
 		},
 		{
 			name:        "first server invalid",
 			expectedErr: fmt.Errorf("some of the hosts has differently configured NTP servers"),
-			hostsDateInfo: []HostDateInfo{
+			hostsDateInfo: []vcenter.HostDateInfo{
 				{
 					HostName:   "host0",
-					NtpServers: []string{"ntp.a.com", "ntp.b.com"},
+					NTPServers: []string{"ntp.a.com", "ntp.b.com"},
 				},
 				{
 					HostName:   "host1",
-					NtpServers: []string{"ntp.e.com", "ntp.c.com", "ntp.z.com"},
+					NTPServers: []string{"ntp.e.com", "ntp.c.com", "ntp.z.com"},
 				},
 				{
 					HostName:   "host0",
-					NtpServers: []string{"ntp.c.com"},
+					NTPServers: []string{"ntp.c.com"},
 				},
 				{
 					HostName:   "host0",
-					NtpServers: []string{"ntp.x.com", "ntp.y.com", "ntp.c.com"},
+					NTPServers: []string{"ntp.x.com", "ntp.y.com", "ntp.c.com"},
 				},
 				{
 					HostName:   "host0",
-					NtpServers: []string{"ntp.l.com", "ntp.m.com", "ntp.c.com"},
+					NTPServers: []string{"ntp.l.com", "ntp.m.com", "ntp.c.com"},
 				},
 			},
 		},
 		{
 			name:        "all invalid servers",
 			expectedErr: fmt.Errorf("some of the hosts has differently configured NTP servers"),
-			hostsDateInfo: []HostDateInfo{
+			hostsDateInfo: []vcenter.HostDateInfo{
 				{
 					HostName:   "host0",
-					NtpServers: []string{"ntp.a.com", "ntp.b.com"},
+					NTPServers: []string{"ntp.a.com", "ntp.b.com"},
 				},
 				{
 					HostName:   "host1",
-					NtpServers: []string{"ntp.e.com"},
+					NTPServers: []string{"ntp.e.com"},
 				},
 				{
 					HostName:   "host0",
-					NtpServers: []string{"ntp.c.com"},
+					NTPServers: []string{"ntp.c.com"},
 				},
 				{
 					HostName:   "host0",
-					NtpServers: []string{"ntp.x.com"},
+					NTPServers: []string{"ntp.x.com"},
 				},
 				{
 					HostName:   "host0",
-					NtpServers: []string{"ntp.l.com"},
+					NTPServers: []string{"ntp.l.com"},
 				},
 			},
 		},
 		{
 			name:        "last server invalid",
 			expectedErr: fmt.Errorf("some of the hosts has differently configured NTP servers"),
-			hostsDateInfo: []HostDateInfo{
+			hostsDateInfo: []vcenter.HostDateInfo{
 				{
 					HostName:   "host0",
-					NtpServers: []string{"ntp.a.com", "ntp.b.com", "ntp.c.com"},
+					NTPServers: []string{"ntp.a.com", "ntp.b.com", "ntp.c.com"},
 				},
 				{
 					HostName:   "host1",
-					NtpServers: []string{"ntp.e.com", "ntp.c.com", "ntp.z.com"},
+					NTPServers: []string{"ntp.e.com", "ntp.c.com", "ntp.z.com"},
 				},
 				{
 					HostName:   "host2",
-					NtpServers: []string{"ntp.c.com"},
+					NTPServers: []string{"ntp.c.com"},
 				},
 				{
 					HostName:   "host3",
-					NtpServers: []string{"ntp.x.com", "ntp.y.com", "ntp.c.com"},
+					NTPServers: []string{"ntp.x.com", "ntp.y.com", "ntp.c.com"},
 				},
 				{
 					HostName:   "host4",
-					NtpServers: []string{"ntp.l.com", "ntp.m.com", "ntp.n.com"},
+					NTPServers: []string{"ntp.l.com", "ntp.m.com", "ntp.n.com"},
 				},
 			},
 		},

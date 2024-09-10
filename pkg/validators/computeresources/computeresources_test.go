@@ -10,24 +10,32 @@ import (
 	vtypes "github.com/vmware/govmomi/vim25/types"
 	corev1 "k8s.io/api/core/v1"
 
-	"github.com/validator-labs/validator-plugin-vsphere/api/v1alpha1"
-	"github.com/validator-labs/validator-plugin-vsphere/api/vcenter"
-	"github.com/validator-labs/validator-plugin-vsphere/pkg/vcsim"
 	vapi "github.com/validator-labs/validator/api/v1alpha1"
+	"github.com/validator-labs/validator/pkg/test"
 	"github.com/validator-labs/validator/pkg/types"
 	"github.com/validator-labs/validator/pkg/util"
+
+	"github.com/validator-labs/validator-plugin-vsphere/api/v1alpha1"
+	"github.com/validator-labs/validator-plugin-vsphere/api/vcenter/entity"
+	"github.com/validator-labs/validator-plugin-vsphere/pkg/vcsim"
+	"github.com/validator-labs/validator-plugin-vsphere/pkg/vsphere"
 )
 
-func TestComputeResourcesValidationService_ReconcileComputeResourceValidationRule(t *testing.T) {
+func TestReconcileComputeResourceValidationRule(t *testing.T) {
 	var log logr.Logger
 
 	vcSim := vcsim.NewVCSim("admin@vsphere.local", 8447, log)
 	vcSim.Start()
 	defer vcSim.Shutdown()
 
-	finder := find.NewFinder(vcSim.Driver.Client.Client)
+	driver, err := vsphere.NewVCenterDriver(vcSim.Account, vcSim.Options.Datacenter, logr.Logger{})
+	if err != nil {
+		t.Fatal(err)
+	}
 
-	validationService := NewValidationService(log, vcSim.Driver)
+	finder := find.NewFinder(driver.Client.Client)
+
+	validationService := NewValidationService(log, driver)
 	testCases := []struct {
 		name           string
 		expectedErr    error
@@ -39,7 +47,7 @@ func TestComputeResourcesValidationService_ReconcileComputeResourceValidationRul
 			rule: v1alpha1.ComputeResourceRule{
 				RuleName:    "Test Resource Validation rule",
 				ClusterName: "DC0_C0",
-				Scope:       vcenter.Cluster,
+				Scope:       entity.Cluster,
 				EntityName:  "DC0_C0",
 				NodepoolResourceRequirements: []v1alpha1.NodepoolResourceRequirement{
 					{
@@ -60,7 +68,7 @@ func TestComputeResourcesValidationService_ReconcileComputeResourceValidationRul
 			},
 			expectedResult: types.ValidationRuleResult{Condition: &vapi.ValidationCondition{
 				ValidationType: "vsphere-compute-resources",
-				ValidationRule: "validation-cluster-DC0_C0",
+				ValidationRule: "validation-cluster-dc0-c0",
 				Message:        "All required compute resources were satisfied",
 				Details:        []string{},
 				Failures:       nil,
@@ -70,12 +78,11 @@ func TestComputeResourcesValidationService_ReconcileComputeResourceValidationRul
 			},
 		},
 		{
-			name:        "cluster CPU not available",
-			expectedErr: errInsufficientComputeResources,
+			name: "cluster CPU not available",
 			rule: v1alpha1.ComputeResourceRule{
 				RuleName:    "Test Resource Validation rule",
 				ClusterName: "DC0_C0",
-				Scope:       vcenter.Cluster,
+				Scope:       entity.Cluster,
 				EntityName:  "DC0_C0",
 				NodepoolResourceRequirements: []v1alpha1.NodepoolResourceRequirement{
 					{
@@ -96,7 +103,7 @@ func TestComputeResourcesValidationService_ReconcileComputeResourceValidationRul
 			},
 			expectedResult: types.ValidationRuleResult{Condition: &vapi.ValidationCondition{
 				ValidationType: "vsphere-compute-resources",
-				ValidationRule: "validation-cluster-DC0_C0",
+				ValidationRule: "validation-cluster-dc0-c0",
 				Message:        "One or more resource requirements were not satisfied",
 				Details:        []string{},
 				Failures:       []string{"Not enough resources available. CPU available: false, Memory available: true, Storage available: true"},
@@ -106,12 +113,11 @@ func TestComputeResourcesValidationService_ReconcileComputeResourceValidationRul
 			},
 		},
 		{
-			name:        "cluster Memory not available",
-			expectedErr: errInsufficientComputeResources,
+			name: "cluster Memory not available",
 			rule: v1alpha1.ComputeResourceRule{
 				RuleName:    "Test Resource Validation rule",
 				ClusterName: "DC0_C0",
-				Scope:       vcenter.Cluster,
+				Scope:       entity.Cluster,
 				EntityName:  "DC0_C0",
 				NodepoolResourceRequirements: []v1alpha1.NodepoolResourceRequirement{
 					{
@@ -132,7 +138,7 @@ func TestComputeResourcesValidationService_ReconcileComputeResourceValidationRul
 			},
 			expectedResult: types.ValidationRuleResult{Condition: &vapi.ValidationCondition{
 				ValidationType: "vsphere-compute-resources",
-				ValidationRule: "validation-cluster-DC0_C0",
+				ValidationRule: "validation-cluster-dc0-c0",
 				Message:        "One or more resource requirements were not satisfied",
 				Details:        []string{},
 				Failures:       []string{"Not enough resources available. CPU available: true, Memory available: false, Storage available: true"},
@@ -142,12 +148,11 @@ func TestComputeResourcesValidationService_ReconcileComputeResourceValidationRul
 			},
 		},
 		{
-			name:        "cluster Disk not available",
-			expectedErr: errInsufficientComputeResources,
+			name: "cluster Disk not available",
 			rule: v1alpha1.ComputeResourceRule{
 				RuleName:    "Test Resource Validation rule",
 				ClusterName: "DC0_C0",
-				Scope:       vcenter.Cluster,
+				Scope:       entity.Cluster,
 				EntityName:  "DC0_C0",
 				NodepoolResourceRequirements: []v1alpha1.NodepoolResourceRequirement{
 					{
@@ -168,7 +173,7 @@ func TestComputeResourcesValidationService_ReconcileComputeResourceValidationRul
 			},
 			expectedResult: types.ValidationRuleResult{Condition: &vapi.ValidationCondition{
 				ValidationType: "vsphere-compute-resources",
-				ValidationRule: "validation-cluster-DC0_C0",
+				ValidationRule: "validation-cluster-dc0-c0",
 				Message:        "One or more resource requirements were not satisfied",
 				Details:        []string{},
 				Failures:       []string{"Not enough resources available. CPU available: true, Memory available: true, Storage available: false"},
@@ -181,7 +186,7 @@ func TestComputeResourcesValidationService_ReconcileComputeResourceValidationRul
 			name: "Host - All Resources available",
 			rule: v1alpha1.ComputeResourceRule{
 				RuleName:   "Test Host Resource Validation rule",
-				Scope:      vcenter.Host,
+				Scope:      entity.Host,
 				EntityName: "DC0_C0_H0",
 				NodepoolResourceRequirements: []v1alpha1.NodepoolResourceRequirement{
 					{
@@ -202,7 +207,7 @@ func TestComputeResourcesValidationService_ReconcileComputeResourceValidationRul
 			},
 			expectedResult: types.ValidationRuleResult{Condition: &vapi.ValidationCondition{
 				ValidationType: "vsphere-compute-resources",
-				ValidationRule: "validation-host-DC0_C0_H0",
+				ValidationRule: "validation-esxi-host-dc0-c0-h0",
 				Message:        "All required compute resources were satisfied",
 				Details:        []string{},
 				Failures:       nil,
@@ -212,11 +217,10 @@ func TestComputeResourcesValidationService_ReconcileComputeResourceValidationRul
 			},
 		},
 		{
-			name:        "Host CPU not available",
-			expectedErr: errInsufficientComputeResources,
+			name: "Host CPU not available",
 			rule: v1alpha1.ComputeResourceRule{
 				RuleName:   "Test Host Resource Validation rule",
-				Scope:      vcenter.Host,
+				Scope:      entity.Host,
 				EntityName: "DC0_C0_H0",
 				NodepoolResourceRequirements: []v1alpha1.NodepoolResourceRequirement{
 					{
@@ -237,7 +241,7 @@ func TestComputeResourcesValidationService_ReconcileComputeResourceValidationRul
 			},
 			expectedResult: types.ValidationRuleResult{Condition: &vapi.ValidationCondition{
 				ValidationType: "vsphere-compute-resources",
-				ValidationRule: "validation-host-DC0_C0_H0",
+				ValidationRule: "validation-esxi-host-dc0-c0-h0",
 				Message:        "One or more resource requirements were not satisfied",
 				Details:        []string{},
 				Failures:       []string{"Not enough resources available. CPU available: false, Memory available: true, Storage available: true"},
@@ -247,11 +251,10 @@ func TestComputeResourcesValidationService_ReconcileComputeResourceValidationRul
 			},
 		},
 		{
-			name:        "Host Memory not available",
-			expectedErr: errInsufficientComputeResources,
+			name: "Host Memory not available",
 			rule: v1alpha1.ComputeResourceRule{
 				RuleName:   "Test Host Resource Validation rule",
-				Scope:      vcenter.Host,
+				Scope:      entity.Host,
 				EntityName: "DC0_C0_H0",
 				NodepoolResourceRequirements: []v1alpha1.NodepoolResourceRequirement{
 					{
@@ -272,7 +275,7 @@ func TestComputeResourcesValidationService_ReconcileComputeResourceValidationRul
 			},
 			expectedResult: types.ValidationRuleResult{Condition: &vapi.ValidationCondition{
 				ValidationType: "vsphere-compute-resources",
-				ValidationRule: "validation-host-DC0_C0_H0",
+				ValidationRule: "validation-esxi-host-dc0-c0-h0",
 				Message:        "One or more resource requirements were not satisfied",
 				Details:        []string{},
 				Failures:       []string{"Not enough resources available. CPU available: true, Memory available: false, Storage available: true"},
@@ -282,11 +285,10 @@ func TestComputeResourcesValidationService_ReconcileComputeResourceValidationRul
 			},
 		},
 		{
-			name:        "Host Disk not available",
-			expectedErr: errInsufficientComputeResources,
+			name: "Host Disk not available",
 			rule: v1alpha1.ComputeResourceRule{
 				RuleName:   "Test Host Resource Validation rule",
-				Scope:      vcenter.Host,
+				Scope:      entity.Host,
 				EntityName: "DC0_C0_H0",
 				NodepoolResourceRequirements: []v1alpha1.NodepoolResourceRequirement{
 					{
@@ -307,7 +309,7 @@ func TestComputeResourcesValidationService_ReconcileComputeResourceValidationRul
 			},
 			expectedResult: types.ValidationRuleResult{Condition: &vapi.ValidationCondition{
 				ValidationType: "vsphere-compute-resources",
-				ValidationRule: "validation-host-DC0_C0_H0",
+				ValidationRule: "validation-esxi-host-dc0-c0-h0",
 				Message:        "One or more resource requirements were not satisfied",
 				Details:        []string{},
 				Failures:       []string{"Not enough resources available. CPU available: true, Memory available: true, Storage available: false"},
@@ -320,7 +322,7 @@ func TestComputeResourcesValidationService_ReconcileComputeResourceValidationRul
 			name: "Resourcepool - All Resources available",
 			rule: v1alpha1.ComputeResourceRule{
 				RuleName:    "Test Host Resource Validation rule",
-				Scope:       vcenter.ResourcePool,
+				Scope:       entity.ResourcePool,
 				ClusterName: "DC0_C0",
 				EntityName:  "DC0_C0_RP0",
 				NodepoolResourceRequirements: []v1alpha1.NodepoolResourceRequirement{
@@ -342,7 +344,7 @@ func TestComputeResourcesValidationService_ReconcileComputeResourceValidationRul
 			},
 			expectedResult: types.ValidationRuleResult{Condition: &vapi.ValidationCondition{
 				ValidationType: "vsphere-compute-resources",
-				ValidationRule: "validation-resourcepool-DC0_C0_RP0",
+				ValidationRule: "validation-resource-pool-dc0-c0-rp0",
 				Message:        "All required compute resources were satisfied",
 				Details:        []string{},
 				Failures:       nil,
@@ -352,11 +354,10 @@ func TestComputeResourcesValidationService_ReconcileComputeResourceValidationRul
 			},
 		},
 		{
-			name:        "Resourcepool CPU not available",
-			expectedErr: errInsufficientComputeResources,
+			name: "Resourcepool CPU not available",
 			rule: v1alpha1.ComputeResourceRule{
 				RuleName:    "Test Host Resource Validation rule",
-				Scope:       vcenter.ResourcePool,
+				Scope:       entity.ResourcePool,
 				ClusterName: "DC0_C0",
 				EntityName:  "DC0_C0_RP0",
 				NodepoolResourceRequirements: []v1alpha1.NodepoolResourceRequirement{
@@ -378,7 +379,7 @@ func TestComputeResourcesValidationService_ReconcileComputeResourceValidationRul
 			},
 			expectedResult: types.ValidationRuleResult{Condition: &vapi.ValidationCondition{
 				ValidationType: "vsphere-compute-resources",
-				ValidationRule: "validation-resourcepool-DC0_C0_RP0",
+				ValidationRule: "validation-resource-pool-dc0-c0-rp0",
 				Message:        "One or more resource requirements were not satisfied",
 				Details:        []string{},
 				Failures:       []string{"Not enough resources available. CPU available: false, Memory available: true, Storage available: true"},
@@ -388,11 +389,10 @@ func TestComputeResourcesValidationService_ReconcileComputeResourceValidationRul
 			},
 		},
 		{
-			name:        "Resourcepool Memory not available",
-			expectedErr: errInsufficientComputeResources,
+			name: "Resourcepool Memory not available",
 			rule: v1alpha1.ComputeResourceRule{
 				RuleName:    "Test Resourcepool Resource Validation rule",
-				Scope:       vcenter.ResourcePool,
+				Scope:       entity.ResourcePool,
 				ClusterName: "DC0_C0",
 				EntityName:  "DC0_C0_RP0",
 				NodepoolResourceRequirements: []v1alpha1.NodepoolResourceRequirement{
@@ -414,7 +414,7 @@ func TestComputeResourcesValidationService_ReconcileComputeResourceValidationRul
 			},
 			expectedResult: types.ValidationRuleResult{Condition: &vapi.ValidationCondition{
 				ValidationType: "vsphere-compute-resources",
-				ValidationRule: "validation-resourcepool-DC0_C0_RP0",
+				ValidationRule: "validation-resource-pool-dc0-c0-rp0",
 				Message:        "One or more resource requirements were not satisfied",
 				Details:        []string{},
 				Failures:       []string{"Not enough resources available. CPU available: true, Memory available: false, Storage available: true"},
@@ -424,11 +424,10 @@ func TestComputeResourcesValidationService_ReconcileComputeResourceValidationRul
 			},
 		},
 		{
-			name:        "Resourcepool Disk not available",
-			expectedErr: errInsufficientComputeResources,
+			name: "Resourcepool Disk not available",
 			rule: v1alpha1.ComputeResourceRule{
 				RuleName:    "Test Resourcepool Resource Validation rule",
-				Scope:       vcenter.ResourcePool,
+				Scope:       entity.ResourcePool,
 				ClusterName: "DC0_C0",
 				EntityName:  "DC0_C0_RP0",
 				NodepoolResourceRequirements: []v1alpha1.NodepoolResourceRequirement{
@@ -450,7 +449,7 @@ func TestComputeResourcesValidationService_ReconcileComputeResourceValidationRul
 			},
 			expectedResult: types.ValidationRuleResult{Condition: &vapi.ValidationCondition{
 				ValidationType: "vsphere-compute-resources",
-				ValidationRule: "validation-resourcepool-DC0_C0_RP0",
+				ValidationRule: "validation-resource-pool-dc0-c0-rp0",
 				Message:        "One or more resource requirements were not satisfied",
 				Details:        []string{},
 				Failures:       []string{"Not enough resources available. CPU available: true, Memory available: true, Storage available: false"},
@@ -460,11 +459,10 @@ func TestComputeResourcesValidationService_ReconcileComputeResourceValidationRul
 			},
 		},
 		{
-			name:        "Duplicate scope resourcepool",
-			expectedErr: errRuleAlreadyProcessed,
+			name: "Duplicate scope resourcepool",
 			rule: v1alpha1.ComputeResourceRule{
 				RuleName:    "Test Resourcepool Resource Validation rule",
-				Scope:       vcenter.ResourcePool,
+				Scope:       entity.ResourcePool,
 				ClusterName: "DC0_C1",
 				EntityName:  "DC0_C1_RP0",
 				NodepoolResourceRequirements: []v1alpha1.NodepoolResourceRequirement{
@@ -486,21 +484,20 @@ func TestComputeResourcesValidationService_ReconcileComputeResourceValidationRul
 			},
 			expectedResult: types.ValidationRuleResult{Condition: &vapi.ValidationCondition{
 				ValidationType: "vsphere-compute-resources",
-				ValidationRule: "validation-resourcepool-DC0_C1_RP0",
+				ValidationRule: "validation-resource-pool-dc0-c1-rp0",
 				Message:        "Rule for scope already processed",
 				Details:        []string{},
-				Failures:       []string{"Rule for scope resourcepool-DC0_C1 already processed"},
+				Failures:       []string{"Rule for scope resource-pool-dc0-c1 already processed"},
 				Status:         corev1.ConditionFalse,
 			},
 				State: util.Ptr(vapi.ValidationFailed),
 			},
 		},
 		{
-			name:        "Duplicate scope cluster",
-			expectedErr: errRuleAlreadyProcessed,
+			name: "Duplicate scope cluster",
 			rule: v1alpha1.ComputeResourceRule{
 				RuleName:   "Test Resourcepool Resource Validation rule",
-				Scope:      vcenter.Cluster,
+				Scope:      entity.Cluster,
 				EntityName: "DC0_C1",
 				NodepoolResourceRequirements: []v1alpha1.NodepoolResourceRequirement{
 					{
@@ -521,10 +518,10 @@ func TestComputeResourcesValidationService_ReconcileComputeResourceValidationRul
 			},
 			expectedResult: types.ValidationRuleResult{Condition: &vapi.ValidationCondition{
 				ValidationType: "vsphere-compute-resources",
-				ValidationRule: "validation-cluster-DC0_C1",
+				ValidationRule: "validation-cluster-dc0-c1",
 				Message:        "Rule for scope already processed",
 				Details:        []string{},
-				Failures:       []string{"Rule for scope cluster-DC0_C1 already processed"},
+				Failures:       []string{"Rule for scope cluster-dc0-c1 already processed"},
 				Status:         corev1.ConditionFalse,
 			},
 				State: util.Ptr(vapi.ValidationFailed),
@@ -560,12 +557,12 @@ func TestComputeResourcesValidationService_ReconcileComputeResourceValidationRul
 	}
 
 	seenScopes := map[string]bool{
-		"resourcepool-DC0_C1": true,
-		"cluster-DC0_C1":      true,
+		"resource-pool-dc0-c1": true,
+		"cluster-dc0-c1":       true,
 	}
 
 	for _, tc := range testCases {
-		vr, err := validationService.ReconcileComputeResourceValidationRule(tc.rule, finder, vcSim.Driver, seenScopes)
-		util.CheckTestCase(t, vr, tc.expectedResult, err, tc.expectedErr)
+		vr, err := validationService.ReconcileComputeResourceValidationRule(tc.rule, finder, driver, seenScopes)
+		test.CheckTestCase(t, vr, tc.expectedResult, err, tc.expectedErr)
 	}
 }

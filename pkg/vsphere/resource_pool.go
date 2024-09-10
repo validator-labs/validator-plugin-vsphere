@@ -11,21 +11,23 @@ import (
 	"github.com/vmware/govmomi/find"
 	"github.com/vmware/govmomi/object"
 
-	"github.com/validator-labs/validator-plugin-vsphere/pkg/constants"
+	"github.com/validator-labs/validator-plugin-vsphere/api/vcenter"
 )
 
-// GetResourcePoolIfExists returns the resource pool if it exists
-func (v *VCenterDriver) GetResourcePoolIfExists(ctx context.Context, finder *find.Finder, datacenter, cluster, resourcePoolName string) (bool, *object.ResourcePool, error) {
+// GetResourcePool returns the resource pool if it exists
+func (v *VCenterDriver) GetResourcePool(ctx context.Context, finder *find.Finder, datacenter, cluster, resourcePoolName string) (*object.ResourcePool, error) {
 	path := fmt.Sprintf("/%s/host/%s/Resources/%s", datacenter, cluster, resourcePoolName)
-	// Handle Cluster level defaut resource pool called 'Resources'
-	if resourcePoolName == constants.ClusterDefaultResourcePoolName {
+
+	// Handle the cluster-level default resource pool, 'Resources'
+	if resourcePoolName == vcenter.ClusterDefaultResourcePoolName {
 		path = fmt.Sprintf("/%s/host/%s/%s", datacenter, cluster, resourcePoolName)
 	}
+
 	rp, err := finder.ResourcePool(ctx, path)
 	if err != nil {
-		return false, nil, err
+		return nil, err
 	}
-	return true, rp, nil
+	return rp, nil
 }
 
 // GetResourcePools returns a list of resource pools

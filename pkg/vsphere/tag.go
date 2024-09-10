@@ -29,7 +29,7 @@ func (v *VCenterDriver) getTagsAndCategory(ctx context.Context, client *vim25.Cl
 	}
 
 	if categoryID == "" {
-		return nil, "", errors.Errorf("No tag with category type %s is created", tagCategory)
+		return nil, "", errors.Errorf("no tag with category type %s is created", tagCategory)
 	}
 
 	tags, e := v.getResourceTags(ctx, client, resourceType)
@@ -37,7 +37,7 @@ func (v *VCenterDriver) getTagsAndCategory(ctx context.Context, client *vim25.Cl
 		return nil, "", e
 	}
 	if len(tags) == 0 {
-		return nil, "", errors.Errorf("No tag is attached to resource %s", resourceType)
+		return nil, "", errors.Errorf("no tag is attached to resource %s", resourceType)
 	}
 
 	return tags, categoryID, e

@@ -10,12 +10,15 @@ import (
 	"github.com/vmware/govmomi/object"
 	corev1 "k8s.io/api/core/v1"
 
-	"github.com/validator-labs/validator-plugin-vsphere/api/v1alpha1"
-	"github.com/validator-labs/validator-plugin-vsphere/api/vcenter"
-	"github.com/validator-labs/validator-plugin-vsphere/pkg/vcsim"
 	vapi "github.com/validator-labs/validator/api/v1alpha1"
+	"github.com/validator-labs/validator/pkg/test"
 	"github.com/validator-labs/validator/pkg/types"
 	"github.com/validator-labs/validator/pkg/util"
+
+	"github.com/validator-labs/validator-plugin-vsphere/api/v1alpha1"
+	"github.com/validator-labs/validator-plugin-vsphere/api/vcenter/entity"
+	"github.com/validator-labs/validator-plugin-vsphere/pkg/vcsim"
+	"github.com/validator-labs/validator-plugin-vsphere/pkg/vsphere"
 )
 
 func TestPrivilegeValidationService_ReconcilePrivilegeRule(t *testing.T) {
@@ -25,8 +28,16 @@ func TestPrivilegeValidationService_ReconcilePrivilegeRule(t *testing.T) {
 	vcSim.Start()
 	defer vcSim.Shutdown()
 
-	finder := find.NewFinder(vcSim.Driver.Client.Client)
-	authManager := object.NewAuthorizationManager(vcSim.Driver.Client.Client)
+	opts := vcSim.Options
+
+	driver, err := vsphere.NewVCenterDriver(vcSim.Account, vcSim.Options.Datacenter, logr.Logger{})
+	if err != nil {
+		t.Fatal(err)
+	}
+
+	finder := find.NewFinder(driver.Client.Client)
+
+	authManager := object.NewAuthorizationManager(driver.Client.Client)
 	if authManager == nil {
 		t.Fatal("Error in creating auth manager")
 	}
@@ -34,12 +45,12 @@ func TestPrivilegeValidationService_ReconcilePrivilegeRule(t *testing.T) {
 	ctx, cancel := context.WithCancel(context.Background())
 	defer cancel()
 
-	username, err := vcSim.Driver.CurrentUser(ctx)
+	username, err := driver.CurrentUser(ctx)
 	if err != nil {
 		t.Fatal("Error in getting current VMware user from username")
 	}
 
-	validationService := NewPrivilegeValidationService(log, vcSim.Driver, "DC0", authManager, username)
+	validationService := NewPrivilegeValidationService(log, driver, opts.Datacenter, username, authManager)
 
 	testCases := []struct {
 		name           string
@@ -51,17 +62,18 @@ func TestPrivilegeValidationService_ReconcilePrivilegeRule(t *testing.T) {
 			name: "All privileges available",
 			rule: v1alpha1.PrivilegeValidationRule{
 				RuleName:    "VirtualMachine.Config.AddExistingDisk",
-				Username:    username,
-				ClusterName: "DC0_C0",
-				EntityType:  vcenter.Cluster,
-				EntityName:  "DC0_C0",
-				Privileges: []string{
-					"VirtualMachine.Config.AddExistingDisk",
+				ClusterName: opts.Cluster,
+				EntityType:  entity.Cluster,
+				EntityName:  opts.Cluster,
+				Privileges:  []string{"VirtualMachine.Config.AddExistingDisk"},
+				Propagation: v1alpha1.Propagation{
+					Enabled:         true,
+					GroupPrincipals: []string{"admin"},
 				},
 			},
 			expectedResult: types.ValidationRuleResult{Condition: &vapi.ValidationCondition{
 				ValidationType: "vsphere-privileges",
-				ValidationRule: "validation-cluster-DC0_C0",
+				ValidationRule: "validation-cluster-dc0-c0",
 				Message:        fmt.Sprintf("All required vsphere-privileges permissions were found for account: %s", username),
 				Details:        []string{},
 				Failures:       []string{},
@@ -73,31 +85,35 @@ func TestPrivilegeValidationService_ReconcilePrivilegeRule(t *testing.T) {
 		{
 			name: "Certain privilege not available",
 			rule: v1alpha1.PrivilegeValidationRule{
-				RuleName:    "VirtualMachine.Config.AddExistingDisk",
-				Username:    username,
-				ClusterName: "DC0_C0",
-				EntityType:  vcenter.Cluster,
-				EntityName:  "DC0_C0",
-				Privileges: []string{
-					"VirtualMachine.Config.DestroyExistingDisk",
+				RuleName:    "VirtualMachine.Config.MagicCarpet",
+				ClusterName: opts.Cluster,
+				EntityType:  entity.Cluster,
+				EntityName:  opts.Cluster,
+				Privileges:  []string{"VirtualMachine.Config.MagicCarpet"},
+				Propagation: v1alpha1.Propagation{
+					Enabled:         true,
+					GroupPrincipals: []string{"admin"},
 				},
 			},
 			expectedResult: types.ValidationRuleResult{Condition: &vapi.ValidationCondition{
 				ValidationType: "vsphere-privileges",
-				ValidationRule: "validation-cluster-DC0_C0",
+				ValidationRule: "validation-cluster-dc0-c0",
 				Message:        fmt.Sprintf("One or more required privileges was not found, or a condition was not met for account: %s", username),
 				Details:        []string{},
-				Failures:       []string{"user: admin2@vsphere.local does not have privilege: VirtualMachine.Config.DestroyExistingDisk on entity type: cluster with name: DC0_C0"},
+				Failures:       []string{"user: admin2@vsphere.local does not have privilege: VirtualMachine.Config.MagicCarpet on entity type: Cluster with name: DC0_C0"},
 				Status:         corev1.ConditionFalse,
 			},
 				State: util.Ptr(vapi.ValidationFailed),
 			},
-			expectedErr: errRequiredPrivilegesNotFound,
+			expectedErr: nil,
 		},
 	}
 
 	for _, tc := range testCases {
 		vr, err := validationService.ReconcilePrivilegeRule(tc.rule, finder)
-		util.CheckTestCase(t, vr, tc.expectedResult, err, tc.expectedErr)
+		if err != nil && tc.expectedErr == nil {
+			t.Errorf("got err: %v, expected no error", err)
+		}
+		test.CheckTestCase(t, vr, tc.expectedResult, err, tc.expectedErr)
 	}
 }

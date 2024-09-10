@@ -2,14 +2,12 @@
 package vcsim
 
 import (
-	"context"
 	"crypto/tls"
 	"fmt"
 	"log"
 	"net/url"
 	"os"
 	"os/signal"
-	"path/filepath"
 	"strconv"
 	"syscall"
 
@@ -19,7 +17,6 @@ import (
 	_ "github.com/vmware/govmomi/vapi/simulator" // Importing the simulator package to enable simulation of vCenter server
 
 	"github.com/validator-labs/validator-plugin-vsphere/api/vcenter"
-	"github.com/validator-labs/validator-plugin-vsphere/pkg/vsphere"
 )
 
 var sig chan os.Signal
@@ -31,8 +28,30 @@ func init() {
 // VCSimulator is used to mock interactions with a vCenter server
 type VCSimulator struct {
 	Account vcenter.Account
-	Driver  *vsphere.VCenterDriver
+	Options govcOptions
 	log     logr.Logger
+}
+
+type govcOptions struct {
+	InsecureConnection string
+	RefreshRestClient  bool
+
+	Cluster                     string
+	Datacenter                  string
+	Datastore                   string
+	DistributedVirtualPortgroup string
+	DistributedVirtualSwitch    string
+	Folder                      string
+	Host                        string
+	Network                     network
+	ResourcePool                string
+	Portgroup                   string
+	VM                          string
+}
+
+type network struct {
+	Name    string
+	Network string
 }
 
 // NewVCSim creates a new VCSimulator
@@ -59,26 +78,38 @@ func NewTestVsphereAccount(username string, port int) vcenter.Account {
 // Start starts the mock vcsim server
 func (v *VCSimulator) Start() {
 	model := simulator.VPX()
-	model.Datacenter = 1
+
+	model.Autostart = false
 	model.Cluster = 2
 	model.ClusterHost = 1
-	model.Host = 1
-	model.Pool = 2
-	model.Machine = 1
+	model.Datacenter = 1
 	model.Datastore = 2
-	model.Autostart = false
+	model.Host = 1
+	model.Machine = 1
+	model.Pool = 2
+	model.Portgroup = 1
 	model.ServiceContent.About.ApiVersion = "6.7.3"
+
+	v.Options = govcOptions{
+		InsecureConnection:          strconv.FormatBool(true),
+		Datacenter:                  "DC0",
+		DistributedVirtualPortgroup: "DVPG0",
+		DistributedVirtualSwitch:    "DVS0",
+		Cluster:                     "DC0_C0",
+		ResourcePool:                "DC0_C0_RP0",
+		VM:                          "DC0_C0_RP0_VM0",
+		Datastore:                   "LocalDS_0",
+		Folder:                      "SC_Tyler",
+		Network: network{
+			Name:    "VM Network",
+			Network: "VM Network",
+		},
+	}
 
 	cleanUp, err := v.createVCenterSimulator(model)
 	if err != nil {
 		log.Fatalf("failed to create vCenter simulator: %s", err)
 	}
-
-	v.Driver, err = vsphere.NewVCenterDriver(v.Account, "DC0", v.log)
-	if err != nil {
-		log.Fatalf("failed to create driver for vCenter simulator: %s", err)
-	}
-	v.createFolders()
 
 	sig = make(chan os.Signal, 1)
 	signal.Notify(sig, syscall.SIGINT, syscall.SIGTERM)
@@ -95,56 +126,6 @@ func (v *VCSimulator) Start() {
 func (v *VCSimulator) Shutdown() {
 	log.Println("shutting down vcsim server")
 	sig <- syscall.SIGTERM
-}
-
-func (v *VCSimulator) createFolders() {
-
-	gOpts := v.getOpts()
-
-	folders := []string{}
-
-	folder := gOpts.Folder
-	if folder != "" {
-		folderPath := filepath.Join("/", gOpts.Datacenter, "vm", folder)
-		folders = append(folders, folderPath)
-	}
-
-	folder = gOpts.ImageTemplateFolder
-	if folder == "" {
-		folder = "spectro-templates"
-	}
-	spectroTemplatePath := filepath.Join("/", gOpts.Datacenter, "vm", folder)
-	folders = append(folders, spectroTemplatePath)
-
-	ctx, cancel := context.WithCancel(context.Background())
-	defer cancel()
-
-	if err := v.Driver.CreateVSphereVMFolder(ctx, gOpts.Datacenter, folders); err != nil {
-		log.Fatalf("failed to create folder: %v", err)
-	}
-}
-
-type govcOptions struct {
-	VCenterServer       string
-	VCenterUsername     string
-	VCenterPassword     string
-	InsecureConnection  string
-	Datacenter          string
-	Datastore           string
-	Cluster             string
-	Host                string
-	ResourcePool        string
-	VMName              string
-	Template            string
-	ImageTemplateFolder string
-	Folder              string
-	Network             network
-	RefreshRestClient   bool
-}
-
-type network struct {
-	Name    string
-	Network string
 }
 
 // createvCenterSimulator creates a vCenter simulator
@@ -175,23 +156,4 @@ func (v *VCSimulator) createVCenterSimulator(model *simulator.Model) (func(), er
 	return func() {
 		s.Close()
 	}, nil
-}
-
-func (v *VCSimulator) getOpts() govcOptions {
-	return govcOptions{
-		VCenterServer:      v.Account.Host,
-		VCenterUsername:    v.Account.Username,
-		VCenterPassword:    v.Account.Password,
-		InsecureConnection: strconv.FormatBool(true),
-		Datacenter:         "DC0",
-		Cluster:            "DC0_C0",
-		ResourcePool:       "DC0_C0_RP0",
-		VMName:             "DC0_C0_RP0_VM0",
-		Datastore:          "LocalDS_0",
-		Folder:             "SC_Tyler",
-		Network: network{
-			Name:    "VM Network",
-			Network: "VM Network",
-		},
-	}
 }

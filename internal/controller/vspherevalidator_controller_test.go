@@ -12,7 +12,7 @@ import (
 	"k8s.io/apimachinery/pkg/types"
 
 	"github.com/validator-labs/validator-plugin-vsphere/api/v1alpha1"
-	"github.com/validator-labs/validator-plugin-vsphere/api/vcenter"
+	"github.com/validator-labs/validator-plugin-vsphere/api/vcenter/entity"
 	"github.com/validator-labs/validator-plugin-vsphere/pkg/vcsim"
 	vapi "github.com/validator-labs/validator/api/v1alpha1"
 	vres "github.com/validator-labs/validator/pkg/validationresult"
@@ -49,7 +49,7 @@ var _ = Describe("VsphereValidator controller", Ordered, func() {
 			TagValidationRules: []v1alpha1.TagValidationRule{
 				{
 					RuleName:   "Datacenter k8s-region rule",
-					EntityType: vcenter.Datacenter,
+					EntityType: entity.Datacenter,
 					EntityName: "Datacenter",
 					Tag:        "k8s-region",
 				},

@@ -61,7 +61,7 @@ func Validate(ctx context.Context, spec v1alpha1.VsphereValidatorSpec, log logr.
 	tagsManager := vtags.NewManager(driver.RestClient)
 
 	// Get the current user
-	userName, err := driver.CurrentUser(ctx)
+	username, err := driver.CurrentUser(ctx)
 	if err != nil {
 		resp.AddResult(vrr, fmt.Errorf("failed to get current user: %w", err))
 		return resp
@@ -74,21 +74,23 @@ func Validate(ctx context.Context, spec v1alpha1.VsphereValidatorSpec, log logr.
 		if err != nil {
 			log.Error(err, "failed to reconcile NTP rule")
 		}
+		vrr.Finalize(err)
 		resp.AddResult(vrr, err)
 		log.Info("Validated NTP rules")
 	}
 
 	// Privilege validation rules
 	privilegeValidationService := privileges.NewPrivilegeValidationService(
-		log, driver, spec.Datacenter, authManager, userName,
+		log, driver, spec.Datacenter, username, authManager,
 	)
 	for _, rule := range spec.PrivilegeValidationRules {
 		vrr, err := privilegeValidationService.ReconcilePrivilegeRule(rule, finder)
 		if err != nil {
 			log.Error(err, "failed to reconcile privilege rule")
 		}
+		vrr.Finalize(err)
 		resp.AddResult(vrr, err)
-		log.Info("Validated privileges for account", "user", rule.Username)
+		log.Info("Validated privileges for account", "user", username)
 	}
 
 	// Tag validation rules
@@ -99,6 +101,7 @@ func Validate(ctx context.Context, spec v1alpha1.VsphereValidatorSpec, log logr.
 		if err != nil {
 			log.Error(err, "failed to reconcile tag validation rule")
 		}
+		vrr.Finalize(err)
 		resp.AddResult(vrr, err)
 		log.Info("Validated tags", "entity type", rule.EntityType, "entity name", rule.EntityName, "tag", rule.Tag)
 	}
@@ -111,8 +114,10 @@ func Validate(ctx context.Context, spec v1alpha1.VsphereValidatorSpec, log logr.
 		if err != nil {
 			log.Error(err, "failed to reconcile computeresources validation rule")
 		}
+		vrr.Finalize(err)
 		resp.AddResult(vrr, err)
 		log.Info("Validated compute resources", "scope", rule.Scope, "entity name", rule.EntityName)
+
 		key, err := computeresources.GetScopeKey(rule)
 		if err != nil {
 			log.Error(err, "failed to get scope key for rule")

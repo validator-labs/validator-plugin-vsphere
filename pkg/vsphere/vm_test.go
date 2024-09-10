@@ -8,6 +8,8 @@ import (
 	"github.com/vmware/govmomi/performance"
 	"github.com/vmware/govmomi/vim25/mo"
 	"github.com/vmware/govmomi/vim25/types"
+
+	"github.com/validator-labs/validator-plugin-vsphere/api/vcenter"
 )
 
 func TestToVSphereVMs(t *testing.T) {
@@ -21,7 +23,7 @@ func TestToVSphereVMs(t *testing.T) {
 		hostSystems []mo.HostSystem
 		ccrs        []*object.ClusterComputeResource
 		parentsRef  []mo.VirtualMachine
-		expectedVMs []VM
+		expectedVMs []vcenter.VM
 	}{
 		{
 			name: "VM Conversion",
@@ -123,7 +125,7 @@ func TestToVSphereVMs(t *testing.T) {
 					},
 				},
 			},
-			expectedVMs: []VM{
+			expectedVMs: []vcenter.VM{
 				{
 					Name:         "TestVM",
 					Type:         "vm-123",
@@ -133,23 +135,23 @@ func TestToVSphereVMs(t *testing.T) {
 					CPU:          2,
 					Memory:       4096,
 					RootDiskSize: 1,
-					Network: []Network{
+					Network: []vcenter.Network{
 						{
 							IP:        "192.168.1.100",
 							Interface: "",
 						},
 					},
-					VMInfo: VMInfo{
+					VMInfo: vcenter.VMInfo{
 						Folder:    "",
 						Datastore: "",
 						Network:   "",
 						Cluster:   "",
 					},
-					SSHInfo: SSHInfo{
+					SSHInfo: vcenter.SSHInfo{
 						Username: "",
 					},
-					AdditionalDisk: []AdditionalDisk{},
-					Metrics: Metrics{
+					AdditionalDisk: []vcenter.AdditionalDisk{},
+					Metrics: vcenter.Metrics{
 						CPUCores:        "3",
 						CPUUsage:        "1",
 						MemoryBytes:     "3123",
@@ -157,7 +159,7 @@ func TestToVSphereVMs(t *testing.T) {
 						DiskUsage:       "9883",
 						DiskProvisioned: "844",
 					},
-					Storage: []Datastore{},
+					Storage: []vcenter.Datastore{},
 				},
 			},
 		},

@@ -17,7 +17,7 @@ spec:
   - name: v1alpha1
     schema:
       openAPIV3Schema:
-        description: VsphereValidator is the Schema for the vspherevalidators API
+        description: VsphereValidator is the Schema for the vspherevalidators API.
         properties:
           apiVersion:
             description: |-
@@ -37,14 +37,15 @@ spec:
           metadata:
             type: object
           spec:
-            description: VsphereValidatorSpec defines the desired state of VsphereValidator
+            description: VsphereValidatorSpec defines the desired state of a vSphere
+              validator.
             properties:
               auth:
                 description: VsphereAuth defines authentication configuration for
-                  an VsphereValidator.
+                  a vSphere validator.
                 properties:
                   account:
-                    description: Account is the vCenter account to use for authentication
+                    description: Account is the vCenter account to use for authentication.
                     properties:
                       host:
                         description: Host is the vCenter URL.
@@ -66,50 +67,50 @@ spec:
                     - username
                     type: object
                   secretName:
-                    description: SecretName is the name of the secret containing the
-                      vSphere credentials
+                    description: SecretName is the name of the secret containing vCenter
+                      credentials.
                     type: string
                 type: object
               computeResourceRules:
                 items:
-                  description: ComputeResourceRule defines the compute resource validation
-                    rule
+                  description: ComputeResourceRule defines a compute resource validation
+                    rule.
                   properties:
                     clusterName:
-                      description: ClusterName is required when the vCenter Entity
-                        resides beneath a Cluster in the vCenter object hierarchy
+                      description: ClusterName is required when the vCenter entity
+                        resides beneath a Cluster in the vCenter object hierarchy.
                       type: string
                     entityName:
-                      description: EntityName is the name of the entity to validate
+                      description: EntityName is the name of the entity to validate.
                       type: string
                     name:
                       description: RuleName is the name of the compute resource validation
-                        rule
+                        rule.
                       type: string
                     nodepoolResourceRequirements:
                       description: NodepoolResourceRequirements is the list of nodepool
-                        resource requirements
+                        resource requirements.
                       items:
                         description: NodepoolResourceRequirement defines the resource
-                          requirements for a nodepool
+                          requirements for a node pool.
                         properties:
                           cpu:
-                            description: CPU is the CPU requirement for the nodepool
+                            description: CPU is the CPU requirement for the node pool.
                             type: string
                           diskSpace:
                             description: DiskSpace is the disk space requirement for
-                              the nodepool
+                              the node pool.
                             type: string
                           memory:
                             description: Memory is the memory requirement for the
-                              nodepool
+                              node pool.
                             type: string
                           name:
-                            description: Name is the name of the nodepool
+                            description: Name is the name of the node pool.
                             type: string
                           numberOfNodes:
                             description: NumberOfNodes is the number of nodes in the
-                              nodepool
+                              node pool.
                             type: integer
                         required:
                         - cpu
@@ -121,7 +122,7 @@ spec:
                       type: array
                     scope:
                       description: Scope is the scope of the compute resource validation
-                        rule
+                        rule.
                       type: integer
                   required:
                   - entityName
@@ -134,20 +135,20 @@ spec:
                 type: string
               ntpValidationRules:
                 items:
-                  description: NTPValidationRule defines the NTP validation rule
+                  description: NTPValidationRule defines an NTP validation rule.
                   properties:
                     clusterName:
                       description: ClusterName is required when the vCenter Host(s)
-                        reside beneath a Cluster in the vCenter object hierarchy
+                        reside beneath a Cluster in the vCenter object hierarchy.
                       type: string
                     hosts:
                       description: Hosts is the list of vCenter Hosts to validate
-                        NTP configuration
+                        NTP configuration for.
                       items:
                         type: string
                       type: array
                     name:
-                      description: RuleName is the name of the NTP validation rule
+                      description: RuleName is the name of the NTP validation rule.
                       type: string
                   required:
                   - hosts
@@ -156,59 +157,85 @@ spec:
                 type: array
               privilegeValidationRules:
                 items:
-                  description: PrivilegeValidationRule defines the privilege validation
-                    rule
+                  description: PrivilegeValidationRule defines a privilege validation
+                    rule.
                   properties:
                     clusterName:
-                      description: ClusterName is required when the vCenter Entity
-                        resides beneath a Cluster in the vCenter object hierarchy
+                      description: ClusterName is required when the vCenter entity
+                        resides beneath a Cluster in the vCenter object hierarchy.
                       type: string
                     entityName:
-                      description: EntityName is the name of the entity to validate
+                      description: EntityName is the name of the vCenter entity to
+                        validate privileges on.
                       type: string
                     entityType:
-                      description: EntityType is the type of the entity to validate
+                      description: EntityType is the type of the vCenter entity to
+                        validate.
                       type: integer
                     name:
-                      description: RuleName is the name of the entity privilege validation
-                        rule
+                      description: RuleName is the name of the privilege validation
+                        rule.
                       type: string
                     privileges:
                       description: Privileges is the list of privileges to validate
-                        that the user has
+                        that the user has with respect to the designated vCenter entity.
                       items:
                         type: string
                       type: array
-                    username:
-                      description: Username is the username to validate against
-                      type: string
+                    propagation:
+                      description: Propagation validation configuration for permissions
+                        that grant the user privileges on the vCenter entity.
+                      properties:
+                        enabled:
+                          description: Enabled controls whether propagation validation
+                            is performed.
+                          type: boolean
+                        groupPrincipals:
+                          description: |-
+                            GroupPrincipals is an optional list of vCenter group principals that the user is a member of.
+                            Group membership can be determined dynamically by a vSphere admin user, but specifying
+                            group principals manually allows privilege validation for non-admin users.
+                            Group principals must be of the format DOMAIN\group-name, e.g., VSPHERE.LOCAL\my-custom-group.
+                          items:
+                            type: string
+                          type: array
+                        propagated:
+                          description: |-
+                            Propagated indicates whether the permission that grants privileges to the user for the rule's
+                            entity is expected to be propagated or not.
+                          type: boolean
+                      required:
+                      - enabled
+                      - propagated
+                      type: object
                   required:
                   - entityName
                   - entityType
                   - name
                   - privileges
-                  - username
                   type: object
                 type: array
               tagValidationRules:
                 items:
-                  description: TagValidationRule defines the tag validation rule
+                  description: TagValidationRule defines a tag validation rule.
                   properties:
                     clusterName:
-                      description: ClusterName is required when the vCenter Entity
-                        resides beneath a Cluster in the vCenter object hierarchy
+                      description: ClusterName is required when the vCenter entity
+                        resides beneath a Cluster in the vCenter object hierarchy.
                       type: string
                     entityName:
-                      description: EntityName is the name of the entity to validate
+                      description: EntityName is the name of the vCenter entity to
+                        validate tags on.
                       type: string
                     entityType:
-                      description: EntityType is the type of the entity to validate
+                      description: EntityType is the type of the vCenter entity to
+                        validate.
                       type: integer
                     name:
-                      description: RuleName is the name of the tag validation rule
+                      description: RuleName is the name of the tag validation rule.
                       type: string
                     tag:
-                      description: Tag is the tag to validate on the entity
+                      description: Tag is the tag to validate on the vCenter entity.
                       type: string
                   required:
                   - entityName
@@ -222,7 +249,8 @@ spec:
             - datacenter
             type: object
           status:
-            description: VsphereValidatorStatus defines the observed state of VsphereValidator
+            description: VsphereValidatorStatus defines the observed state of a vSphere
+              validator.
             type: object
         type: object
     served: true

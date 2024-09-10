@@ -4,7 +4,6 @@ package ntp
 import (
 	"context"
 	"fmt"
-	"strings"
 
 	"github.com/go-logr/logr"
 	"github.com/vmware/govmomi/find"
@@ -37,9 +36,12 @@ func NewValidationService(log logr.Logger, driver *vsphere.VCenterDriver, datace
 
 func buildValidationResult(rule v1alpha1.NTPValidationRule, validationType string) *types.ValidationRuleResult {
 	state := vapi.ValidationSucceeded
+
+	validationRule := fmt.Sprintf("%s-%s", vapiconstants.ValidationRulePrefix, rule.Name())
+
 	latestCondition := vapi.DefaultValidationCondition()
 	latestCondition.Message = "All required NTP rules were satisfied"
-	latestCondition.ValidationRule = fmt.Sprintf("%s-%s", vapiconstants.ValidationRulePrefix, strings.ReplaceAll(rule.Name(), " ", "-"))
+	latestCondition.ValidationRule = util.Sanitize(validationRule)
 	latestCondition.ValidationType = validationType
 
 	return &types.ValidationRuleResult{Condition: &latestCondition, State: &state}

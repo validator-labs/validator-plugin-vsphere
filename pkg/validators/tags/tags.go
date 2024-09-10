@@ -12,14 +12,16 @@ import (
 	"github.com/vmware/govmomi/vim25/mo"
 	corev1 "k8s.io/api/core/v1"
 
-	"github.com/validator-labs/validator-plugin-vsphere/api/v1alpha1"
-	"github.com/validator-labs/validator-plugin-vsphere/api/vcenter"
-	"github.com/validator-labs/validator-plugin-vsphere/pkg/constants"
-	"github.com/validator-labs/validator-plugin-vsphere/pkg/vsphere"
 	vapi "github.com/validator-labs/validator/api/v1alpha1"
 	vapiconstants "github.com/validator-labs/validator/pkg/constants"
 	vapitypes "github.com/validator-labs/validator/pkg/types"
 	"github.com/validator-labs/validator/pkg/util"
+
+	"github.com/validator-labs/validator-plugin-vsphere/api/v1alpha1"
+	"github.com/validator-labs/validator-plugin-vsphere/api/vcenter"
+	"github.com/validator-labs/validator-plugin-vsphere/api/vcenter/entity"
+	"github.com/validator-labs/validator-plugin-vsphere/pkg/constants"
+	"github.com/validator-labs/validator-plugin-vsphere/pkg/vsphere"
 )
 
 var (
@@ -28,6 +30,16 @@ var (
 
 	// GetAttachedTagsOnObjects is defined to enable monkey patching the getAttachedTagsOnObjects function in integration tests
 	GetAttachedTagsOnObjects = getAttachedTagsOnObjects
+
+	// SupportedEntities indicates which vCenter entities may be referenced in a tag validation rule.
+	SupportedEntities = []string{
+		entity.Cluster.String(),
+		entity.Datacenter.String(),
+		entity.Folder.String(),
+		entity.Host.String(),
+		entity.ResourcePool.String(),
+		entity.VirtualMachine.String(),
+	}
 )
 
 // ValidationService is a service that validates tag rules
@@ -61,13 +73,15 @@ func (s *ValidationService) ReconcileTagRules(tagsManager *tags.Manager, finder 
 
 func buildValidationResult(rule v1alpha1.TagValidationRule, validationType string) *vapitypes.ValidationRuleResult {
 	state := vapi.ValidationSucceeded
+
+	validationRule := fmt.Sprintf("%s-%s-%s-%s", vapiconstants.ValidationRulePrefix, "tag", rule.EntityType, rule.Tag)
+
 	latestCondition := vapi.DefaultValidationCondition()
 	latestCondition.Message = "Required entity tags were found"
-	latestCondition.ValidationRule = fmt.Sprintf("%s-%s-%s-%s", vapiconstants.ValidationRulePrefix, "tag", rule.EntityType, rule.Tag)
+	latestCondition.ValidationRule = util.Sanitize(validationRule)
 	latestCondition.ValidationType = validationType
-	validationResult := &vapitypes.ValidationRuleResult{Condition: &latestCondition, State: &state}
 
-	return validationResult
+	return &vapitypes.ValidationRuleResult{Condition: &latestCondition, State: &state}
 }
 
 func tagIsValid(tagsManager *tags.Manager, finder *find.Finder, datacenter string, rule v1alpha1.TagValidationRule) (bool, error) {
@@ -86,20 +100,20 @@ func tagIsValid(tagsManager *tags.Manager, finder *find.Finder, datacenter strin
 	}
 
 	switch rule.EntityType {
-	case vcenter.Cluster:
-		inventoryPath = fmt.Sprintf(constants.ClusterInventoryPath, datacenter, rule.EntityName)
-	case vcenter.Datacenter:
+	case entity.Cluster:
+		inventoryPath = fmt.Sprintf(vcenter.ClusterInventoryPath, datacenter, rule.EntityName)
+	case entity.Datacenter:
 		inventoryPath = rule.EntityName
-	case vcenter.Folder:
+	case entity.Folder:
 		inventoryPath = rule.EntityName
-	case vcenter.Host:
-		inventoryPath = fmt.Sprintf(constants.HostSystemInventoryPath, datacenter, rule.ClusterName, rule.EntityName)
-	case vcenter.ResourcePool:
-		inventoryPath = fmt.Sprintf(constants.ResourcePoolInventoryPath, datacenter, rule.ClusterName, rule.EntityName)
-		if rule.EntityName == constants.ClusterDefaultResourcePoolName {
+	case entity.Host:
+		inventoryPath = fmt.Sprintf(vcenter.HostSystemInventoryPath, datacenter, rule.ClusterName, rule.EntityName)
+	case entity.ResourcePool:
+		inventoryPath = fmt.Sprintf(vcenter.ResourcePoolInventoryPath, datacenter, rule.ClusterName, rule.EntityName)
+		if rule.EntityName == vcenter.ClusterDefaultResourcePoolName {
 			inventoryPath = fmt.Sprintf("/%s/host/%s/%s", datacenter, rule.ClusterName, rule.EntityName)
 		}
-	case vcenter.VM:
+	case entity.VirtualMachine:
 		inventoryPath = rule.EntityName
 	default:
 		return false, fmt.Errorf("unsupported entity type: %s", rule.EntityType)
