@@ -9,16 +9,19 @@ import (
 )
 
 const (
-	// ClusterDefaultResourcePoolName is the default resource pool name for a cluster
+	// ClusterDefaultResourcePoolName is the default resource pool name for a cluster.
 	ClusterDefaultResourcePoolName = "Resources"
 
-	// ClusterInventoryPath is the path for cluster inventory
+	// ClusterInventoryPath is the path for cluster inventory.
 	ClusterInventoryPath = "/%s/host/%s"
 
-	// HostSystemInventoryPath is the path for host system inventory
+	// DefaultDomain is the default vCenter domain.
+	DefaultDomain = "VSPHERE.LOCAL"
+
+	// HostSystemInventoryPath is the path for host system inventory.
 	HostSystemInventoryPath = "/%s/host/%s/%s"
 
-	// ResourcePoolInventoryPath is the path for resource pool inventory
+	// ResourcePoolInventoryPath is the path for resource pool inventory.
 	ResourcePoolInventoryPath = "/%s/host/%s/Resources/%s"
 )
 
