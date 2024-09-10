@@ -38,7 +38,7 @@ func TestValidate(t *testing.T) {
 					{
 						EntityType: entity.Cluster,
 						EntityName: opts.Cluster,
-						Privileges: []v1alpha1.Privilege{{Name: "Alarm.Acknowledge"}},
+						Privileges: []string{"Alarm.Acknowledge"},
 					},
 				}),
 			},
@@ -55,7 +55,7 @@ func TestValidate(t *testing.T) {
 					{
 						EntityType: entity.Cluster,
 						EntityName: opts.Cluster,
-						Privileges: []v1alpha1.Privilege{{Name: "Nonexistent"}},
+						Privileges: []string{"Nonexistent"},
 					},
 				}),
 			},
@@ -72,7 +72,7 @@ func TestValidate(t *testing.T) {
 					{
 						EntityType: entity.VCenterRoot,
 						EntityName: "",
-						Privileges: []v1alpha1.Privilege{{Name: "Alarm.Acknowledge"}},
+						Privileges: []string{"Alarm.Acknowledge"},
 					},
 				}),
 			},
@@ -89,7 +89,7 @@ func TestValidate(t *testing.T) {
 					{
 						EntityType: entity.Datastore,
 						EntityName: opts.Datastore,
-						Privileges: []v1alpha1.Privilege{{Name: "Alarm.Acknowledge"}},
+						Privileges: []string{"Alarm.Acknowledge"},
 					},
 				}),
 			},
@@ -106,7 +106,7 @@ func TestValidate(t *testing.T) {
 					{
 						EntityType: entity.Network,
 						EntityName: opts.Network.Name,
-						Privileges: []v1alpha1.Privilege{{Name: "Alarm.Acknowledge"}},
+						Privileges: []string{"Alarm.Acknowledge"},
 					},
 				}),
 			},
@@ -150,7 +150,7 @@ func TestValidate(t *testing.T) {
 type privilegeRuleInput struct {
 	EntityType entity.Entity
 	EntityName string
-	Privileges []v1alpha1.Privilege
+	Privileges []string
 }
 
 func testRules(inputs []privilegeRuleInput) []v1alpha1.PrivilegeValidationRule {

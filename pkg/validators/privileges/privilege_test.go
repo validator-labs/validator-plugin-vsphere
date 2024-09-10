@@ -63,9 +63,7 @@ func TestPrivilegeValidationService_ReconcilePrivilegeRule(t *testing.T) {
 				ClusterName: "DC0_C0",
 				EntityType:  entity.Cluster,
 				EntityName:  "DC0_C0",
-				Privileges: []v1alpha1.Privilege{
-					{Name: "VirtualMachine.Config.AddExistingDisk"},
-				},
+				Privileges:  []string{"VirtualMachine.Config.AddExistingDisk"},
 			},
 			expectedResult: types.ValidationRuleResult{Condition: &vapi.ValidationCondition{
 				ValidationType: "vsphere-privileges",
@@ -85,9 +83,7 @@ func TestPrivilegeValidationService_ReconcilePrivilegeRule(t *testing.T) {
 				ClusterName: "DC0_C0",
 				EntityType:  entity.Cluster,
 				EntityName:  "DC0_C0",
-				Privileges: []v1alpha1.Privilege{
-					{Name: "VirtualMachine.Config.DestroyExistingDisk"},
-				},
+				Privileges:  []string{"VirtualMachine.Config.DestroyExistingDisk"},
 			},
 			expectedResult: types.ValidationRuleResult{Condition: &vapi.ValidationCondition{
 				ValidationType: "vsphere-privileges",

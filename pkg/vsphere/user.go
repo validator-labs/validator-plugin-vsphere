@@ -41,6 +41,7 @@ func (v *VCenterDriver) CurrentDomains(ctx context.Context) ([]string, error) {
 
 // ValidateUserPrivilegeOnEntities validates the user's privileges and permissions on a specific entity.
 func (v *VCenterDriver) ValidateUserPrivilegeOnEntities(ctx context.Context, authManager *object.AuthorizationManager, datacenter, username string, finder *find.Finder, rule v1alpha1.PrivilegeValidationRule) ([]string, error) {
+	failures := make([]string, 0)
 
 	// Fetch the managed object reference associated with the rule's entity
 	objRefPtr, err := v.getObjRef(ctx, datacenter, finder, rule)
@@ -48,12 +49,6 @@ func (v *VCenterDriver) ValidateUserPrivilegeOnEntities(ctx context.Context, aut
 		return nil, err
 	}
 	objRef := *objRefPtr
-
-	// Determine whether the privilege in question was granted to the user via a permission with propagation enabled
-	permissionPropagated, err := v.getPermissionPropagation(ctx, authManager, username, rule, objRef)
-	if err != nil {
-		return nil, err
-	}
 
 	// List active user's privileges on the entity
 	privilegeResults, err := authManager.FetchUserPrivilegeOnEntities(ctx,
@@ -68,7 +63,6 @@ func (v *VCenterDriver) ValidateUserPrivilegeOnEntities(ctx context.Context, aut
 	}
 
 	// Ensure that the user has all required privileges on the entity
-	failures := make([]string, 0)
 	privilegesMap := make(map[string]bool)
 	for _, result := range privilegeResults {
 		for _, privilege := range result.Privileges {
@@ -76,24 +70,32 @@ func (v *VCenterDriver) ValidateUserPrivilegeOnEntities(ctx context.Context, aut
 		}
 	}
 	for _, privilege := range rule.Privileges {
-		if _, ok := privilegesMap[privilege.Name]; !ok {
+		if _, ok := privilegesMap[privilege]; !ok {
 			failure := fmt.Sprintf(
 				"user: %s does not have privilege: %s on entity type: %s",
-				username, privilege.Name, rule.EntityType,
+				username, privilege, rule.EntityType,
 			)
 			if rule.EntityName != "" {
 				failure = fmt.Sprintf("%s with name: %s", failure, rule.EntityName)
 			}
 			failures = append(failures, failure)
-			continue
 		}
-		if privilege.Propagated && !permissionPropagated {
-			failure := fmt.Sprintf(
-				"user: %s has privilege: %s on entity type: %s, but propagation was not enabled on the associated permission",
-				username, privilege.Name, rule.EntityType,
-			)
-			failures = append(failures, failure)
+	}
+
+	// Determine whether the privileges were granted to the user via a permission with propagation enabled
+	permissionPropagated, err := v.getPermissionPropagation(ctx, authManager, username, rule, objRef)
+	if err != nil {
+		return nil, err
+	}
+	if rule.Propagated && !permissionPropagated {
+		failure := fmt.Sprintf(
+			"propagation is not enabled on the permission that grants privileges to %s on %s",
+			username, rule.EntityType,
+		)
+		if rule.EntityName != "" {
+			failure = fmt.Sprintf("%s with name: %s", failure, rule.EntityName)
 		}
+		failures = append(failures, failure)
 	}
 
 	return failures, nil
