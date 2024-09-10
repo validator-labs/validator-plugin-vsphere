@@ -53,8 +53,10 @@ type resourceRequirement struct {
 }
 
 func buildValidationResult(rule v1alpha1.ComputeResourceRule, validationType string) *types.ValidationRuleResult {
-	validationRule := fmt.Sprintf("%s-%s-%s", vapiconstants.ValidationRulePrefix, rule.Scope, rule.EntityName)
 	state := vapi.ValidationSucceeded
+
+	validationRule := fmt.Sprintf("%s-%s-%s", vapiconstants.ValidationRulePrefix, rule.Scope, rule.EntityName)
+
 	latestCondition := vapi.DefaultValidationCondition()
 	latestCondition.Message = "All required compute resources were satisfied"
 	latestCondition.ValidationRule = util.Sanitize(validationRule)
