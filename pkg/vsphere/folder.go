@@ -24,7 +24,8 @@ func (v *VCenterDriver) GetFolder(ctx context.Context, finder *find.Finder, name
 	folder, err := finder.Folder(ctx, name)
 	if err != nil {
 		// default to the first folder if multiple are found
-		if errors.Is(err, &find.MultipleFoundError{}) {
+		var multipleFound *find.MultipleFoundError
+		if errors.As(err, &multipleFound) {
 			folders, err := finder.FolderList(ctx, "*")
 			if err != nil {
 				return nil, err
