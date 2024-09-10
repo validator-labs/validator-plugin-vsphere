@@ -25,7 +25,7 @@ func (v *VCenterDriver) GetNetwork(ctx context.Context, finder *find.Finder, pat
 	return network, nil
 }
 
-// GetNetworkType determines the type of a network given its datacenter name.
+// GetNetworkTypeByName determines the type of a network given its datacenter and name.
 func (v *VCenterDriver) GetNetworkTypeByName(ctx context.Context, datacenter, name string) (string, error) {
 	finder, dc, err := v.GetFinderWithDatacenter(ctx, datacenter)
 	if err != nil {

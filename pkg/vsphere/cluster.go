@@ -38,7 +38,7 @@ func (v *VCenterDriver) GetClusters(ctx context.Context, datacenter string) ([]s
 	return clusters, nil
 }
 
-// GetClusters returns a sorted list of vCenter clusters within a datacenter, filtered by a tag category.
+// GetClustersByTag returns a sorted list of vCenter clusters within a datacenter, filtered by a tag category.
 func (v *VCenterDriver) GetClustersByTag(ctx context.Context, datacenter, tagCategory string) ([]string, error) {
 	prefix, ccrs, err := v.getClusterComputeResources(ctx, datacenter)
 	if err != nil {

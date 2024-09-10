@@ -36,7 +36,7 @@ func (v *VCenterDriver) GetDatacenters(ctx context.Context) ([]string, error) {
 	return datacenters, nil
 }
 
-// GetDatacenters returns a sorted list of datacenters in the vCenter environment having a specific tag.
+// GetDatacentersByTag returns a sorted list of datacenters in the vCenter environment having a specific tag.
 func (v *VCenterDriver) GetDatacentersByTag(ctx context.Context, tagCategory string) ([]string, error) {
 	dcs, err := v.getDatacenters(ctx)
 	if err != nil {

@@ -189,29 +189,18 @@ spec:
                       description: Privileges is the list of privileges to validate
                         that the user has with respect to the designated vCenter entity.
                       items:
-                        description: Privilege represents a vCenter privilege and
-                          expected metadata associated with the permission that grants
-                          it.
-                        properties:
-                          name:
-                            description: Name of the vCenter privilege in API format,
-                              e.g., "Alarm.Acknowledge"
-                            type: string
-                          propagated:
-                            description: Propagated indicates whether the permission
-                              that grants this privilege is expected to be propagated
-                              or not.
-                            type: boolean
-                        required:
-                        - name
-                        - propagated
-                        type: object
+                        type: string
                       type: array
+                    propagated:
+                      description: Propagated indicates whether the permission that
+                        grants this privilege is expected to be propagated or not.
+                      type: boolean
                   required:
                   - entityName
                   - entityType
                   - name
                   - privileges
+                  - propagated
                   type: object
                 type: array
               tagValidationRules:
