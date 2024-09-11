@@ -127,7 +127,7 @@ func (c *ValidationService) ReconcileComputeResourceValidationRule(rule v1alpha1
 	defer cancel()
 
 	var res *Usage
-	switch rule.Scope {
+	switch e := entity.Map[rule.Scope]; e {
 	case entity.Cluster:
 		res, err = clusterUsage(ctx, rule, finder)
 	case entity.ResourcePool:
@@ -371,7 +371,7 @@ func getTotalQuantity(quantity string, numberOfNodes int) resource.Quantity {
 // GetScopeKey returns a formatted key depending on the scope of a rule
 func GetScopeKey(rule v1alpha1.ComputeResourceRule) (string, error) {
 	var key string
-	switch rule.Scope {
+	switch e := entity.Map[rule.Scope]; e {
 	case entity.Cluster:
 		key = fmt.Sprintf("%s-%s", rule.Scope, rule.EntityName)
 	case entity.Host:

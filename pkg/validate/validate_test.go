@@ -158,7 +158,7 @@ func testRules(inputs []privilegeRuleInput) []v1alpha1.PrivilegeValidationRule {
 	for i, input := range inputs {
 		r := v1alpha1.PrivilegeValidationRule{
 			RuleName:   fmt.Sprintf("rule %d", i),
-			EntityType: input.EntityType,
+			EntityType: input.EntityType.String(),
 			EntityName: input.EntityName,
 			Privileges: input.Privileges,
 		}

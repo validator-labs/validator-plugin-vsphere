@@ -111,7 +111,7 @@ func (v *VCenterDriver) ValidateUserPrivilegeOnEntities(ctx context.Context, aut
 func (v *VCenterDriver) getObjRef(ctx context.Context, datacenter string, finder *find.Finder, rule v1alpha1.PrivilegeValidationRule) (*types.ManagedObjectReference, error) {
 	var objRef types.ManagedObjectReference
 
-	switch rule.EntityType {
+	switch e := entity.Map[rule.EntityType]; e {
 	case entity.Cluster:
 		cluster, err := v.GetCluster(ctx, finder, datacenter, rule.EntityName)
 		if err != nil {

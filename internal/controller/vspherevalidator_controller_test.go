@@ -49,7 +49,7 @@ var _ = Describe("VsphereValidator controller", Ordered, func() {
 			TagValidationRules: []v1alpha1.TagValidationRule{
 				{
 					RuleName:   "Datacenter k8s-region rule",
-					EntityType: entity.Datacenter,
+					EntityType: entity.Datacenter.String(),
 					EntityName: "Datacenter",
 					Tag:        "k8s-region",
 				},

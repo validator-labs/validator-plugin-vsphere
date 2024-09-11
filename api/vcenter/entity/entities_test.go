@@ -39,7 +39,7 @@ func TestMarshalYAML(t *testing.T) {
 	}
 }
 
-func TestUnMarshalYAML(t *testing.T) {
+func TestUnmarshalYAML(t *testing.T) {
 	// int
 	in := []byte("8\n")
 	expected := ResourcePool

@@ -9,7 +9,6 @@ import (
 	"github.com/validator-labs/validator/pkg/validationrule"
 
 	"github.com/validator-labs/validator-plugin-vsphere/api/vcenter"
-	"github.com/validator-labs/validator-plugin-vsphere/api/vcenter/entity"
 	"github.com/validator-labs/validator-plugin-vsphere/pkg/constants"
 )
 
@@ -82,7 +81,7 @@ type ComputeResourceRule struct {
 	ClusterName string `json:"clusterName,omitempty" yaml:"clusterName"`
 
 	// Scope is the scope of the compute resource validation rule.
-	Scope entity.Entity `json:"scope" yaml:"scope"`
+	Scope string `json:"scope" yaml:"scope"`
 
 	// EntityName is the name of the entity to validate.
 	EntityName string `json:"entityName" yaml:"entityName"`
@@ -114,7 +113,7 @@ type PrivilegeValidationRule struct {
 	ClusterName string `json:"clusterName,omitempty" yaml:"clusterName,omitempty"`
 
 	// EntityType is the type of the vCenter entity to validate.
-	EntityType entity.Entity `json:"entityType" yaml:"entityType"`
+	EntityType string `json:"entityType" yaml:"entityType"`
 
 	// EntityName is the name of the vCenter entity to validate privileges on.
 	EntityName string `json:"entityName" yaml:"entityName"`
@@ -165,7 +164,7 @@ type TagValidationRule struct {
 	ClusterName string `json:"clusterName,omitempty" yaml:"clusterName"`
 
 	// EntityType is the type of the vCenter entity to validate.
-	EntityType entity.Entity `json:"entityType" yaml:"entityType"`
+	EntityType string `json:"entityType" yaml:"entityType"`
 
 	// EntityName is the name of the vCenter entity to validate tags on.
 	EntityName string `json:"entityName" yaml:"entityName"`

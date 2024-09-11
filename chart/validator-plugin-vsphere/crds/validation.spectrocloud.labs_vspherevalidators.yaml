@@ -123,7 +123,7 @@ spec:
                     scope:
                       description: Scope is the scope of the compute resource validation
                         rule.
-                      type: integer
+                      type: string
                   required:
                   - entityName
                   - name
@@ -171,7 +171,7 @@ spec:
                     entityType:
                       description: EntityType is the type of the vCenter entity to
                         validate.
-                      type: integer
+                      type: string
                     name:
                       description: RuleName is the name of the privilege validation
                         rule.
@@ -230,7 +230,7 @@ spec:
                     entityType:
                       description: EntityType is the type of the vCenter entity to
                         validate.
-                      type: integer
+                      type: string
                     name:
                       description: RuleName is the name of the tag validation rule.
                       type: string

@@ -63,7 +63,7 @@ func TestPrivilegeValidationService_ReconcilePrivilegeRule(t *testing.T) {
 			rule: v1alpha1.PrivilegeValidationRule{
 				RuleName:    "VirtualMachine.Config.AddExistingDisk",
 				ClusterName: opts.Cluster,
-				EntityType:  entity.Cluster,
+				EntityType:  entity.Cluster.String(),
 				EntityName:  opts.Cluster,
 				Privileges:  []string{"VirtualMachine.Config.AddExistingDisk"},
 				Propagation: v1alpha1.Propagation{
@@ -87,7 +87,7 @@ func TestPrivilegeValidationService_ReconcilePrivilegeRule(t *testing.T) {
 			rule: v1alpha1.PrivilegeValidationRule{
 				RuleName:    "VirtualMachine.Config.MagicCarpet",
 				ClusterName: opts.Cluster,
-				EntityType:  entity.Cluster,
+				EntityType:  entity.Cluster.String(),
 				EntityName:  opts.Cluster,
 				Privileges:  []string{"VirtualMachine.Config.MagicCarpet"},
 				Propagation: v1alpha1.Propagation{

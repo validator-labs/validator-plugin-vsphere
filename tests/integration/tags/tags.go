@@ -143,20 +143,20 @@ func (t *TagValidationTest) testTagsOnObjects(ctx *test.TestContext) (tr *test.T
 	rules := []v1alpha1.TagValidationRule{
 		{
 			RuleName:   "Datacenter validation rule",
-			EntityType: entity.Datacenter,
+			EntityType: entity.Datacenter.String(),
 			EntityName: "DC0",
 			Tag:        "k8s-region",
 		},
 		{
 			RuleName:   "Cluster validation rule",
-			EntityType: entity.Cluster,
+			EntityType: entity.Cluster.String(),
 			EntityName: "DC0_C0",
 			Tag:        "k8s-zone",
 		},
 		{
 			RuleName:    "Host validation rule",
 			ClusterName: "DC0_C0",
-			EntityType:  entity.Host,
+			EntityType:  entity.Host.String(),
 			EntityName:  "DC0_C0_H0",
 			Tag:         "owner",
 		},
