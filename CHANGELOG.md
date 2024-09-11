@@ -1,5 +1,28 @@
 # Changelog
 
+## [0.1.1](https://github.com/validator-labs/validator-plugin-vsphere/compare/v0.1.0...v0.1.1) (2024-09-11)
+
+
+### Features
+
+* unmarshal int to Entity ([#369](https://github.com/validator-labs/validator-plugin-vsphere/issues/369)) ([b519d23](https://github.com/validator-labs/validator-plugin-vsphere/commit/b519d23d3b33ce987270274d196719675f0ed403))
+
+
+### Other
+
+* Update README.md ([e59db3a](https://github.com/validator-labs/validator-plugin-vsphere/commit/e59db3a246c17d7f50f3700368c9bf5f862ec630))
+
+
+### Docs
+
+* update samples ([a6e6c46](https://github.com/validator-labs/validator-plugin-vsphere/commit/a6e6c46d86e29ac33cfc93cad7c57f949be638a9))
+
+
+### Dependency Updates
+
+* **deps:** update module github.com/vmware/govmomi to v0.43.0 ([#366](https://github.com/validator-labs/validator-plugin-vsphere/issues/366)) ([5db79f3](https://github.com/validator-labs/validator-plugin-vsphere/commit/5db79f3208fdd2284ac62e00563b5ff6caf8ec52))
+* **deps:** update module sigs.k8s.io/cluster-api to v1.8.3 ([#365](https://github.com/validator-labs/validator-plugin-vsphere/issues/365)) ([1a70e54](https://github.com/validator-labs/validator-plugin-vsphere/commit/1a70e5484af3f946c2bb424c269602e136801b7c))
+
 ## [0.1.0](https://github.com/validator-labs/validator-plugin-vsphere/compare/v0.0.34...v0.1.0) (2024-09-10)
 
 
