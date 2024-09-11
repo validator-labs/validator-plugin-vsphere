@@ -12,17 +12,30 @@ const (
 	// ClusterDefaultResourcePoolName is the default resource pool name for a cluster.
 	ClusterDefaultResourcePoolName = "Resources"
 
-	// ClusterInventoryPath is the path for cluster inventory.
-	ClusterInventoryPath = "/%s/host/%s"
-
 	// DefaultDomain is the default vCenter domain.
 	DefaultDomain = "VSPHERE.LOCAL"
 
+	// Inventory Paths
+
+	// ClusterInventoryPath is the path for cluster inventory.
+	// Replacements: datacenter name, cluster name.
+	ClusterInventoryPath = "/%s/host/%s"
+
 	// HostSystemInventoryPath is the path for host system inventory.
+	// Replacements: datacenter name, cluster name, host system name.
 	HostSystemInventoryPath = "/%s/host/%s/%s"
 
+	// NetworkInventoryPath is the path for network inventory.
+	// Replacements: datacenter name, network name.
+	NetworkInventoryPath = "/%s/network/%s"
+
 	// ResourcePoolInventoryPath is the path for resource pool inventory.
+	// Replacements: datacenter name, cluster name, resource pool name.
 	ResourcePoolInventoryPath = "/%s/host/%s/Resources/%s"
+
+	// VMFolderInventoryPath is the path for VM folder inventory.
+	// Replacements: datacenter name, vm folder name.
+	VMFolderInventoryPath = "/%s/vm/%s"
 )
 
 // Account contains vCenter account details.
