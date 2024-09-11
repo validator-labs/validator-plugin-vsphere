@@ -143,7 +143,7 @@ func (v *VCenterDriver) getObjRef(ctx context.Context, datacenter string, finder
 		}
 		objRef = dvs.Common.Reference()
 	case entity.Folder:
-		folder, err := v.GetFolder(ctx, finder, rule.EntityName)
+		folder, err := v.GetFolder(ctx, datacenter, rule.EntityName)
 		if err != nil {
 			return nil, err
 		}
