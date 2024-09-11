@@ -9,6 +9,7 @@ import (
 	"github.com/pkg/errors"
 	"github.com/vmware/govmomi/find"
 	"github.com/vmware/govmomi/object"
+	"github.com/vmware/govmomi/vim25/mo"
 )
 
 // GetNetwork returns a network object if it exists
@@ -127,6 +128,24 @@ func (v *VCenterDriver) GetDistributedVirtualPortgroups(ctx context.Context, dat
 
 	sort.Strings(networks)
 	return networks, nil
+}
+
+// GetDistributedVirtualSwitchNameFromPortGroup returns the name of a distributed port group's distributed switch
+func (v *VCenterDriver) GetDistributedVirtualSwitchNameFromPortGroup(ctx context.Context, dvp *object.DistributedVirtualPortgroup) (string, error) {
+
+	var dpgMo mo.DistributedVirtualPortgroup
+	if err := dvp.Properties(ctx, dvp.Reference(), []string{"config"}, &dpgMo); err != nil {
+		return "", err
+	}
+	dvsRef := dpgMo.Config.DistributedVirtualSwitch.Reference()
+
+	// Retrieve the Distributed Virtual Switch object using its reference
+	var dvsMo mo.DistributedVirtualSwitch
+	if err := v.Client.RetrieveOne(ctx, dvsRef, []string{"config"}, &dvsMo); err != nil {
+		return "", err
+	}
+
+	return dvsMo.Config.GetDVSConfigInfo().Name, nil
 }
 
 // GetDistributedVirtualSwitch returns a distributed virtual switch object if it exists
