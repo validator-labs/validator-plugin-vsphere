@@ -40,11 +40,21 @@ func TestMarshalYAML(t *testing.T) {
 }
 
 func TestUnMarshalYAML(t *testing.T) {
-	// string: correct casing
-	in := []byte("Resource Pool\n")
+	// int
+	in := []byte("8\n")
 	expected := ResourcePool
 
 	var e Entity
+	if err := yaml.Unmarshal(in, &e); err != nil {
+		t.Errorf("failed to unmarshal ResourcePool: %v", err)
+	}
+	if !reflect.DeepEqual(e, expected) {
+		t.Errorf("got %v != expected %v", e, expected)
+	}
+
+	// string: correct casing
+	in = []byte("Resource Pool\n")
+
 	if err := yaml.Unmarshal(in, &e); err != nil {
 		t.Errorf("failed to unmarshal ResourcePool: %v", err)
 	}
