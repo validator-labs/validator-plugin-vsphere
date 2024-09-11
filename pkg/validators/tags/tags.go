@@ -99,7 +99,7 @@ func tagIsValid(tagsManager *tags.Manager, finder *find.Finder, datacenter strin
 		}
 	}
 
-	switch rule.EntityType {
+	switch e := entity.Map[rule.EntityType]; e {
 	case entity.Cluster:
 		inventoryPath = fmt.Sprintf(vcenter.ClusterInventoryPath, datacenter, rule.EntityName)
 	case entity.Datacenter:

@@ -20,7 +20,13 @@ func (v *VCenterDriver) FolderExists(ctx context.Context, finder *find.Finder, n
 }
 
 // GetFolder returns the vCenter VM folder if it exists
-func (v *VCenterDriver) GetFolder(ctx context.Context, finder *find.Finder, name string) (*object.Folder, error) {
+func (v *VCenterDriver) GetFolder(ctx context.Context, datacenter, name string) (*object.Folder, error) {
+	finder, dc, err := v.GetFinderWithDatacenter(ctx, datacenter)
+	if err != nil {
+		return nil, err
+	}
+	prefix := folderPrefix(dc)
+
 	folder, err := finder.Folder(ctx, name)
 	if err != nil {
 		// default to the first folder if multiple are found
@@ -31,7 +37,8 @@ func (v *VCenterDriver) GetFolder(ctx context.Context, finder *find.Finder, name
 				return nil, err
 			}
 			for _, f := range folders {
-				if strings.Contains(f.InventoryPath, name) {
+				path := strings.TrimPrefix(f.InventoryPath, prefix)
+				if strings.HasPrefix(path, name) {
 					v.log.V(1).Info("multiple folders found; returning first match", "name", name, "path", f.InventoryPath)
 					return f, nil
 				}
@@ -48,13 +55,13 @@ func (v *VCenterDriver) GetVMFolders(ctx context.Context, datacenter string) ([]
 	if err != nil {
 		return nil, err
 	}
+	prefix := folderPrefix(dc)
 
 	fos, err := finder.FolderList(ctx, "*")
 	if err != nil {
 		return nil, errors.Wrap(err, fmt.Sprintf("failed to fetch vSphere folders for Datacenter %s", datacenter))
 	}
 
-	prefix := fmt.Sprintf("/%s/vm/", dc)
 	folders := make([]string, 0)
 	for _, fo := range fos {
 		inventoryPath := fo.InventoryPath
@@ -67,4 +74,8 @@ func (v *VCenterDriver) GetVMFolders(ctx context.Context, datacenter string) ([]
 
 	sort.Strings(folders)
 	return folders, nil
+}
+
+func folderPrefix(datacenter string) string {
+	return fmt.Sprintf("/%s/vm/", datacenter)
 }

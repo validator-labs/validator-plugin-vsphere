@@ -47,7 +47,7 @@ func TestReconcileComputeResourceValidationRule(t *testing.T) {
 			rule: v1alpha1.ComputeResourceRule{
 				RuleName:    "Test Resource Validation rule",
 				ClusterName: "DC0_C0",
-				Scope:       entity.Cluster,
+				Scope:       entity.Cluster.String(),
 				EntityName:  "DC0_C0",
 				NodepoolResourceRequirements: []v1alpha1.NodepoolResourceRequirement{
 					{
@@ -82,7 +82,7 @@ func TestReconcileComputeResourceValidationRule(t *testing.T) {
 			rule: v1alpha1.ComputeResourceRule{
 				RuleName:    "Test Resource Validation rule",
 				ClusterName: "DC0_C0",
-				Scope:       entity.Cluster,
+				Scope:       entity.Cluster.String(),
 				EntityName:  "DC0_C0",
 				NodepoolResourceRequirements: []v1alpha1.NodepoolResourceRequirement{
 					{
@@ -117,7 +117,7 @@ func TestReconcileComputeResourceValidationRule(t *testing.T) {
 			rule: v1alpha1.ComputeResourceRule{
 				RuleName:    "Test Resource Validation rule",
 				ClusterName: "DC0_C0",
-				Scope:       entity.Cluster,
+				Scope:       entity.Cluster.String(),
 				EntityName:  "DC0_C0",
 				NodepoolResourceRequirements: []v1alpha1.NodepoolResourceRequirement{
 					{
@@ -152,7 +152,7 @@ func TestReconcileComputeResourceValidationRule(t *testing.T) {
 			rule: v1alpha1.ComputeResourceRule{
 				RuleName:    "Test Resource Validation rule",
 				ClusterName: "DC0_C0",
-				Scope:       entity.Cluster,
+				Scope:       entity.Cluster.String(),
 				EntityName:  "DC0_C0",
 				NodepoolResourceRequirements: []v1alpha1.NodepoolResourceRequirement{
 					{
@@ -186,7 +186,7 @@ func TestReconcileComputeResourceValidationRule(t *testing.T) {
 			name: "Host - All Resources available",
 			rule: v1alpha1.ComputeResourceRule{
 				RuleName:   "Test Host Resource Validation rule",
-				Scope:      entity.Host,
+				Scope:      entity.Host.String(),
 				EntityName: "DC0_C0_H0",
 				NodepoolResourceRequirements: []v1alpha1.NodepoolResourceRequirement{
 					{
@@ -220,7 +220,7 @@ func TestReconcileComputeResourceValidationRule(t *testing.T) {
 			name: "Host CPU not available",
 			rule: v1alpha1.ComputeResourceRule{
 				RuleName:   "Test Host Resource Validation rule",
-				Scope:      entity.Host,
+				Scope:      entity.Host.String(),
 				EntityName: "DC0_C0_H0",
 				NodepoolResourceRequirements: []v1alpha1.NodepoolResourceRequirement{
 					{
@@ -254,7 +254,7 @@ func TestReconcileComputeResourceValidationRule(t *testing.T) {
 			name: "Host Memory not available",
 			rule: v1alpha1.ComputeResourceRule{
 				RuleName:   "Test Host Resource Validation rule",
-				Scope:      entity.Host,
+				Scope:      entity.Host.String(),
 				EntityName: "DC0_C0_H0",
 				NodepoolResourceRequirements: []v1alpha1.NodepoolResourceRequirement{
 					{
@@ -288,7 +288,7 @@ func TestReconcileComputeResourceValidationRule(t *testing.T) {
 			name: "Host Disk not available",
 			rule: v1alpha1.ComputeResourceRule{
 				RuleName:   "Test Host Resource Validation rule",
-				Scope:      entity.Host,
+				Scope:      entity.Host.String(),
 				EntityName: "DC0_C0_H0",
 				NodepoolResourceRequirements: []v1alpha1.NodepoolResourceRequirement{
 					{
@@ -322,7 +322,7 @@ func TestReconcileComputeResourceValidationRule(t *testing.T) {
 			name: "Resourcepool - All Resources available",
 			rule: v1alpha1.ComputeResourceRule{
 				RuleName:    "Test Host Resource Validation rule",
-				Scope:       entity.ResourcePool,
+				Scope:       entity.ResourcePool.String(),
 				ClusterName: "DC0_C0",
 				EntityName:  "DC0_C0_RP0",
 				NodepoolResourceRequirements: []v1alpha1.NodepoolResourceRequirement{
@@ -357,7 +357,7 @@ func TestReconcileComputeResourceValidationRule(t *testing.T) {
 			name: "Resourcepool CPU not available",
 			rule: v1alpha1.ComputeResourceRule{
 				RuleName:    "Test Host Resource Validation rule",
-				Scope:       entity.ResourcePool,
+				Scope:       entity.ResourcePool.String(),
 				ClusterName: "DC0_C0",
 				EntityName:  "DC0_C0_RP0",
 				NodepoolResourceRequirements: []v1alpha1.NodepoolResourceRequirement{
@@ -392,7 +392,7 @@ func TestReconcileComputeResourceValidationRule(t *testing.T) {
 			name: "Resourcepool Memory not available",
 			rule: v1alpha1.ComputeResourceRule{
 				RuleName:    "Test Resourcepool Resource Validation rule",
-				Scope:       entity.ResourcePool,
+				Scope:       entity.ResourcePool.String(),
 				ClusterName: "DC0_C0",
 				EntityName:  "DC0_C0_RP0",
 				NodepoolResourceRequirements: []v1alpha1.NodepoolResourceRequirement{
@@ -427,7 +427,7 @@ func TestReconcileComputeResourceValidationRule(t *testing.T) {
 			name: "Resourcepool Disk not available",
 			rule: v1alpha1.ComputeResourceRule{
 				RuleName:    "Test Resourcepool Resource Validation rule",
-				Scope:       entity.ResourcePool,
+				Scope:       entity.ResourcePool.String(),
 				ClusterName: "DC0_C0",
 				EntityName:  "DC0_C0_RP0",
 				NodepoolResourceRequirements: []v1alpha1.NodepoolResourceRequirement{
@@ -462,7 +462,7 @@ func TestReconcileComputeResourceValidationRule(t *testing.T) {
 			name: "Duplicate scope resourcepool",
 			rule: v1alpha1.ComputeResourceRule{
 				RuleName:    "Test Resourcepool Resource Validation rule",
-				Scope:       entity.ResourcePool,
+				Scope:       entity.ResourcePool.String(),
 				ClusterName: "DC0_C1",
 				EntityName:  "DC0_C1_RP0",
 				NodepoolResourceRequirements: []v1alpha1.NodepoolResourceRequirement{
@@ -497,7 +497,7 @@ func TestReconcileComputeResourceValidationRule(t *testing.T) {
 			name: "Duplicate scope cluster",
 			rule: v1alpha1.ComputeResourceRule{
 				RuleName:   "Test Resourcepool Resource Validation rule",
-				Scope:      entity.Cluster,
+				Scope:      entity.Cluster.String(),
 				EntityName: "DC0_C1",
 				NodepoolResourceRequirements: []v1alpha1.NodepoolResourceRequirement{
 					{
