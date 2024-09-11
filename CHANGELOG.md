@@ -1,5 +1,12 @@
 # Changelog
 
+## [0.1.2](https://github.com/validator-labs/validator-plugin-vsphere/compare/v0.1.1...v0.1.2) (2024-09-11)
+
+
+### Refactoring
+
+* make API entities strings ([#370](https://github.com/validator-labs/validator-plugin-vsphere/issues/370)) ([11cf62f](https://github.com/validator-labs/validator-plugin-vsphere/commit/11cf62ff27f9a19a1ab6b501e5ad3621fd19902f))
+
 ## [0.1.1](https://github.com/validator-labs/validator-plugin-vsphere/compare/v0.1.0...v0.1.1) (2024-09-11)
 
 
