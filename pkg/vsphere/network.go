@@ -132,17 +132,22 @@ func (v *VCenterDriver) GetDistributedVirtualPortgroups(ctx context.Context, dat
 	return networks, nil
 }
 
-// GetDistributedVirtualSwitchForPortGroup returns the distributed virtual switch for a given distributed virtual port group
-func (v *VCenterDriver) GetDistributedVirtualSwitchForPortGroup(ctx context.Context, dvp *object.DistributedVirtualPortgroup) (*object.DistributedVirtualSwitch, error) {
+// GetDistributedVirtualSwitchNameFromPortGroup returns the name of a distributed port group's distributed switch
+func (v *VCenterDriver) GetDistributedVirtualSwitchNameFromPortGroup(ctx context.Context, dvp *object.DistributedVirtualPortgroup) (string, error) {
 
 	var dpgMo mo.DistributedVirtualPortgroup
 	if err := dvp.Properties(ctx, dvp.Reference(), []string{"config"}, &dpgMo); err != nil {
-		return nil, err
+		return "", err
+	}
+	dvsRef := dpgMo.Config.DistributedVirtualSwitch.Reference()
+
+	// Retrieve the Distributed Virtual Switch object using its reference
+	var dvsMo mo.DistributedVirtualSwitch
+	if err := v.Client.RetrieveOne(ctx, dvsRef, []string{"config"}, &dvsMo); err != nil {
+		return "", err
 	}
 
-	dvs := object.NewDistributedVirtualSwitch(v.Client.Client, dpgMo.Config.DistributedVirtualSwitch.Reference())
-
-	return dvs, nil
+	return dvsMo.Config.GetDVSConfigInfo().Name, nil
 }
 
 // GetDistributedVirtualSwitch returns a distributed virtual switch object if it exists

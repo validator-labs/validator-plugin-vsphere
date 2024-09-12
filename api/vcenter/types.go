@@ -18,21 +18,24 @@ const (
 
 const (
 	// DatastoreInventoryPrefix is the prefix for datastore inventory.
+	// Replacements: datacenter name.
 	DatastoreInventoryPrefix = "/%s/datastore/"
 
 	// HostInventoryPath is the path for cluster or host system inventory.
-	// Replacements: datacenter name, cluster name or host system name.
+	// Replacements: datacenter name, cluster or host system name.
 	HostInventoryPath = "/%s/host/%s"
 
 	// HostInventoryPrefix is the prefix for host inventory.
+	// Replacements: datacenter name.
 	HostInventoryPrefix = "/%s/host/"
 
 	// HostInventoryGlob is the path for listing all host inventory in a
 	// datacenter; including host systems and clusters.
+	// Replacements: datacenter name.
 	HostInventoryGlob = "/%s/host/*"
 
 	// HostChildInventoryPath is the path for host system or resource pool inventory.
-	// Replacements: datacenter name, cluster name, host system or resource pool name.
+	// Replacements: datacenter name, cluster, host system, or resource pool name.
 	HostChildInventoryPath = "/%s/host/%s/%s"
 
 	// NetworkInventoryPath is the path for network inventory.
@@ -40,6 +43,7 @@ const (
 	NetworkInventoryPath = "/%s/network/%s"
 
 	// NetworkInventoryPrefix is the prefix for network inventory.
+	// Replacements: datacenter name.
 	NetworkInventoryPrefix = "/%s/network/"
 
 	// ResourcePoolInventoryPath is the path for resource pool inventory.
@@ -48,10 +52,12 @@ const (
 
 	// ResourcePoolInventoryGlob is the path for listing all resource pools
 	// in a cluster.
+	// Replacements: datacenter name, cluster name.
 	ResourcePoolInventoryGlob = "/%s/host/%s/Resources/*"
 
 	// ResourcePoolChildInventoryGlob is the path for listing all child inventory
 	// in a resource pool.
+	// Replacements: datacenter name, cluster name, resource pool name.
 	ResourcePoolChildInventoryGlob = "/%s/host/%s/Resources/%s/*"
 
 	// VMFolderInventoryPath is the path for VM folder inventory.
@@ -59,6 +65,7 @@ const (
 	VMFolderInventoryPath = "/%s/vm/%s"
 
 	// VMFolderInventoryPrefix is the prefix for VM folder inventory.
+	// Replacements: datacenter name.
 	VMFolderInventoryPrefix = "/%s/vm/"
 )
 
