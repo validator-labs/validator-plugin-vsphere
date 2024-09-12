@@ -1,5 +1,17 @@
 # Changelog
 
+## [0.1.3](https://github.com/validator-labs/validator-plugin-vsphere/compare/v0.1.2...v0.1.3) (2024-09-12)
+
+
+### Features
+
+* add method to get DVS for DVP ([#373](https://github.com/validator-labs/validator-plugin-vsphere/issues/373)) ([1a43c75](https://github.com/validator-labs/validator-plugin-vsphere/commit/1a43c75d82381c2b17a520ac65a150f3a7d93472))
+
+
+### Dependency Updates
+
+* **deps:** update kubernetes packages to v0.31.1 ([#374](https://github.com/validator-labs/validator-plugin-vsphere/issues/374)) ([eca18fd](https://github.com/validator-labs/validator-plugin-vsphere/commit/eca18fd5450b72af9f400d357bedd2a896949330))
+
 ## [0.1.2](https://github.com/validator-labs/validator-plugin-vsphere/compare/v0.1.1...v0.1.2) (2024-09-11)
 
 
