@@ -144,3 +144,37 @@ func TestGetNetworkTypeByName(t *testing.T) {
 		})
 	}
 }
+
+func TestGetDistributedVirtualSwitchNameFromPortGroup(t *testing.T) {
+	vcSim := vcsim.NewVCSim("admin@vsphere.local", 8457, logr.Logger{})
+	vcSim.Start()
+	defer vcSim.Shutdown()
+
+	ctx := context.Background()
+
+	driver, err := NewVCenterDriver(vcSim.Account, vcSim.Options.Datacenter, logr.Logger{})
+	if err != nil {
+		t.Fatal(err)
+	}
+
+	finder, _, err := driver.GetFinderWithDatacenter(ctx, vcSim.Options.Datacenter)
+	if err != nil {
+		t.Errorf("GetFinderWithDatacenter() got %v", err)
+	}
+
+	dvp, err := driver.GetDistributedVirtualPortgroup(ctx, finder, vcSim.Options.DistributedVirtualPortgroup)
+	if err != nil {
+		t.Errorf("GetDistributedVirtualPortgroup() got %v", err)
+	}
+
+	dvsName, err := driver.GetDistributedVirtualSwitchNameFromPortGroup(ctx, dvp)
+	if err != nil {
+		t.Errorf("GetDistributedVirtualSwitchNameFromPortGroup() got %v", err)
+	}
+
+	expected := vcSim.Options.DistributedVirtualSwitch
+
+	if !reflect.DeepEqual(dvsName, expected) {
+		t.Errorf("GetDistributedVirtualSwitchNameFromPortGroup() got %s != expected %s", dvsName, expected)
+	}
+}

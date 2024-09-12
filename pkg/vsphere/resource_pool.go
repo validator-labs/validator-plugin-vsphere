@@ -16,11 +16,11 @@ import (
 
 // GetResourcePool returns the resource pool if it exists
 func (v *VCenterDriver) GetResourcePool(ctx context.Context, finder *find.Finder, datacenter, cluster, resourcePoolName string) (*object.ResourcePool, error) {
-	path := fmt.Sprintf("/%s/host/%s/Resources/%s", datacenter, cluster, resourcePoolName)
+	path := fmt.Sprintf(vcenter.ResourcePoolInventoryPath, datacenter, cluster, resourcePoolName)
 
 	// Handle the cluster-level default resource pool, 'Resources'
 	if resourcePoolName == vcenter.ClusterDefaultResourcePoolName {
-		path = fmt.Sprintf("/%s/host/%s/%s", datacenter, cluster, resourcePoolName)
+		path = fmt.Sprintf(vcenter.HostChildInventoryPath, datacenter, cluster, resourcePoolName)
 	}
 
 	rp, err := finder.ResourcePool(ctx, path)
@@ -32,10 +32,10 @@ func (v *VCenterDriver) GetResourcePool(ctx context.Context, finder *find.Finder
 
 // GetResourcePools returns a list of resource pools
 func (v *VCenterDriver) GetResourcePools(ctx context.Context, datacenter string, cluster string) ([]*object.ResourcePool, error) {
-	path := fmt.Sprintf("/%s/host/%s/Resources/*", datacenter, cluster)
+	path := fmt.Sprintf(vcenter.ResourcePoolInventoryGlob, datacenter, cluster)
 
 	if cluster == "" {
-		path = fmt.Sprintf("/%s/host/*", datacenter)
+		path = fmt.Sprintf(vcenter.HostInventoryGlob, datacenter)
 	}
 
 	rps, err := v.getResourcePools(ctx, datacenter, path)
@@ -53,25 +53,28 @@ func (v *VCenterDriver) GetVSphereResourcePools(ctx context.Context, datacenter 
 		return nil, err
 	}
 
-	searchPath := fmt.Sprintf("/%s/host/%s/Resources/*", dc, cluster)
+	searchPath := fmt.Sprintf(vcenter.ResourcePoolInventoryGlob, dc, cluster)
 	pools, govErr := finder.ResourcePoolList(ctx, searchPath)
 	if govErr != nil {
-		//ignore NotFoundError, to allow selection of "Resources" as the default option for rs pool
+		// ignore NotFoundError, to allow selection of "Resources" as the default option for rs pool
 		if _, ok := govErr.(*find.NotFoundError); !ok {
 			return nil, fmt.Errorf("failed to fetch vSphere resource pools. datacenter: %s, code: %d", datacenter, http.StatusBadRequest)
 		}
 	}
 
+	prefix := strings.TrimSuffix(searchPath, "*")
+
 	for i := 0; i < len(pools); i++ {
 		pool := pools[i]
-		prefix := fmt.Sprintf("/%s/host/%s/Resources/", dc, cluster)
 		poolPath := strings.TrimPrefix(pool.InventoryPath, prefix)
 		resourcePools = append(resourcePools, poolPath)
-		childPoolSearchPath := fmt.Sprintf("/%s/host/%s/Resources/%s/*", dc, cluster, poolPath)
+		childPoolSearchPath := fmt.Sprintf(vcenter.ResourcePoolChildInventoryGlob, dc, cluster, poolPath)
 		childPools, err := finder.ResourcePoolList(ctx, childPoolSearchPath)
-		if err == nil {
-			pools = append(pools, childPools...)
+		if err != nil {
+			v.log.Error(err, "failed to fetch child resource pools", "searchPath", childPoolSearchPath)
+			continue
 		}
+		pools = append(pools, childPools...)
 	}
 
 	sort.Strings(resourcePools)

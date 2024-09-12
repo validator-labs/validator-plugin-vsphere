@@ -19,11 +19,11 @@ import (
 
 // GetHost returns the host system if it exists
 func (v *VCenterDriver) GetHost(ctx context.Context, finder *find.Finder, datacenter, clusterName, hostName string) (*object.HostSystem, error) {
-	path := fmt.Sprintf("/%s/host/%s/%s", datacenter, clusterName, hostName)
+	path := fmt.Sprintf(vcenter.HostChildInventoryPath, datacenter, clusterName, hostName)
 
 	// Handle datacenter level hosts
 	if clusterName == "" {
-		path = fmt.Sprintf("/%s/host/%s", datacenter, hostName)
+		path = fmt.Sprintf(vcenter.HostInventoryPath, datacenter, hostName)
 	}
 
 	host, err := finder.HostSystem(ctx, path)
@@ -40,9 +40,9 @@ func (v *VCenterDriver) GetHostSystems(ctx context.Context, datacenter, cluster 
 		return nil, err
 	}
 
-	path := fmt.Sprintf("/%s/host/%s", datacenter, cluster)
+	path := fmt.Sprintf(vcenter.HostInventoryPath, datacenter, cluster)
 	if cluster == "" {
-		path = fmt.Sprintf("/%s/host/*", datacenter)
+		path = fmt.Sprintf(vcenter.HostInventoryGlob, datacenter)
 	}
 
 	hss, err := finder.HostSystemList(ctx, path)

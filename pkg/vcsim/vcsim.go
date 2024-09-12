@@ -93,7 +93,7 @@ func (v *VCSimulator) Start() {
 	v.Options = govcOptions{
 		InsecureConnection:          strconv.FormatBool(true),
 		Datacenter:                  "DC0",
-		DistributedVirtualPortgroup: "DVPG0",
+		DistributedVirtualPortgroup: "DC0_DVPG0",
 		DistributedVirtualSwitch:    "DVS0",
 		Cluster:                     "DC0_C0",
 		ResourcePool:                "DC0_C0_RP0",
