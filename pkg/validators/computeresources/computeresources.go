@@ -222,7 +222,7 @@ func resourcePoolUsage(ctx context.Context, rule v1alpha1.ComputeResourceRule, f
 	// cpu & memory
 	inventoryPath := fmt.Sprintf(vcenter.ResourcePoolInventoryPath, driver.Datacenter, rule.ClusterName, rule.EntityName)
 	if rule.EntityName == vcenter.ClusterDefaultResourcePoolName {
-		inventoryPath = fmt.Sprintf("/%s/host/%s/%s", driver.Datacenter, rule.ClusterName, rule.EntityName)
+		inventoryPath = fmt.Sprintf(vcenter.HostChildInventoryPath, driver.Datacenter, rule.ClusterName, rule.EntityName)
 	}
 	resourcePool, virtualMachines, err := GetResourcePoolAndVMs(ctx, inventoryPath, finder)
 	if err != nil {

@@ -9,6 +9,8 @@ import (
 	"github.com/pkg/errors"
 	"github.com/vmware/govmomi/find"
 	"github.com/vmware/govmomi/object"
+
+	"github.com/validator-labs/validator-plugin-vsphere/api/vcenter"
 )
 
 // GetDatastore returns a datastore object if it exists
@@ -42,7 +44,7 @@ func (v *VCenterDriver) getDatastores(ctx context.Context, datacenter string) (s
 	if err != nil {
 		return "", nil, err
 	}
-	prefix := fmt.Sprintf("/%s/datastore/", dc)
+	prefix := fmt.Sprintf(vcenter.DatastoreInventoryPrefix, dc)
 
 	ds, err := finder.DatastoreList(ctx, "*")
 	if err != nil {

@@ -9,11 +9,13 @@ import (
 	"github.com/pkg/errors"
 	"github.com/vmware/govmomi/find"
 	"github.com/vmware/govmomi/object"
+
+	"github.com/validator-labs/validator-plugin-vsphere/api/vcenter"
 )
 
 // GetCluster returns the cluster if it exists
 func (v *VCenterDriver) GetCluster(ctx context.Context, finder *find.Finder, datacenter, clusterName string) (*object.ClusterComputeResource, error) {
-	path := fmt.Sprintf("/%s/host/%s", datacenter, clusterName)
+	path := fmt.Sprintf(vcenter.HostInventoryPath, datacenter, clusterName)
 	cluster, err := finder.ClusterComputeResource(ctx, path)
 	if err != nil {
 		return nil, err
@@ -72,7 +74,7 @@ func (v *VCenterDriver) getClusterComputeResources(ctx context.Context, datacent
 	if err != nil {
 		return "", nil, err
 	}
-	prefix := fmt.Sprintf("/%s/host/", dc)
+	prefix := fmt.Sprintf(vcenter.HostInventoryPrefix, dc)
 
 	ccrs, err := finder.ClusterComputeResourceList(ctx, "*")
 	if err != nil {

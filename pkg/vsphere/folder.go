@@ -9,6 +9,8 @@ import (
 	"github.com/pkg/errors"
 	"github.com/vmware/govmomi/find"
 	"github.com/vmware/govmomi/object"
+
+	"github.com/validator-labs/validator-plugin-vsphere/api/vcenter"
 )
 
 // FolderExists checks if a folder exists in the vCenter inventory
@@ -77,5 +79,5 @@ func (v *VCenterDriver) GetVMFolders(ctx context.Context, datacenter string) ([]
 }
 
 func folderPrefix(datacenter string) string {
-	return fmt.Sprintf("/%s/vm/", datacenter)
+	return fmt.Sprintf(vcenter.VMFolderInventoryPrefix, datacenter)
 }

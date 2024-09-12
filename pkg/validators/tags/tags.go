@@ -101,17 +101,17 @@ func tagIsValid(tagsManager *tags.Manager, finder *find.Finder, datacenter strin
 
 	switch e := entity.Map[rule.EntityType]; e {
 	case entity.Cluster:
-		inventoryPath = fmt.Sprintf(vcenter.ClusterInventoryPath, datacenter, rule.EntityName)
+		inventoryPath = fmt.Sprintf(vcenter.HostInventoryPath, datacenter, rule.EntityName)
 	case entity.Datacenter:
 		inventoryPath = rule.EntityName
 	case entity.Folder:
 		inventoryPath = rule.EntityName
 	case entity.Host:
-		inventoryPath = fmt.Sprintf(vcenter.HostSystemInventoryPath, datacenter, rule.ClusterName, rule.EntityName)
+		inventoryPath = fmt.Sprintf(vcenter.HostChildInventoryPath, datacenter, rule.ClusterName, rule.EntityName)
 	case entity.ResourcePool:
 		inventoryPath = fmt.Sprintf(vcenter.ResourcePoolInventoryPath, datacenter, rule.ClusterName, rule.EntityName)
 		if rule.EntityName == vcenter.ClusterDefaultResourcePoolName {
-			inventoryPath = fmt.Sprintf("/%s/host/%s/%s", datacenter, rule.ClusterName, rule.EntityName)
+			inventoryPath = fmt.Sprintf(vcenter.HostChildInventoryPath, datacenter, rule.ClusterName, rule.EntityName)
 		}
 	case entity.VirtualMachine:
 		inventoryPath = rule.EntityName

@@ -10,6 +10,8 @@ import (
 	"github.com/vmware/govmomi/find"
 	"github.com/vmware/govmomi/object"
 	"github.com/vmware/govmomi/vim25/mo"
+
+	"github.com/validator-labs/validator-plugin-vsphere/api/vcenter"
 )
 
 // GetNetwork returns a network object if it exists
@@ -34,7 +36,7 @@ func (v *VCenterDriver) GetNetworkTypeByName(ctx context.Context, datacenter, na
 		return "", err
 	}
 
-	inventoryPath := fmt.Sprintf("/%s/network/%s", dc, name)
+	inventoryPath := fmt.Sprintf(vcenter.NetworkInventoryPath, dc, name)
 
 	nr, err := finder.Network(ctx, inventoryPath)
 	if err != nil {
@@ -81,7 +83,7 @@ func (v *VCenterDriver) getNetworkReferences(ctx context.Context, datacenter str
 	if err != nil {
 		return "", nil, err
 	}
-	prefix := fmt.Sprintf("/%s/network/", dc)
+	prefix := fmt.Sprintf(vcenter.NetworkInventoryPrefix, dc)
 
 	ns, err := finder.NetworkList(ctx, "*")
 	if err != nil {

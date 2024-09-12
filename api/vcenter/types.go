@@ -12,17 +12,54 @@ const (
 	// ClusterDefaultResourcePoolName is the default resource pool name for a cluster.
 	ClusterDefaultResourcePoolName = "Resources"
 
-	// ClusterInventoryPath is the path for cluster inventory.
-	ClusterInventoryPath = "/%s/host/%s"
-
 	// DefaultDomain is the default vCenter domain.
 	DefaultDomain = "VSPHERE.LOCAL"
+)
 
-	// HostSystemInventoryPath is the path for host system inventory.
-	HostSystemInventoryPath = "/%s/host/%s/%s"
+const (
+	// DatastoreInventoryPrefix is the prefix for datastore inventory.
+	DatastoreInventoryPrefix = "/%s/datastore/"
+
+	// HostInventoryPath is the path for cluster or host system inventory.
+	// Replacements: datacenter name, cluster name or host system name.
+	HostInventoryPath = "/%s/host/%s"
+
+	// HostInventoryPrefix is the prefix for host inventory.
+	HostInventoryPrefix = "/%s/host/"
+
+	// HostInventoryGlob is the path for listing all host inventory in a
+	// datacenter; including host systems and clusters.
+	HostInventoryGlob = "/%s/host/*"
+
+	// HostChildInventoryPath is the path for host system or resource pool inventory.
+	// Replacements: datacenter name, cluster name, host system or resource pool name.
+	HostChildInventoryPath = "/%s/host/%s/%s"
+
+	// NetworkInventoryPath is the path for network inventory.
+	// Replacements: datacenter name, network name.
+	NetworkInventoryPath = "/%s/network/%s"
+
+	// NetworkInventoryPrefix is the prefix for network inventory.
+	NetworkInventoryPrefix = "/%s/network/"
 
 	// ResourcePoolInventoryPath is the path for resource pool inventory.
+	// Replacements: datacenter name, cluster name, resource pool name.
 	ResourcePoolInventoryPath = "/%s/host/%s/Resources/%s"
+
+	// ResourcePoolInventoryGlob is the path for listing all resource pools
+	// in a cluster.
+	ResourcePoolInventoryGlob = "/%s/host/%s/Resources/*"
+
+	// ResourcePoolChildInventoryGlob is the path for listing all child inventory
+	// in a resource pool.
+	ResourcePoolChildInventoryGlob = "/%s/host/%s/Resources/%s/*"
+
+	// VMFolderInventoryPath is the path for VM folder inventory.
+	// Replacements: datacenter name, vm folder name.
+	VMFolderInventoryPath = "/%s/vm/%s"
+
+	// VMFolderInventoryPrefix is the prefix for VM folder inventory.
+	VMFolderInventoryPrefix = "/%s/vm/"
 )
 
 // Account contains vCenter account details.
