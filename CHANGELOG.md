@@ -1,5 +1,12 @@
 # Changelog
 
+## [0.1.4](https://github.com/validator-labs/validator-plugin-vsphere/compare/v0.1.3...v0.1.4) (2024-10-03)
+
+
+### Bug Fixes
+
+* ensure unique condition.ValidationRule names across different rule types ([#377](https://github.com/validator-labs/validator-plugin-vsphere/issues/377)) ([2a6f5ab](https://github.com/validator-labs/validator-plugin-vsphere/commit/2a6f5abf608decf8206b2bddec95c6390341b262))
+
 ## [0.1.3](https://github.com/validator-labs/validator-plugin-vsphere/compare/v0.1.2...v0.1.3) (2024-09-12)
 
 
