@@ -34,10 +34,11 @@ func NewValidationService(log logr.Logger, driver *vsphere.VCenterDriver, datace
 	}
 }
 
-func buildValidationResult(rule v1alpha1.NTPValidationRule, validationType string) *types.ValidationRuleResult {
+func buildValidationResult(rule v1alpha1.NTPValidationRule) *types.ValidationRuleResult {
 	state := vapi.ValidationSucceeded
+	validationType := constants.ValidationTypeNTP
 
-	validationRule := fmt.Sprintf("%s-%s", vapiconstants.ValidationRulePrefix, rule.Name())
+	validationRule := fmt.Sprintf("%s-%s-%s", vapiconstants.ValidationRulePrefix, validationType, rule.Name())
 
 	latestCondition := vapi.DefaultValidationCondition()
 	latestCondition.Message = "All required NTP rules were satisfied"
@@ -50,7 +51,7 @@ func buildValidationResult(rule v1alpha1.NTPValidationRule, validationType strin
 // ReconcileNTPRule reconciles the NTP rule
 func (n *ValidationService) ReconcileNTPRule(rule v1alpha1.NTPValidationRule, finder *find.Finder) (*types.ValidationRuleResult, error) {
 	var err error
-	vr := buildValidationResult(rule, constants.ValidationTypeNTP)
+	vr := buildValidationResult(rule)
 
 	ctx, cancel := context.WithCancel(context.Background())
 	defer cancel()

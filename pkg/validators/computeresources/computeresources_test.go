@@ -68,7 +68,7 @@ func TestReconcileComputeResourceValidationRule(t *testing.T) {
 			},
 			expectedResult: types.ValidationRuleResult{Condition: &vapi.ValidationCondition{
 				ValidationType: "vsphere-compute-resources",
-				ValidationRule: "validation-cluster-dc0-c0",
+				ValidationRule: "validation-vsphere-compute-resources-cluster-dc0-c0",
 				Message:        "All required compute resources were satisfied",
 				Details:        []string{},
 				Failures:       nil,
@@ -103,7 +103,7 @@ func TestReconcileComputeResourceValidationRule(t *testing.T) {
 			},
 			expectedResult: types.ValidationRuleResult{Condition: &vapi.ValidationCondition{
 				ValidationType: "vsphere-compute-resources",
-				ValidationRule: "validation-cluster-dc0-c0",
+				ValidationRule: "validation-vsphere-compute-resources-cluster-dc0-c0",
 				Message:        "One or more resource requirements were not satisfied",
 				Details:        []string{},
 				Failures:       []string{"Not enough resources available. CPU available: false, Memory available: true, Storage available: true"},
@@ -138,7 +138,7 @@ func TestReconcileComputeResourceValidationRule(t *testing.T) {
 			},
 			expectedResult: types.ValidationRuleResult{Condition: &vapi.ValidationCondition{
 				ValidationType: "vsphere-compute-resources",
-				ValidationRule: "validation-cluster-dc0-c0",
+				ValidationRule: "validation-vsphere-compute-resources-cluster-dc0-c0",
 				Message:        "One or more resource requirements were not satisfied",
 				Details:        []string{},
 				Failures:       []string{"Not enough resources available. CPU available: true, Memory available: false, Storage available: true"},
@@ -173,7 +173,7 @@ func TestReconcileComputeResourceValidationRule(t *testing.T) {
 			},
 			expectedResult: types.ValidationRuleResult{Condition: &vapi.ValidationCondition{
 				ValidationType: "vsphere-compute-resources",
-				ValidationRule: "validation-cluster-dc0-c0",
+				ValidationRule: "validation-vsphere-compute-resources-cluster-dc0-c0",
 				Message:        "One or more resource requirements were not satisfied",
 				Details:        []string{},
 				Failures:       []string{"Not enough resources available. CPU available: true, Memory available: true, Storage available: false"},
@@ -207,7 +207,7 @@ func TestReconcileComputeResourceValidationRule(t *testing.T) {
 			},
 			expectedResult: types.ValidationRuleResult{Condition: &vapi.ValidationCondition{
 				ValidationType: "vsphere-compute-resources",
-				ValidationRule: "validation-esxi-host-dc0-c0-h0",
+				ValidationRule: "validation-vsphere-compute-resources-esxi-host-dc0-c0-h0",
 				Message:        "All required compute resources were satisfied",
 				Details:        []string{},
 				Failures:       nil,
@@ -241,7 +241,7 @@ func TestReconcileComputeResourceValidationRule(t *testing.T) {
 			},
 			expectedResult: types.ValidationRuleResult{Condition: &vapi.ValidationCondition{
 				ValidationType: "vsphere-compute-resources",
-				ValidationRule: "validation-esxi-host-dc0-c0-h0",
+				ValidationRule: "validation-vsphere-compute-resources-esxi-host-dc0-c0-h0",
 				Message:        "One or more resource requirements were not satisfied",
 				Details:        []string{},
 				Failures:       []string{"Not enough resources available. CPU available: false, Memory available: true, Storage available: true"},
@@ -275,7 +275,7 @@ func TestReconcileComputeResourceValidationRule(t *testing.T) {
 			},
 			expectedResult: types.ValidationRuleResult{Condition: &vapi.ValidationCondition{
 				ValidationType: "vsphere-compute-resources",
-				ValidationRule: "validation-esxi-host-dc0-c0-h0",
+				ValidationRule: "validation-vsphere-compute-resources-esxi-host-dc0-c0-h0",
 				Message:        "One or more resource requirements were not satisfied",
 				Details:        []string{},
 				Failures:       []string{"Not enough resources available. CPU available: true, Memory available: false, Storage available: true"},
@@ -309,7 +309,7 @@ func TestReconcileComputeResourceValidationRule(t *testing.T) {
 			},
 			expectedResult: types.ValidationRuleResult{Condition: &vapi.ValidationCondition{
 				ValidationType: "vsphere-compute-resources",
-				ValidationRule: "validation-esxi-host-dc0-c0-h0",
+				ValidationRule: "validation-vsphere-compute-resources-esxi-host-dc0-c0-h0",
 				Message:        "One or more resource requirements were not satisfied",
 				Details:        []string{},
 				Failures:       []string{"Not enough resources available. CPU available: true, Memory available: true, Storage available: false"},
@@ -344,7 +344,7 @@ func TestReconcileComputeResourceValidationRule(t *testing.T) {
 			},
 			expectedResult: types.ValidationRuleResult{Condition: &vapi.ValidationCondition{
 				ValidationType: "vsphere-compute-resources",
-				ValidationRule: "validation-resource-pool-dc0-c0-rp0",
+				ValidationRule: "validation-vsphere-compute-resources-resource-pool-dc0-c0-rp0",
 				Message:        "All required compute resources were satisfied",
 				Details:        []string{},
 				Failures:       nil,
@@ -379,7 +379,7 @@ func TestReconcileComputeResourceValidationRule(t *testing.T) {
 			},
 			expectedResult: types.ValidationRuleResult{Condition: &vapi.ValidationCondition{
 				ValidationType: "vsphere-compute-resources",
-				ValidationRule: "validation-resource-pool-dc0-c0-rp0",
+				ValidationRule: "validation-vsphere-compute-resources-resource-pool-dc0-c0-rp0",
 				Message:        "One or more resource requirements were not satisfied",
 				Details:        []string{},
 				Failures:       []string{"Not enough resources available. CPU available: false, Memory available: true, Storage available: true"},
@@ -414,7 +414,7 @@ func TestReconcileComputeResourceValidationRule(t *testing.T) {
 			},
 			expectedResult: types.ValidationRuleResult{Condition: &vapi.ValidationCondition{
 				ValidationType: "vsphere-compute-resources",
-				ValidationRule: "validation-resource-pool-dc0-c0-rp0",
+				ValidationRule: "validation-vsphere-compute-resources-resource-pool-dc0-c0-rp0",
 				Message:        "One or more resource requirements were not satisfied",
 				Details:        []string{},
 				Failures:       []string{"Not enough resources available. CPU available: true, Memory available: false, Storage available: true"},
@@ -449,7 +449,7 @@ func TestReconcileComputeResourceValidationRule(t *testing.T) {
 			},
 			expectedResult: types.ValidationRuleResult{Condition: &vapi.ValidationCondition{
 				ValidationType: "vsphere-compute-resources",
-				ValidationRule: "validation-resource-pool-dc0-c0-rp0",
+				ValidationRule: "validation-vsphere-compute-resources-resource-pool-dc0-c0-rp0",
 				Message:        "One or more resource requirements were not satisfied",
 				Details:        []string{},
 				Failures:       []string{"Not enough resources available. CPU available: true, Memory available: true, Storage available: false"},
@@ -484,7 +484,7 @@ func TestReconcileComputeResourceValidationRule(t *testing.T) {
 			},
 			expectedResult: types.ValidationRuleResult{Condition: &vapi.ValidationCondition{
 				ValidationType: "vsphere-compute-resources",
-				ValidationRule: "validation-resource-pool-dc0-c1-rp0",
+				ValidationRule: "validation-vsphere-compute-resources-resource-pool-dc0-c1-rp0",
 				Message:        "Rule for scope already processed",
 				Details:        []string{},
 				Failures:       []string{"Rule for scope resource-pool-dc0-c1 already processed"},
@@ -518,7 +518,7 @@ func TestReconcileComputeResourceValidationRule(t *testing.T) {
 			},
 			expectedResult: types.ValidationRuleResult{Condition: &vapi.ValidationCondition{
 				ValidationType: "vsphere-compute-resources",
-				ValidationRule: "validation-cluster-dc0-c1",
+				ValidationRule: "validation-vsphere-compute-resources-cluster-dc0-c1",
 				Message:        "Rule for scope already processed",
 				Details:        []string{},
 				Failures:       []string{"Rule for scope cluster-dc0-c1 already processed"},

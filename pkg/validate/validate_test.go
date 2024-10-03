@@ -42,7 +42,7 @@ func TestValidate(t *testing.T) {
 					},
 				}),
 			},
-			expected: `{"ValidationRuleResults":[{"Condition":{"validationType":"vsphere-privileges","validationRule":"validation-cluster-dc0-c0","message":"All required vsphere-privileges permissions were found for account: admin@vsphere.local","status":"True","lastValidationTime":null},"State":"Succeeded"}],"ValidationRuleErrors":[null]}`,
+			expected: `{"ValidationRuleResults":[{"Condition":{"validationType":"vsphere-privileges","validationRule":"validation-vsphere-privileges-cluster-dc0-c0","message":"All required vsphere-privileges permissions were found for account: admin@vsphere.local","status":"True","lastValidationTime":null},"State":"Succeeded"}],"ValidationRuleErrors":[null]}`,
 		},
 		{
 			name: "Cluster_Fail",
@@ -59,7 +59,7 @@ func TestValidate(t *testing.T) {
 					},
 				}),
 			},
-			expected: `{"ValidationRuleResults":[{"Condition":{"validationType":"vsphere-privileges","validationRule":"validation-cluster-dc0-c0","message":"One or more required privileges was not found, or a condition was not met for account: admin@vsphere.local","failures":["user: admin@vsphere.local does not have privilege: Nonexistent on entity type: Cluster with name: DC0_C0"],"status":"False","lastValidationTime":null},"State":"Failed"}],"ValidationRuleErrors":[null]}`,
+			expected: `{"ValidationRuleResults":[{"Condition":{"validationType":"vsphere-privileges","validationRule":"validation-vsphere-privileges-cluster-dc0-c0","message":"One or more required privileges was not found, or a condition was not met for account: admin@vsphere.local","failures":["user: admin@vsphere.local does not have privilege: Nonexistent on entity type: Cluster with name: DC0_C0"],"status":"False","lastValidationTime":null},"State":"Failed"}],"ValidationRuleErrors":[null]}`,
 		},
 		{
 			name: "Root_Pass",
@@ -76,7 +76,7 @@ func TestValidate(t *testing.T) {
 					},
 				}),
 			},
-			expected: `{"ValidationRuleResults":[{"Condition":{"validationType":"vsphere-privileges","validationRule":"validation-vcenter-root","message":"All required vsphere-privileges permissions were found for account: admin@vsphere.local","status":"True","lastValidationTime":null},"State":"Succeeded"}],"ValidationRuleErrors":[null]}`,
+			expected: `{"ValidationRuleResults":[{"Condition":{"validationType":"vsphere-privileges","validationRule":"validation-vsphere-privileges-vcenter-root","message":"All required vsphere-privileges permissions were found for account: admin@vsphere.local","status":"True","lastValidationTime":null},"State":"Succeeded"}],"ValidationRuleErrors":[null]}`,
 		},
 		{
 			name: "Datastore_Pass",
@@ -93,7 +93,7 @@ func TestValidate(t *testing.T) {
 					},
 				}),
 			},
-			expected: `{"ValidationRuleResults":[{"Condition":{"validationType":"vsphere-privileges","validationRule":"validation-datastore-localds-0","message":"All required vsphere-privileges permissions were found for account: admin@vsphere.local","status":"True","lastValidationTime":null},"State":"Succeeded"}],"ValidationRuleErrors":[null]}`,
+			expected: `{"ValidationRuleResults":[{"Condition":{"validationType":"vsphere-privileges","validationRule":"validation-vsphere-privileges-datastore-localds-0","message":"All required vsphere-privileges permissions were found for account: admin@vsphere.local","status":"True","lastValidationTime":null},"State":"Succeeded"}],"ValidationRuleErrors":[null]}`,
 		},
 		{
 			name: "Network_Pass",
@@ -110,7 +110,7 @@ func TestValidate(t *testing.T) {
 					},
 				}),
 			},
-			expected: `{"ValidationRuleResults":[{"Condition":{"validationType":"vsphere-privileges","validationRule":"validation-network-vm-network","message":"All required vsphere-privileges permissions were found for account: admin@vsphere.local","status":"True","lastValidationTime":null},"State":"Succeeded"}],"ValidationRuleErrors":[null]}`,
+			expected: `{"ValidationRuleResults":[{"Condition":{"validationType":"vsphere-privileges","validationRule":"validation-vsphere-privileges-network-vm-network","message":"All required vsphere-privileges permissions were found for account: admin@vsphere.local","status":"True","lastValidationTime":null},"State":"Succeeded"}],"ValidationRuleErrors":[null]}`,
 		},
 		// DistributedVirtualSwitch not yet supported in govmomi
 		// {

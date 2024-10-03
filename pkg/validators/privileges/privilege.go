@@ -43,7 +43,7 @@ func NewPrivilegeValidationService(log logr.Logger, driver *vsphere.VCenterDrive
 // ReconcilePrivilegeRule reconciles a privilege rule
 func (s *PrivilegeValidationService) ReconcilePrivilegeRule(rule v1alpha1.PrivilegeValidationRule, finder *find.Finder) (*types.ValidationRuleResult, error) {
 	var err error
-	vr := s.buildPrivilegeValidationResult(rule)
+	vr := buildValidationResult(rule, s.username)
 
 	ctx, cancel := context.WithCancel(context.Background())
 	defer cancel()
@@ -59,18 +59,19 @@ func (s *PrivilegeValidationService) ReconcilePrivilegeRule(rule v1alpha1.Privil
 	return vr, err
 }
 
-func (s *PrivilegeValidationService) buildPrivilegeValidationResult(rule v1alpha1.PrivilegeValidationRule) *types.ValidationRuleResult {
+func buildValidationResult(rule v1alpha1.PrivilegeValidationRule, username string) *types.ValidationRuleResult {
 	state := vapi.ValidationSucceeded
+	validationType := constants.ValidationTypePrivileges
 
-	validationRule := fmt.Sprintf("%s-%s", vapiconstants.ValidationRulePrefix, rule.EntityType)
+	validationRule := fmt.Sprintf("%s-%s-%s", vapiconstants.ValidationRulePrefix, validationType, rule.EntityType)
 	if rule.EntityName != "" {
 		validationRule = fmt.Sprintf("%s-%s", validationRule, rule.EntityName)
 	}
 
 	latestCondition := vapi.DefaultValidationCondition()
-	latestCondition.Message = fmt.Sprintf("All required %s permissions were found for account: %s", constants.ValidationTypePrivileges, s.username)
+	latestCondition.Message = fmt.Sprintf("All required %s permissions were found for account: %s", constants.ValidationTypePrivileges, username)
 	latestCondition.ValidationRule = util.Sanitize(validationRule)
-	latestCondition.ValidationType = constants.ValidationTypePrivileges
+	latestCondition.ValidationType = validationType
 
 	return &types.ValidationRuleResult{Condition: &latestCondition, State: &state}
 }

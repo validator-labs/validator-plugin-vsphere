@@ -52,10 +52,11 @@ type resourceRequirement struct {
 	DiskSpace resource.Quantity
 }
 
-func buildValidationResult(rule v1alpha1.ComputeResourceRule, validationType string) *types.ValidationRuleResult {
+func buildValidationResult(rule v1alpha1.ComputeResourceRule) *types.ValidationRuleResult {
 	state := vapi.ValidationSucceeded
+	validationType := constants.ValidationTypeComputeResources
 
-	validationRule := fmt.Sprintf("%s-%s-%s", vapiconstants.ValidationRulePrefix, rule.Scope, rule.EntityName)
+	validationRule := fmt.Sprintf("%s-%s-%s-%s", vapiconstants.ValidationRulePrefix, validationType, rule.Scope, rule.EntityName)
 
 	latestCondition := vapi.DefaultValidationCondition()
 	latestCondition.Message = "All required compute resources were satisfied"
@@ -109,7 +110,7 @@ type Usage struct {
 // ReconcileComputeResourceValidationRule reconciles the compute resource rule
 func (c *ValidationService) ReconcileComputeResourceValidationRule(rule v1alpha1.ComputeResourceRule, finder *find.Finder, driver *vsphere.VCenterDriver, seenScopes map[string]bool) (*types.ValidationRuleResult, error) {
 
-	vr := buildValidationResult(rule, constants.ValidationTypeComputeResources)
+	vr := buildValidationResult(rule)
 
 	key, err := GetScopeKey(rule)
 	if err != nil {

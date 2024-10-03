@@ -73,7 +73,7 @@ func TestPrivilegeValidationService_ReconcilePrivilegeRule(t *testing.T) {
 			},
 			expectedResult: types.ValidationRuleResult{Condition: &vapi.ValidationCondition{
 				ValidationType: "vsphere-privileges",
-				ValidationRule: "validation-cluster-dc0-c0",
+				ValidationRule: "validation-vsphere-privileges-cluster-dc0-c0",
 				Message:        fmt.Sprintf("All required vsphere-privileges permissions were found for account: %s", username),
 				Details:        []string{},
 				Failures:       []string{},
@@ -97,7 +97,7 @@ func TestPrivilegeValidationService_ReconcilePrivilegeRule(t *testing.T) {
 			},
 			expectedResult: types.ValidationRuleResult{Condition: &vapi.ValidationCondition{
 				ValidationType: "vsphere-privileges",
-				ValidationRule: "validation-cluster-dc0-c0",
+				ValidationRule: "validation-vsphere-privileges-cluster-dc0-c0",
 				Message:        fmt.Sprintf("One or more required privileges was not found, or a condition was not met for account: %s", username),
 				Details:        []string{},
 				Failures:       []string{"user: admin2@vsphere.local does not have privilege: VirtualMachine.Config.MagicCarpet on entity type: Cluster with name: DC0_C0"},
