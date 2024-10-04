@@ -158,8 +158,8 @@ github.com/stretchr/testify v1.8.0/go.mod h1:yNjHg4UonilssWZ8iaSj1OCr/vHnekPRkoO
 github.com/stretchr/testify v1.8.1/go.mod h1:w2LPCIKwWwSfY2zedu0+kehJoqGctiVI29o6fzry7u4=
 github.com/stretchr/testify v1.9.0 h1:HtqpIVDClZ4nwg75+f6Lvsy/wHu+3BoSGCbBAcpTsTg=
 github.com/stretchr/testify v1.9.0/go.mod h1:r2ic/lqez/lEtzL7wO/rwa5dbSLXVDPFyf8C91i36aY=
-github.com/validator-labs/validator v0.1.11 h1:HB99ia1RlnO6/8rJiMgCnjv/NMotM+zm9+u3PAPrwp0=
-github.com/validator-labs/validator v0.1.11/go.mod h1:UpJHk6dEgbqHCF0Lm+MCOu5PSsydT40FEvvL+4Nlv8U=
+github.com/validator-labs/validator v0.1.12 h1:gUEjEi8OvZkI3/4lx5GgbzKQaDShuU2TnLkJKbF/BnY=
+github.com/validator-labs/validator v0.1.12/go.mod h1:QS/zRKFKoi99aQST9djdNR+U+UCaEh+1V9Bt62BJIfc=
 github.com/vmware/govmomi v0.43.0 h1:7Kg3Bkdly+TrE67BYXzRq7ZrDnn7xqpKX95uEh2f9Go=
 github.com/vmware/govmomi v0.43.0/go.mod h1:IOv5nTXCPqH9qVJAlRuAGffogaLsNs8aF+e7vLgsHJU=
 github.com/x448/float16 v0.8.4 h1:qLwI1I70+NjRFUR3zs1JPUCgaCXSh3SW62uAKT1mSBM=
