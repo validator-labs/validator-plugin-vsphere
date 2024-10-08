@@ -1,5 +1,14 @@
 # Changelog
 
+## [0.1.5](https://github.com/validator-labs/validator-plugin-vsphere/compare/v0.1.4...v0.1.5) (2024-10-08)
+
+
+### Dependency Updates
+
+* **deps:** update golang.org/x/exp digest to 225e2ab ([#381](https://github.com/validator-labs/validator-plugin-vsphere/issues/381)) ([3d0f92f](https://github.com/validator-labs/validator-plugin-vsphere/commit/3d0f92f655c9933e0dc8169090593d46f35bccd8))
+* **deps:** update module github.com/validator-labs/validator to v0.1.12 ([#379](https://github.com/validator-labs/validator-plugin-vsphere/issues/379)) ([25a7177](https://github.com/validator-labs/validator-plugin-vsphere/commit/25a7177bf546cbb2956571dd863391d964903f2a))
+* **deps:** update module github.com/vmware/govmomi to v0.44.0 ([#382](https://github.com/validator-labs/validator-plugin-vsphere/issues/382)) ([0fcb19b](https://github.com/validator-labs/validator-plugin-vsphere/commit/0fcb19b586e0f8084614a06679e71c5395b43c9d))
+
 ## [0.1.4](https://github.com/validator-labs/validator-plugin-vsphere/compare/v0.1.3...v0.1.4) (2024-10-03)
 
 
