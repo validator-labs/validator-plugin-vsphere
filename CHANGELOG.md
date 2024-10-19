@@ -1,5 +1,22 @@
 # Changelog
 
+## [0.1.5](https://github.com/validator-labs/validator-plugin-vsphere/compare/v0.1.4...v0.1.5) (2024-10-19)
+
+
+### Other
+
+* make reviewable ([#386](https://github.com/validator-labs/validator-plugin-vsphere/issues/386)) ([4eb241c](https://github.com/validator-labs/validator-plugin-vsphere/commit/4eb241c7c1c174944a07ce24c9d17c3fcf2b754a))
+
+
+### Dependency Updates
+
+* **deps:** update golang.org/x/exp digest to 225e2ab ([#381](https://github.com/validator-labs/validator-plugin-vsphere/issues/381)) ([3d0f92f](https://github.com/validator-labs/validator-plugin-vsphere/commit/3d0f92f655c9933e0dc8169090593d46f35bccd8))
+* **deps:** update golang.org/x/exp digest to f66d83c ([#385](https://github.com/validator-labs/validator-plugin-vsphere/issues/385)) ([f581088](https://github.com/validator-labs/validator-plugin-vsphere/commit/f58108830b62fc05221a06171d2a440fa81323a0))
+* **deps:** update module github.com/validator-labs/validator to v0.1.12 ([#379](https://github.com/validator-labs/validator-plugin-vsphere/issues/379)) ([25a7177](https://github.com/validator-labs/validator-plugin-vsphere/commit/25a7177bf546cbb2956571dd863391d964903f2a))
+* **deps:** update module github.com/vmware/govmomi to v0.44.0 ([#382](https://github.com/validator-labs/validator-plugin-vsphere/issues/382)) ([0fcb19b](https://github.com/validator-labs/validator-plugin-vsphere/commit/0fcb19b586e0f8084614a06679e71c5395b43c9d))
+* **deps:** update module github.com/vmware/govmomi to v0.44.1 ([#384](https://github.com/validator-labs/validator-plugin-vsphere/issues/384)) ([51a15dc](https://github.com/validator-labs/validator-plugin-vsphere/commit/51a15dcffe3dd3059959c7299e75e2087dff86fa))
+* **deps:** update module sigs.k8s.io/cluster-api to v1.8.4 ([#383](https://github.com/validator-labs/validator-plugin-vsphere/issues/383)) ([fcdb3a2](https://github.com/validator-labs/validator-plugin-vsphere/commit/fcdb3a2488c5e57424ecdca929674a7e161b36d1))
+
 ## [0.1.4](https://github.com/validator-labs/validator-plugin-vsphere/compare/v0.1.3...v0.1.4) (2024-10-03)
 
 
