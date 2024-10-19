@@ -12,7 +12,7 @@ require (
 	github.com/sirupsen/logrus v1.9.3
 	github.com/stretchr/testify v1.9.0
 	github.com/validator-labs/validator v0.1.12
-	github.com/vmware/govmomi v0.44.0
+	github.com/vmware/govmomi v0.44.1
 	golang.org/x/exp v0.0.0-20241009180824-f66d83c29e7c
 	gopkg.in/yaml.v3 v3.0.1
 	k8s.io/api v0.31.1
