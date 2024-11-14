@@ -7,18 +7,18 @@ require (
 	github.com/go-logr/logr v1.4.2
 	github.com/hashicorp/go-version v1.7.0
 	github.com/onsi/ginkgo/v2 v2.21.0
-	github.com/onsi/gomega v1.35.0
+	github.com/onsi/gomega v1.35.1
 	github.com/pkg/errors v0.9.1
 	github.com/sirupsen/logrus v1.9.3
 	github.com/stretchr/testify v1.9.0
 	github.com/validator-labs/validator v0.1.12
-	github.com/vmware/govmomi v0.45.1
+	github.com/vmware/govmomi v0.46.0
 	golang.org/x/exp v0.0.0-20241108190413-2d47ceb2692f
 	gopkg.in/yaml.v3 v3.0.1
 	k8s.io/api v0.31.2
 	k8s.io/apimachinery v0.31.2
 	k8s.io/client-go v0.31.2
-	sigs.k8s.io/cluster-api v1.8.4
+	sigs.k8s.io/cluster-api v1.8.5
 	sigs.k8s.io/controller-runtime v0.19.1
 )
 
