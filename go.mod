@@ -15,9 +15,9 @@ require (
 	github.com/vmware/govmomi v0.46.2
 	golang.org/x/exp v0.0.0-20241108190413-2d47ceb2692f
 	gopkg.in/yaml.v3 v3.0.1
-	k8s.io/api v0.31.2
-	k8s.io/apimachinery v0.31.2
-	k8s.io/client-go v0.31.2
+	k8s.io/api v0.31.3
+	k8s.io/apimachinery v0.31.3
+	k8s.io/client-go v0.31.3
 	sigs.k8s.io/cluster-api v1.8.5
 	sigs.k8s.io/controller-runtime v0.19.1
 )
