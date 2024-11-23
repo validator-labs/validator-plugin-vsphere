@@ -10,7 +10,7 @@ require (
 	github.com/onsi/gomega v1.35.1
 	github.com/pkg/errors v0.9.1
 	github.com/sirupsen/logrus v1.9.3
-	github.com/stretchr/testify v1.9.0
+	github.com/stretchr/testify v1.10.0
 	github.com/validator-labs/validator v0.1.13
 	github.com/vmware/govmomi v0.46.2
 	golang.org/x/exp v0.0.0-20241108190413-2d47ceb2692f
