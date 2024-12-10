@@ -144,6 +144,7 @@ func main() {
 
 	if err = (&controller.VsphereValidatorReconciler{
 		Client: mgr.GetClient(),
+		Log:    ctrl.Log.WithName("controllers").WithName("NetworkValidator"),
 		Scheme: mgr.GetScheme(),
 	}).SetupWithManager(mgr); err != nil {
 		setupLog.Error(err, "unable to create controller", "controller", "VsphereValidator")
