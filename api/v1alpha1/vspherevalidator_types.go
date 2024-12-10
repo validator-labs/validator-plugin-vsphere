@@ -206,8 +206,8 @@ type NodepoolResourceRequirement struct {
 // VsphereValidatorStatus defines the observed state of a vSphere validator.
 type VsphereValidatorStatus struct{}
 
-//+kubebuilder:object:root=true
-//+kubebuilder:subresource:status
+// +kubebuilder:object:root=true
+// +kubebuilder:subresource:status
 
 // VsphereValidator is the Schema for the vspherevalidators API.
 type VsphereValidator struct {
@@ -233,7 +233,7 @@ func (v VsphereValidator) ResultCount() int {
 	return v.Spec.ResultCount()
 }
 
-//+kubebuilder:object:root=true
+// +kubebuilder:object:root=true
 
 // VsphereValidatorList contains a list of vSphere validator.
 type VsphereValidatorList struct {

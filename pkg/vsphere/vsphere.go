@@ -135,7 +135,7 @@ func (v *VCenterDriver) GetFinderWithDatacenter(ctx context.Context, datacenter 
 	if govErr != nil {
 		return nil, "", fmt.Errorf("failed to fetch datacenter: %s. code: %s"+govErr.Error(), http.StatusBadRequest)
 	}
-	//set the datacenter
+	// set the datacenter
 	finder.SetDatacenter(dc)
 
 	return finder, dc.Name(), nil
@@ -191,7 +191,7 @@ func GetOrCreateSession(ctx context.Context, account vcenter.Account, refreshRes
 }
 
 func createGovmomiClientWithKeepAlive(ctx context.Context, sessionKey string, account vcenter.Account) (*govmomi.Client, error) {
-	//get vcenter URL
+	// get vcenter URL
 	vCenterURL, err := getVCenterURL(account)
 	if err != nil {
 		return nil, err
