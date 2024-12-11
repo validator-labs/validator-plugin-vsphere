@@ -3,6 +3,17 @@ entries:
   validator-plugin-vsphere:
   - apiVersion: v2
     appVersion: 0.0.15
+    created: "2024-12-11T00:24:05.773244517Z"
+    description: Perform various vsphere validations (Role Privileges, Region/Zone
+      Tags)
+    digest: 20cbd99a5f89a93d61355944d9c4ed5baffba70ff20e7304f5a597fa4b2ac355
+    name: validator-plugin-vsphere
+    type: application
+    urls:
+    - https://validator-labs.github.io/validator-plugin-vsphere/validator-plugin-vsphere-0.1.5.tgz
+    version: 0.1.5
+  - apiVersion: v2
+    appVersion: 0.0.15
     created: "2024-10-03T22:25:41.166268687Z"
     description: Perform various vsphere validations (Role Privileges, Region/Zone
       Tags)
@@ -419,4 +430,4 @@ entries:
     urls:
     - https://spectrocloud-labs.github.io/validator-plugin-vsphere/validator-plugin-vsphere-0.0.2.tgz
     version: 0.0.2
-generated: "2024-10-03T22:25:41.163895553Z"
+generated: "2024-12-11T00:24:05.772231825Z"
