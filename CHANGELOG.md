@@ -1,5 +1,14 @@
 # Changelog
 
+## [0.1.6](https://github.com/validator-labs/validator-plugin-vsphere/compare/v0.1.5...v0.1.6) (2024-12-11)
+
+
+### Dependency Updates
+
+* **deps:** update all non-major dependencies to v0.31.4 ([#423](https://github.com/validator-labs/validator-plugin-vsphere/issues/423)) ([a549acd](https://github.com/validator-labs/validator-plugin-vsphere/commit/a549acd85120eeb21b416d0856cee74716096c5f))
+* **deps:** update build digest to 5e4aaa9 ([#425](https://github.com/validator-labs/validator-plugin-vsphere/issues/425)) ([fc18a81](https://github.com/validator-labs/validator-plugin-vsphere/commit/fc18a81a8090c14e2fd6e19cedb5b2c7c9ee6ff0))
+* **deps:** update golang.org/x/exp digest to 1829a12 ([#422](https://github.com/validator-labs/validator-plugin-vsphere/issues/422)) ([e030e3e](https://github.com/validator-labs/validator-plugin-vsphere/commit/e030e3e87b5fbfb71c10d0491cdb34ab7202c32a))
+
 ## [0.1.5](https://github.com/validator-labs/validator-plugin-vsphere/compare/v0.1.4...v0.1.5) (2024-12-10)
 
 
