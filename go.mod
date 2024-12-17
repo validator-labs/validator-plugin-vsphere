@@ -13,7 +13,7 @@ require (
 	github.com/stretchr/testify v1.10.0
 	github.com/validator-labs/validator v0.1.14
 	github.com/vmware/govmomi v0.46.2
-	golang.org/x/exp v0.0.0-20241215155358-4a5509556b9e
+	golang.org/x/exp v0.0.0-20241217172543-b2144cdd0a67
 	gopkg.in/yaml.v3 v3.0.1
 	k8s.io/api v0.31.4
 	k8s.io/apimachinery v0.31.4
