@@ -1,5 +1,17 @@
 # Changelog
 
+## [0.1.7](https://github.com/validator-labs/validator-plugin-vsphere/compare/v0.1.6...v0.1.7) (2025-01-16)
+
+
+### Dependency Updates
+
+* **deps:** update build digest to 1af2678 ([#433](https://github.com/validator-labs/validator-plugin-vsphere/issues/433)) ([808d42b](https://github.com/validator-labs/validator-plugin-vsphere/commit/808d42b04dd632454ea8a7991bc1fc3bb1279fab))
+* **deps:** update build digest to 1b51737 ([#435](https://github.com/validator-labs/validator-plugin-vsphere/issues/435)) ([7704fa7](https://github.com/validator-labs/validator-plugin-vsphere/commit/7704fa7f28abbf0f8f9b852d1740880a0af4dcfd))
+* **deps:** update build digest to aa32dd3 ([#429](https://github.com/validator-labs/validator-plugin-vsphere/issues/429)) ([26b4363](https://github.com/validator-labs/validator-plugin-vsphere/commit/26b436354762b7e2432d57f9ed40cfd94314d119))
+* **deps:** update golang.org/x/exp digest to 7588d65 ([#434](https://github.com/validator-labs/validator-plugin-vsphere/issues/434)) ([98b9484](https://github.com/validator-labs/validator-plugin-vsphere/commit/98b9484f49fccfdb94d35c64c987cbedcd6f140a))
+* **deps:** update golang.org/x/exp digest to 7d7fa50 ([#432](https://github.com/validator-labs/validator-plugin-vsphere/issues/432)) ([f9ec4f2](https://github.com/validator-labs/validator-plugin-vsphere/commit/f9ec4f2af49b5082e361a2ccf4b04cfc3e5a80bc))
+* **deps:** update golang.org/x/exp digest to b2144cd ([#430](https://github.com/validator-labs/validator-plugin-vsphere/issues/430)) ([7170237](https://github.com/validator-labs/validator-plugin-vsphere/commit/7170237d4971d75a7340dea30e789cdb745b9846))
+
 ## [0.1.6](https://github.com/validator-labs/validator-plugin-vsphere/compare/v0.1.5...v0.1.6) (2024-12-16)
 
 
