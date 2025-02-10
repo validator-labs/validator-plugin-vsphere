@@ -1,6 +1,6 @@
 module github.com/validator-labs/validator-plugin-vsphere
 
-go 1.22.5
+go 1.23.6
 
 require (
 	emperror.dev/errors v0.8.1
