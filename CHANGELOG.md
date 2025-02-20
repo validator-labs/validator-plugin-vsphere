@@ -1,5 +1,31 @@
 # Changelog
 
+## [0.1.7](https://github.com/validator-labs/validator-plugin-vsphere/compare/v0.1.6...v0.1.7) (2025-02-20)
+
+
+### Other
+
+* bump to go1.23.6 ([#442](https://github.com/validator-labs/validator-plugin-vsphere/issues/442)) ([06520dc](https://github.com/validator-labs/validator-plugin-vsphere/commit/06520dc8bfde7932c118b0e7b92bbb230ed64de9))
+
+
+### Dependency Updates
+
+* **deps:** update build digest to 1af2678 ([#433](https://github.com/validator-labs/validator-plugin-vsphere/issues/433)) ([808d42b](https://github.com/validator-labs/validator-plugin-vsphere/commit/808d42b04dd632454ea8a7991bc1fc3bb1279fab))
+* **deps:** update build digest to 1b51737 ([#435](https://github.com/validator-labs/validator-plugin-vsphere/issues/435)) ([7704fa7](https://github.com/validator-labs/validator-plugin-vsphere/commit/7704fa7f28abbf0f8f9b852d1740880a0af4dcfd))
+* **deps:** update build digest to 2f5dbc3 ([#446](https://github.com/validator-labs/validator-plugin-vsphere/issues/446)) ([b19360a](https://github.com/validator-labs/validator-plugin-vsphere/commit/b19360af13292b523234ed052ab6c46640c168ae))
+* **deps:** update build digest to 3236c04 ([#437](https://github.com/validator-labs/validator-plugin-vsphere/issues/437)) ([3004a3f](https://github.com/validator-labs/validator-plugin-vsphere/commit/3004a3f3bfe22316845058c31ff9e980816ed8e7))
+* **deps:** update build digest to 6a4c752 ([#439](https://github.com/validator-labs/validator-plugin-vsphere/issues/439)) ([3565618](https://github.com/validator-labs/validator-plugin-vsphere/commit/3565618ff04614c4c90d8830ff67bdefe2689305))
+* **deps:** update build digest to 95a81bf ([#444](https://github.com/validator-labs/validator-plugin-vsphere/issues/444)) ([5255d53](https://github.com/validator-labs/validator-plugin-vsphere/commit/5255d53c88d6d7e18ec1410a3d40313da658e318))
+* **deps:** update build digest to aa32dd3 ([#429](https://github.com/validator-labs/validator-plugin-vsphere/issues/429)) ([26b4363](https://github.com/validator-labs/validator-plugin-vsphere/commit/26b436354762b7e2432d57f9ed40cfd94314d119))
+* **deps:** update build digest to b554bf5 ([#436](https://github.com/validator-labs/validator-plugin-vsphere/issues/436)) ([a1b6862](https://github.com/validator-labs/validator-plugin-vsphere/commit/a1b686212332793bcb14309274b38048c2bd41f6))
+* **deps:** update build digest to d7fbb38 ([#438](https://github.com/validator-labs/validator-plugin-vsphere/issues/438)) ([8134b44](https://github.com/validator-labs/validator-plugin-vsphere/commit/8134b4447d9924bcc4798978e9c633c754f41866))
+* **deps:** update golang.org/x/exp digest to 7588d65 ([#434](https://github.com/validator-labs/validator-plugin-vsphere/issues/434)) ([98b9484](https://github.com/validator-labs/validator-plugin-vsphere/commit/98b9484f49fccfdb94d35c64c987cbedcd6f140a))
+* **deps:** update golang.org/x/exp digest to 7d7fa50 ([#432](https://github.com/validator-labs/validator-plugin-vsphere/issues/432)) ([f9ec4f2](https://github.com/validator-labs/validator-plugin-vsphere/commit/f9ec4f2af49b5082e361a2ccf4b04cfc3e5a80bc))
+* **deps:** update golang.org/x/exp digest to 939b2ce ([#441](https://github.com/validator-labs/validator-plugin-vsphere/issues/441)) ([7f365d4](https://github.com/validator-labs/validator-plugin-vsphere/commit/7f365d49d035bf9a7a9ec53dba2c5f102411c6d9))
+* **deps:** update golang.org/x/exp digest to aa4b98e ([#445](https://github.com/validator-labs/validator-plugin-vsphere/issues/445)) ([dfe09f9](https://github.com/validator-labs/validator-plugin-vsphere/commit/dfe09f960ca4340c8095ae15cc3b0b52e02decad))
+* **deps:** update golang.org/x/exp digest to b2144cd ([#430](https://github.com/validator-labs/validator-plugin-vsphere/issues/430)) ([7170237](https://github.com/validator-labs/validator-plugin-vsphere/commit/7170237d4971d75a7340dea30e789cdb745b9846))
+* **deps:** update golang.org/x/exp digest to eff6e97 ([#443](https://github.com/validator-labs/validator-plugin-vsphere/issues/443)) ([300ad1b](https://github.com/validator-labs/validator-plugin-vsphere/commit/300ad1b0ace38f9fe74e7c03a077eea57ebadb32))
+
 ## [0.1.6](https://github.com/validator-labs/validator-plugin-vsphere/compare/v0.1.5...v0.1.6) (2024-12-16)
 
 
