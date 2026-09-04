@@ -4,22 +4,22 @@ go 1.23.6
 
 require (
 	emperror.dev/errors v0.8.1
-	github.com/go-logr/logr v1.4.2
-	github.com/hashicorp/go-version v1.7.0
-	github.com/onsi/ginkgo/v2 v2.22.0
-	github.com/onsi/gomega v1.36.1
+	github.com/go-logr/logr v1.4.4
+	github.com/hashicorp/go-version v1.9.0
+	github.com/onsi/ginkgo/v2 v2.32.1
+	github.com/onsi/gomega v1.43.0
 	github.com/pkg/errors v0.9.1
-	github.com/sirupsen/logrus v1.9.3
-	github.com/stretchr/testify v1.10.0
-	github.com/validator-labs/validator v0.1.14
-	github.com/vmware/govmomi v0.46.2
+	github.com/sirupsen/logrus v1.10.2
+	github.com/stretchr/testify v1.12.1
+	github.com/validator-labs/validator v0.1.16
+	github.com/vmware/govmomi v0.56.0
 	golang.org/x/exp v0.0.0-20250218142911-aa4b98e5adaa
 	gopkg.in/yaml.v3 v3.0.1
-	k8s.io/api v0.31.4
-	k8s.io/apimachinery v0.31.4
-	k8s.io/client-go v0.31.4
-	sigs.k8s.io/cluster-api v1.9.0
-	sigs.k8s.io/controller-runtime v0.19.3
+	k8s.io/api v0.37.0
+	k8s.io/apimachinery v0.37.0
+	k8s.io/client-go v0.37.0
+	sigs.k8s.io/cluster-api v1.14.1
+	sigs.k8s.io/controller-runtime v0.25.0
 )
 
 require (
